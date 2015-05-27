@@ -1,0 +1,14 @@
+# Ignore editor backup files
+*~
+
+# Ignore compiled C++
+*.d
+*.so
+
+# Ignore plots, and root files
+*.root
+*.pdf
+*.png
+*.gif
+*.svg
+

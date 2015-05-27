@@ -44,6 +44,11 @@ namespace tas {
 	const float &genmet_phi() { return cms3.genmet_phi(); }
 	const bool &PassTrackVeto() { return cms3.PassTrackVeto(); }
 	const bool &PassTauVeto() { return cms3.PassTauVeto(); }
+	const float &EA_all_rho() { return cms3.EA_all_rho(); }
+	const float &EA_allcalo_rho() { return cms3.EA_allcalo_rho(); }
+	const float &EA_centralcalo_rho() { return cms3.EA_centralcalo_rho(); }
+	const float &EA_centralchargedpileup_rho() { return cms3.EA_centralchargedpileup_rho(); }
+	const float &EA_centralneutral_rho() { return cms3.EA_centralneutral_rho(); }
 	const bool &lep1_is_mu() { return cms3.lep1_is_mu(); }
 	const bool &lep1_is_el() { return cms3.lep1_is_el(); }
 	const int &lep1_is_fromw() { return cms3.lep1_is_fromw(); }
@@ -55,14 +60,26 @@ namespace tas {
 	const float &lep1_d0err() { return cms3.lep1_d0err(); }
 	const float &lep1_dz() { return cms3.lep1_dz(); }
 	const float &lep1_dzerr() { return cms3.lep1_dzerr(); }
+	const float &lep1_sigmaIEtaEta_fill5x5() { return cms3.lep1_sigmaIEtaEta_fill5x5(); }
+	const float &lep1_dEtaIn() { return cms3.lep1_dEtaIn(); }
+	const float &lep1_dPhiIn() { return cms3.lep1_dPhiIn(); }
+	const float &lep1_hOverE() { return cms3.lep1_hOverE(); }
+	const float &lep1_ooEmooP() { return cms3.lep1_ooEmooP(); }
+	const int &lep1_expectedMissingInnerHits() { return cms3.lep1_expectedMissingInnerHits(); }
+	const bool &lep1_conversionVeto() { return cms3.lep1_conversionVeto(); }
+	const float &lep1_etaSC() { return cms3.lep1_etaSC(); }
+	const float &lep1_ChiSqr() { return cms3.lep1_ChiSqr(); }
+	const float &lep1_chiso() { return cms3.lep1_chiso(); }
+	const float &lep1_nhiso() { return cms3.lep1_nhiso(); }
+	const float &lep1_emiso() { return cms3.lep1_emiso(); }
+	const float &lep1_deltaBeta() { return cms3.lep1_deltaBeta(); }
 	const float &lep1_pfiso04() { return cms3.lep1_pfiso04(); }
 	const float &lep1_pfiso03() { return cms3.lep1_pfiso03(); }
 	const float &lep1_relIso03DB() { return cms3.lep1_relIso03DB(); }
 	const float &lep1_relIso03EA() { return cms3.lep1_relIso03EA(); }
 	const float &lep1_relIso04DB() { return cms3.lep1_relIso04DB(); }
-	const float &lep1_miniRelIso_default() { return cms3.lep1_miniRelIso_default(); }
-	const float &lep1_miniRelIso_noDBeta_pTthresh_0() { return cms3.lep1_miniRelIso_noDBeta_pTthresh_0(); }
-	const float &lep1_miniRelIso_noDBeta_pTthresh_0p5() { return cms3.lep1_miniRelIso_noDBeta_pTthresh_0p5(); }
+	const float &lep1_miniRelIsoDB() { return cms3.lep1_miniRelIsoDB(); }
+	const float &lep1_miniRelIsoEA() { return cms3.lep1_miniRelIsoEA(); }
 	const int &lep1_mcid() { return cms3.lep1_mcid(); }
 	const int &lep1_mcstatus() { return cms3.lep1_mcstatus(); }
 	const bool &lep1_is_eleid_loose() { return cms3.lep1_is_eleid_loose(); }
@@ -93,14 +110,26 @@ namespace tas {
 	const float &lep2_d0err() { return cms3.lep2_d0err(); }
 	const float &lep2_dz() { return cms3.lep2_dz(); }
 	const float &lep2_dzerr() { return cms3.lep2_dzerr(); }
+	const float &lep2_sigmaIEtaEta_fill5x5() { return cms3.lep2_sigmaIEtaEta_fill5x5(); }
+	const float &lep2_dEtaIn() { return cms3.lep2_dEtaIn(); }
+	const float &lep2_dPhiIn() { return cms3.lep2_dPhiIn(); }
+	const float &lep2_hOverE() { return cms3.lep2_hOverE(); }
+	const float &lep2_ooEmooP() { return cms3.lep2_ooEmooP(); }
+	const int &lep2_expectedMissingInnerHits() { return cms3.lep2_expectedMissingInnerHits(); }
+	const bool &lep2_conversionVeto() { return cms3.lep2_conversionVeto(); }
+	const float &lep2_etaSC() { return cms3.lep2_etaSC(); }
+	const float &lep2_ChiSqr() { return cms3.lep2_ChiSqr(); }
+	const float &lep2_chiso() { return cms3.lep2_chiso(); }
+	const float &lep2_nhiso() { return cms3.lep2_nhiso(); }
+	const float &lep2_emiso() { return cms3.lep2_emiso(); }
+	const float &lep2_deltaBeta() { return cms3.lep2_deltaBeta(); }
 	const float &lep2_pfiso04() { return cms3.lep2_pfiso04(); }
 	const float &lep2_pfiso03() { return cms3.lep2_pfiso03(); }
 	const float &lep2_relIso03DB() { return cms3.lep2_relIso03DB(); }
 	const float &lep2_relIso03EA() { return cms3.lep2_relIso03EA(); }
 	const float &lep2_relIso04DB() { return cms3.lep2_relIso04DB(); }
-	const float &lep2_miniRelIso_default() { return cms3.lep2_miniRelIso_default(); }
-	const float &lep2_miniRelIso_noDBeta_pTthresh_0() { return cms3.lep2_miniRelIso_noDBeta_pTthresh_0(); }
-	const float &lep2_miniRelIso_noDBeta_pTthresh_0p5() { return cms3.lep2_miniRelIso_noDBeta_pTthresh_0p5(); }
+	const float &lep2_miniRelIsoDB() { return cms3.lep2_miniRelIsoDB(); }
+	const float &lep2_miniRelIsoEA() { return cms3.lep2_miniRelIsoEA(); }
 	const int &lep2_mcid() { return cms3.lep2_mcid(); }
 	const int &lep2_mcstatus() { return cms3.lep2_mcstatus(); }
 	const bool &lep2_is_eleid_loose() { return cms3.lep2_is_eleid_loose(); }
