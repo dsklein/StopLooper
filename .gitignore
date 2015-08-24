@@ -4,6 +4,7 @@
 # Ignore compiled C++
 *.d
 *.so
+*.pcm
 
 # Ignore plots, and root files
 *.root
