@@ -126,7 +126,7 @@ void makeStack() {
 	  colors.push_back(kOrange+7);
 
 	  // Get the title and subtitle for the plot
-	  TString plotTitle = h_tt2l->GetTitle();
+	  TString plotTitle = bkgs.at(0)->GetTitle();
 	  TString plotSubTitle = "Region: " + regNames.at(j);
 
 
