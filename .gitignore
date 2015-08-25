@@ -13,3 +13,7 @@
 *.gif
 *.svg
 
+#Ignore plotmaking scripts
+PlotMakingTools.h
+dataMCplotMaker.cc
+dataMCplotMaker.h
