@@ -54,8 +54,6 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   TH1D *h_metht[9];
   TH1D *h_dphilw[9];
 
-  int i = 0;
-
   double met_min[9]  = {250., 300., 350., 400.,   250., 300., 350., 400., 500.};
   double met_max[9]  = {300., 350., 400., 99999., 300., 350., 400., 500., 99999.};
   double mt2w_min[9] = {  0.,   0.,   0.,   0.,   200., 200., 200., 200., 200.};
@@ -163,8 +161,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 	  ///////////////////////////////////////////////////////////////
 	  // Special filters to more finely categorize background events
 	  if(      sampleName == "Wb"    && genbs_p4().size() < 1 ) continue;  //Make sure there are b-quarks in the "W+b" events
-	  else if( sampleName == "Wucsd" &&
-			   (/*genqs_p4().size() < 1 || */ genbs_p4().size() > 0) ) continue;  //Make sure there are light quarks and no b-quarks in the "W+ucsd" events
+	  else if( sampleName == "Wucsd" && genbs_p4().size() > 0 ) continue;  //Make sure there are no b-quarks in the "W+ucsd" events
 	  else if( sampleName == "tt2l"  && genlepsfromtop() != 2 ) continue;  //Require 2 leps from top in "tt2l" events
 	  else if( sampleName == "tt1l"  && genlepsfromtop() != 1 ) continue;  //Require 1 lep from top in "tt1l" events
 
@@ -202,12 +199,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 	  yield_lepSel += myLumi*scale1fb();
 
 	  // Track veto
-	  if( sampleName=="ttw" || sampleName=="ttz" ) {  //This is a temporary hack, until we get 25ns ttV samples
-		if( !PassTrackVeto() ) continue;
-	  }
-	  else {
-		if( !PassTrackVeto_v3() ) continue;
-	  }
+	  if( !PassTrackVeto_v3() ) continue;
 	  yield_trkVeto += myLumi*scale1fb();
 
 	  // Tau veto
@@ -269,10 +261,9 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 
 	  int nNusFromZ = 0;
 
-	  for( uint idx=0; idx<gennus_p4().size(); idx++ ) {
-		if( gennus_motherid().at(idx) != 23 ) continue;
-		nNusFromZ++;
-	  }
+	  for( uint idx=0; idx<gennuels_p4().size(); idx++  )  if( gennuels_motherid().at(idx)  == 23 && gennuels_isLastCopy().at(idx)  ) nNusFromZ++;
+	  for( uint idx=0; idx<gennumus_p4().size(); idx++  )  if( gennumus_motherid().at(idx)  == 23 && gennumus_isLastCopy().at(idx)  ) nNusFromZ++;
+	  for( uint idx=0; idx<gennutaus_p4().size(); idx++ )  if( gennutaus_motherid().at(idx) == 23 && gennutaus_isLastCopy().at(idx) ) nNusFromZ++;
 
 
 	  int category = -99;
@@ -331,7 +322,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   printf("Events with MET > 200 GeV:          %10.2f\n", yield_METcut );
   printf("Events with MT > 150 GeV:           %10.2f\n", yield_MTcut );
   printf("Events with min dPhi > 0.8:         %10.2f\n", yield_dPhi );
-  printf("Events with chi2 < 10:              %10.2f\n", yield_chi2 );
+  // printf("Events with chi2 < 10:              %10.2f\n", yield_chi2 );
   printf("Yield after preselection:           %10.2f\n", yield_chi2 );
 
   if ( nEventsChain != nEventsTotal ) {

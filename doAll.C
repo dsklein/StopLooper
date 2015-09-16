@@ -9,7 +9,7 @@
   TFile* outfile = new TFile("plots.root", "RECREATE");
   outfile->Close();
 
-  TString babyPath = "/nfs-7/userdata/stopRun2/StopBabies__CMS3_V07-04-XX/Spring15_25ns_Samples/StopBabyMaker__v7.4.x_v2/Skim__METge30__LEPge1_elPt20_elEta2p1_muPt20_muEta2p1_vetoElPt5_vetoElEta2p4_vetoMuPt5_vetoMuEta2p4__JETge1_jPt30_jEta2p4__20150728/";
+  TString babyPath = "/nfs-7/userdata/stopRun2/StopBabies__CMS3_V07-04-XX/Spring15_25ns_Samples/StopBabyMaker__v7.4.x_v5/Skim__METge30__LEPge1_elPt20_elEta2p1_muPt20_muEta2p1_vetoElPt5_vetoElEta2p4_vetoMuPt5_vetoMuEta2p4__JETge1_jPt30_jEta2p4__20150728/";
 
 
 
@@ -34,11 +34,12 @@
   ScanChain(ch_dy, "dy");
 
   TChain *ch_ttw = new TChain("t");
-  ch_ttw->Add( "/hadoop/cms/store/user/dsklein/stop_batch_babies/rare_72xMod/merged_files/ttwjets.root" );   // Needs a proper baby. Not a default.
+  ch_ttw->Add( babyPath + "TTWJetsToLNu_amcnlo_pythia8_25ns.root" );
   ScanChain(ch_ttw, "ttw", 1);
 
   TChain *ch_ttz = new TChain("t");
-  ch_ttz->Add( "/hadoop/cms/store/user/dsklein/stop_batch_babies/rare_72xMod/merged_files/ttzjets.root" );  // Also needs a proper baby. Not a default.
+  ch_ttz->Add( babyPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns.root" );
+  ch_ttz->Add( babyPath + "TTZToQQ_amcnlo_pythia8_25ns.root" );
   ScanChain(ch_ttz, "ttz", 1);
 
   TChain *ch_stch = new TChain("t");
