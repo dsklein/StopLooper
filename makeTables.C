@@ -9,6 +9,10 @@ void makeTables() {
   TFile* infile = new TFile("plots.root", "READ");
 
   vector<TString> sampleNames;
+  sampleNames.push_back("stop850");
+  sampleNames.push_back("stop650");
+  sampleNames.push_back("stop500");
+  sampleNames.push_back("stop425");
   sampleNames.push_back("tt2l");
   sampleNames.push_back("tt1l");
   sampleNames.push_back("Wb");
@@ -21,6 +25,10 @@ void makeTables() {
   sampleNames.push_back("vv");
 
   vector<TString> printNames;
+  printNames.push_back("T2tt (850, 100)");
+  printNames.push_back("T2tt (650, 325)");
+  printNames.push_back("T2tt (500, 325)");
+  printNames.push_back("T2tt (425, 325)");
   printNames.push_back("$t\\bar{t} \\rightarrow 2\\ell$");
   printNames.push_back("$t\\bar{t} \\rightarrow 1\\ell$");
   printNames.push_back("W+b");
@@ -80,7 +88,7 @@ void makeTables() {
   for( uint i=0; i<sampleNames.size(); i++ ) {
 	// Read in yields and errors from stored histograms
 	TH1D* h_sigRegion = (TH1D*)infile->Get("sregion_" + sampleNames.at(i));
-	h_totals_sregion->Add(h_sigRegion);
+	if( !sampleNames.at(i).Contains("stop") ) h_totals_sregion->Add(h_sigRegion); // If it's not a signal sample, add it to the background totals
 
 	yield_250 = h_sigRegion->GetBinContent( 1 );
 	yield_300 = h_sigRegion->GetBinContent( 2 );
@@ -94,6 +102,7 @@ void makeTables() {
 	// Print LaTeX table line
 	printf("%28s  &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", printNames.at(i).Data(), yield_250, err_250, yield_300, err_300);
 	printf("%8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f  \\\\\n", yield_350, err_350, yield_400, err_400);
+	if( sampleNames.at(i)=="stop425" ) cout << "\\hline" << endl;
   } // end loop over backgrounds
   cout << "\\hline" << endl;
 
@@ -151,7 +160,7 @@ void makeTables() {
   for( uint i=0; i<sampleNames.size(); i++ ) {
 	// Read in yields and errors from stored histograms
 	TH1D* h_sigRegion = (TH1D*)infile->Get("sregion_" + sampleNames.at(i));
-	// h_totals_sregion->Add(h_sigRegion);
+	// h_totals_sregion->Add(h_sigRegion); // already summed up backgrounds in the first table; don't need to repeat
 
 	yield_250 = h_sigRegion->GetBinContent( 5 );
 	yield_300 = h_sigRegion->GetBinContent( 6 );
@@ -167,6 +176,7 @@ void makeTables() {
 	// Print LaTeX table line
 	printf("%28s  &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", printNames.at(i).Data(), yield_250, err_250, yield_300, err_300);
 	printf("%8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f &   %8.3f $\\pm$ %6.3f  \\\\\n", yield_350, err_350, yield_400, err_400, yield_500, err_500);
+	if( sampleNames.at(i)=="stop425" ) cout << "\\hline" << endl;
   } // end loop over backgrounds
   cout << "\\hline" << endl;
 

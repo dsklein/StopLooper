@@ -14,6 +14,7 @@
 #include "TROOT.h"
 #include "TTreeCache.h"
 #include "TVector3.h"
+#include "Math/VectorUtil.h"
 
 // CMS3
 #include "CMS3.cc"
@@ -178,7 +179,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 	  yield_1goodlep += myLumi*scale1fb();
 
 	  // Second lepton veto
-	  if( nvetoleps() > 1 ) continue;
+	  if( nvetoleps() > 1 && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) > 0.01 ) continue;
 	  yield_2lepveto += myLumi*scale1fb();
 
 	  // Must pass lepton selections

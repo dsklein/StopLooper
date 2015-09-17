@@ -11,7 +11,28 @@
 
   TString babyPath = "/nfs-7/userdata/stopRun2/StopBabies__CMS3_V07-04-XX/Spring15_25ns_Samples/StopBabyMaker__v7.4.x_v5/Skim__METge30__LEPge1_elPt20_elEta2p1_muPt20_muEta2p1_vetoElPt5_vetoElEta2p4_vetoMuPt5_vetoMuEta2p4__JETge1_jPt30_jEta2p4__20150728/";
 
+  TString johnPath = "/home/users/jgwood/Stop_1Lepton/phys14Samples_cmssw74x_babyMaker/CMSSW_7_2_0/src/StopAnalysis/StopBabyMaker/";
 
+  // Signal samples
+
+  ch_stop850 = new TChain("t");
+  ch_stop850->Add( johnPath + "stop_850_100.root");
+  ScanChain(ch_stop850, "stop850");
+
+  ch_stop650 = new TChain("t");
+  ch_stop650->Add( johnPath + "stop_650_325.root");
+  ScanChain(ch_stop650, "stop650");
+
+  ch_stop500 = new TChain("t");
+  ch_stop500->Add( johnPath + "stop_500_325.root");
+  ScanChain(ch_stop500, "stop500");
+
+  ch_stop425 = new TChain("t");
+  ch_stop425->Add( johnPath + "stop_425_325.root");
+  ScanChain(ch_stop425, "stop425");
+
+
+  // Background samples
 
   TChain *ch_ttbar = new TChain("t");
   ch_ttbar->Add( babyPath + "ttbar_powheg_pythia8_25ns.root" );
@@ -55,9 +76,21 @@
 
   TChain *ch_vv = new TChain("t");
   ch_vv->Add( babyPath + "WWTo2l2Nu_powheg_25ns.root" );
-  // ch_vv->Add( babyPath + "WWToLNuQQ_powheg_25ns.root" ); // Not a default sample
-  ch_vv->Add( babyPath + "WZ_pythia8_25ns.root" );
-  ch_vv->Add( babyPath + "ZZ_pythia8_25ns.root" );
+  ch_vv->Add( babyPath + "WWToLNuQQ_powheg_25ns.root" ); // Formerly not a default sample
+  // ch_vv->Add( babyPath + "WZ_pythia8_25ns.root" );
+  // ch_vv->Add( babyPath + "ZZ_pythia8_25ns.root" );
+  ch_vv->Add( babyPath + "tZq_ll_4f_amcnlo_pythia8_25ns.root" );
+  ch_vv->Add( babyPath + "tZq_nunu_4f_amcnlo_pythia8_25ns.root" );
+  ch_vv->Add( babyPath + "WWToLNuQQ_powheg_25ns.root" );
+  ch_vv->Add( babyPath + "WZTo3LNu_powheg_pythia8_25ns.root" );
+  ch_vv->Add( babyPath + "WZTo2L2Q_amcnlo_pythia8_25ns.root" );
+  ch_vv->Add( babyPath + "WZTo1Lnu2Q_amcnlo_pythia8_25ns.root" );
+  ch_vv->Add( babyPath + "ZZTo4L_powheg_pythia8_25ns.root" );
+  ch_vv->Add( babyPath + "ZZTo2L2Q_amcnlo_pythia8_25ns.root" );
+  ch_vv->Add( babyPath + "ZZTo2L2Nu_powheg_pythia8_25ns.root" );
+  ch_vv->Add( babyPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns.root" );
+  // ch_vv->Add( babyPath + ".root" );
+  // ch_vv->Add( babyPath + ".root" );
   ScanChain(ch_vv, "vv");
 
 

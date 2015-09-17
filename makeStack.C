@@ -39,38 +39,38 @@ void makeStack() {
   for( uint j=0; j<regNames.size(); j++ ) {
 	for( uint i=0; i<varNames.size(); i++ ) {
 
-	  TString name_tt2l   = varNames.at(i) + "_tt2l_"     + regNames.at(j);
-	  TString name_tt1l   = varNames.at(i) + "_tt1l_"     + regNames.at(j);
-	  TString name_wb     = varNames.at(i) + "_Wb_"       + regNames.at(j);
-	  TString name_wlight = varNames.at(i) + "_Wucsd_"    + regNames.at(j);
-	  TString name_dy     = varNames.at(i) + "_dy_"       + regNames.at(j);
-	  TString name_ttw    = varNames.at(i) + "_ttw_"      + regNames.at(j);
-	  TString name_ttz    = varNames.at(i) + "_ttz_"      + regNames.at(j);
-	  TString name_stst   = varNames.at(i) + "_STstchan_" + regNames.at(j);
-	  TString name_sttw   = varNames.at(i) + "_STtWchan_" + regNames.at(j);
-	  TString name_vv     = varNames.at(i) + "_vv_"       + regNames.at(j);
+	  TString name_tt2l		= varNames.at(i) + "_tt2l_"     + regNames.at(j);
+	  TString name_tt1l		= varNames.at(i) + "_tt1l_"     + regNames.at(j);
+	  TString name_wb		= varNames.at(i) + "_Wb_"       + regNames.at(j);
+	  TString name_wlight	= varNames.at(i) + "_Wucsd_"    + regNames.at(j);
+	  TString name_dy		= varNames.at(i) + "_dy_"       + regNames.at(j);
+	  TString name_ttw		= varNames.at(i) + "_ttw_"      + regNames.at(j);
+	  TString name_ttz		= varNames.at(i) + "_ttz_"      + regNames.at(j);
+	  TString name_stst		= varNames.at(i) + "_STstchan_" + regNames.at(j);
+	  TString name_sttw		= varNames.at(i) + "_STtWchan_" + regNames.at(j);
+	  TString name_vv		= varNames.at(i) + "_vv_"       + regNames.at(j);
 
-	  // TString name_stop850 = varNames.at(i) + "_stop850_" + regNames.at(j);
-	  // TString name_stop650 = varNames.at(i) + "_stop650_" + regNames.at(j);
-	  // TString name_stop500 = varNames.at(i) + "_stop500_" + regNames.at(j);
-	  // TString name_stop425 = varNames.at(i) + "_stop425_" + regNames.at(j);
+	  TString name_stop850	= varNames.at(i) + "_stop850_"  + regNames.at(j);
+	  TString name_stop650	= varNames.at(i) + "_stop650_"  + regNames.at(j);
+	  TString name_stop500	= varNames.at(i) + "_stop500_"  + regNames.at(j);
+	  TString name_stop425	= varNames.at(i) + "_stop425_"  + regNames.at(j);
 
 	  // Extract a histogram for each of the backgrounds and signals
-	  TH1F* h_tt2l   = (TH1F*)plotfile->Get(name_tt2l);
-	  TH1F* h_tt1l   = (TH1F*)plotfile->Get(name_tt1l);
-	  TH1F* h_wb     = (TH1F*)plotfile->Get(name_wb);
-	  TH1F* h_wlight = (TH1F*)plotfile->Get(name_wlight);
-	  TH1F* h_dy     = (TH1F*)plotfile->Get(name_dy);
-	  TH1F* h_ttw    = (TH1F*)plotfile->Get(name_ttw);
-	  TH1F* h_ttz    = (TH1F*)plotfile->Get(name_ttz);
-	  TH1F* h_stst   = (TH1F*)plotfile->Get(name_stst);
-	  TH1F* h_sttw   = (TH1F*)plotfile->Get(name_sttw);
-	  TH1F* h_vv     = (TH1F*)plotfile->Get(name_vv);
+	  TH1F* h_tt2l		= (TH1F*)plotfile->Get(name_tt2l);
+	  TH1F* h_tt1l		= (TH1F*)plotfile->Get(name_tt1l);
+	  TH1F* h_wb		= (TH1F*)plotfile->Get(name_wb);
+	  TH1F* h_wlight	= (TH1F*)plotfile->Get(name_wlight);
+	  TH1F* h_dy		= (TH1F*)plotfile->Get(name_dy);
+	  TH1F* h_ttw		= (TH1F*)plotfile->Get(name_ttw);
+	  TH1F* h_ttz		= (TH1F*)plotfile->Get(name_ttz);
+	  TH1F* h_stst		= (TH1F*)plotfile->Get(name_stst);
+	  TH1F* h_sttw		= (TH1F*)plotfile->Get(name_sttw);
+	  TH1F* h_vv		= (TH1F*)plotfile->Get(name_vv);
 
-	  // TH1F* h_stop850 = (TH1F*)plotfile->Get(name_stop850);
-	  // TH1F* h_stop650 = (TH1F*)plotfile->Get(name_stop650);
-	  // TH1F* h_stop500 = (TH1F*)plotfile->Get(name_stop500);
-	  // TH1F* h_stop425 = (TH1F*)plotfile->Get(name_stop425);
+	  TH1F* h_stop850	= (TH1F*)plotfile->Get(name_stop850);
+	  TH1F* h_stop650	= (TH1F*)plotfile->Get(name_stop650);
+	  TH1F* h_stop500	= (TH1F*)plotfile->Get(name_stop500);
+	  TH1F* h_stop425	= (TH1F*)plotfile->Get(name_stop425);
 
 	  TH1F* nullData = new TH1F("", "", 1, 0, 1);
 
@@ -88,10 +88,10 @@ void makeStack() {
 	  bkgs.push_back(h_vv);
 
 	  vector<TH1F*> sigs;
-	  // sigs.push_back(h_stop850);
-	  // sigs.push_back(h_stop650);
-	  // sigs.push_back(h_stop500);
-	  // sigs.push_back(h_stop425);
+	  sigs.push_back(h_stop850);
+	  sigs.push_back(h_stop650);
+	  sigs.push_back(h_stop500);
+	  sigs.push_back(h_stop425);
 
 	  // Make vectors of titles for backgrounds and signals
 	  vector<string> bkg_titles;
@@ -107,10 +107,10 @@ void makeStack() {
 	  bkg_titles.push_back("Diboson");
 
 	  vector<string> sig_titles;
-	  // sig_titles.push_back("stop-850-100");
-	  // sig_titles.push_back("stop-650-325");
-	  // sig_titles.push_back("stop-500-325");
-	  // sig_titles.push_back("stop-425-325");
+	  sig_titles.push_back("stop-850-100");
+	  sig_titles.push_back("stop-650-325");
+	  sig_titles.push_back("stop-500-325");
+	  sig_titles.push_back("stop-425-325");
 
 	  // Make a vector of colors for the backgrounds and signals
 	  vector<short int> colors;
@@ -124,6 +124,7 @@ void makeStack() {
 	  colors.push_back(kGreen+3);
 	  colors.push_back(kMagenta+3);
 	  colors.push_back(kOrange+7);
+	  // Need some more colors!
 
 	  // Get the title and subtitle for the plot
 	  TString plotTitle = bkgs.at(0)->GetTitle();
