@@ -218,7 +218,8 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 		if( ak4pfjets_p4().at(idx).pt() <= 30. ) continue;
 		if( fabs(ak4pfjets_p4().at(idx).eta()) >= 2.4 ) continue;
 		if( !ak4pfjets_loose_pfid().at(idx) ) continue;
-		if( ak4pfjets_CSV().at(idx) < 0.890 ) continue;
+		if(        TString(sampleName).Contains("stop")  && ak4pfjets_CSV().at(idx) < 0.814 ) continue; // Different CSV cut for phys14 signal samples
+		else if( !(TString(sampleName).Contains("stop")) && ak4pfjets_CSV().at(idx) < 0.890 ) continue;
 		nbtags++;
 	  }
 	  if( nbtags < 1 ) continue;
