@@ -67,7 +67,7 @@ void makeTables() {
   for( int i=0; i<9; i++ ) {
 	h_bgtype[i] = (TH1D*)infile->Get( "bkgtype_" + sampleNames.at(0) + "_" + regionNames.at(i) )->Clone("bgtype_"+regionNames.at(i));
 	h_bgtype[i]->Reset();
-	for( int j=0; j<10; j++ ) h_bgtype[i]->Add( (TH1D*)infile->Get("bkgtype_"+sampleNames.at(j)+"_"+regionNames.at(i)) );
+	for( uint j=4; j<sampleNames.size(); j++ ) h_bgtype[i]->Add( (TH1D*)infile->Get("bkgtype_"+sampleNames.at(j)+"_"+regionNames.at(i)) );
   }
 
 
