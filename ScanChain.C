@@ -66,15 +66,15 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 
 	h_bgtype[i]   = new TH1D( Form("bkgtype_%s_%s",   sampleName.c_str(), regNames[i].c_str()), "Yield by background type", 4, 0.5, 4.5);
 
-	h_mt[i]       = new TH1D( Form( "mt_%s_%s"      , sampleName.c_str(), regNames[i].c_str()),	"Transverse mass",			50, 100, 600);
+	h_mt[i]       = new TH1D( Form( "mt_%s_%s"      , sampleName.c_str(), regNames[i].c_str()),	"Transverse mass",			80, 0, 800);
 	h_met[i]      = new TH1D( Form( "met_%s_%s"     , sampleName.c_str(), regNames[i].c_str()),	"MET",						50, 0, 1000);
 	h_mt2w[i]     = new TH1D( Form( "mt2w_%s_%s"    , sampleName.c_str(), regNames[i].c_str()),	"MT2W",						50, 0, 500);
 	h_chi2[i]     = new TH1D( Form( "chi2_%s_%s"    , sampleName.c_str(), regNames[i].c_str()),	"Hadronic #chi^{2}",		50, 0, 15);
 	h_htratio[i]  = new TH1D( Form( "htratio_%s_%s" , sampleName.c_str(), regNames[i].c_str()),	"H_{T} ratio",				50, 0, 1);
 	h_mindphi[i]  = new TH1D( Form( "mindphi_%s_%s" , sampleName.c_str(), regNames[i].c_str()),	"min #Delta#phi(j12,MET)",	50, 0, 4);
-	h_ptb1[i]     = new TH1D( Form( "ptb1_%s_%s"    , sampleName.c_str(), regNames[i].c_str()),	"p_{T} (b1)",				50, 0, 800);
+	h_ptb1[i]     = new TH1D( Form( "ptb1_%s_%s"    , sampleName.c_str(), regNames[i].c_str()),	"p_{T} (b1)",				100, 0, 500);
 	h_drlb1[i]    = new TH1D( Form( "drlb1_%s_%s"   , sampleName.c_str(), regNames[i].c_str()),	"#DeltaR (lep, b1)",		50, 0, 5);
-	h_ptlep[i]    = new TH1D( Form( "ptlep_%s_%s"   , sampleName.c_str(), regNames[i].c_str()),	"p_{T} (lep)",				50, 0, 800);
+	h_ptlep[i]    = new TH1D( Form( "ptlep_%s_%s"   , sampleName.c_str(), regNames[i].c_str()),	"p_{T} (lep)",				100, 0, 500);
 	h_metht[i]    = new TH1D( Form( "metht_%s_%s"   , sampleName.c_str(), regNames[i].c_str()),	"MET/sqrt(HT)",				50, 0, 100);
 	h_dphilw[i]   = new TH1D( Form( "dphilw_%s_%s"  , sampleName.c_str(), regNames[i].c_str()),	"#Delta#phi (lep,W)",		50, 0, 3.5);
 
@@ -190,7 +190,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 		if( lep1_miniRelIsoDB() >= 0.1 ) continue;
 	  }
 	  else if( lep1_is_mu() ) {
-		if( lep1_pt() < 30. ) continue;
+		if( lep1_pt() <= 30. ) continue;
 		if( fabs(lep1_eta()) >= 2.1 ) continue;
 		if( !lep1_is_muoid_medium() ) continue;
 		if( fabs(lep1_d0()) >= 0.02 ) continue;
@@ -215,8 +215,8 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 	  // if( ngoodbtags() < 1 ) continue;
 	  int nbtags = 0;
 	  for( uint idx=0; idx<ak4pfjets_CSV().size(); idx++ ) {
-		if( ak4pfjets_p4().at(idx).pt() <= 30. ) continue;
-		if( fabs(ak4pfjets_p4().at(idx).eta()) >= 2.4 ) continue;
+		if( ak4pfjets_pt().at(idx) <= 30. ) continue;
+		if( fabs(ak4pfjets_eta().at(idx)) >= 2.4 ) continue;
 		if( !ak4pfjets_loose_pfid().at(idx) ) continue;
 		if(        TString(sampleName).Contains("stop")  && ak4pfjets_CSV().at(idx) < 0.814 ) continue; // Different CSV cut for phys14 signal samples
 		else if( !(TString(sampleName).Contains("stop")) && ak4pfjets_CSV().at(idx) < 0.890 ) continue;
