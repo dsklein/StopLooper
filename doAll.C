@@ -15,64 +15,49 @@
 
   // Signal samples
 
-  ch_stop850 = new TChain("t");
+  TChain *ch_stop850 = new TChain("t");
   ch_stop850->Add( johnPath + "stop_850_100.root");
-  ScanChain(ch_stop850, "stop850");
 
-  ch_stop650 = new TChain("t");
+  TChain *ch_stop650 = new TChain("t");
   ch_stop650->Add( johnPath + "stop_650_325.root");
-  ScanChain(ch_stop650, "stop650");
 
-  ch_stop500 = new TChain("t");
+  TChain *ch_stop500 = new TChain("t");
   ch_stop500->Add( johnPath + "stop_500_325.root");
-  ScanChain(ch_stop500, "stop500");
 
-  ch_stop425 = new TChain("t");
+  TChain *ch_stop425 = new TChain("t");
   ch_stop425->Add( johnPath + "stop_425_325.root");
-  ScanChain(ch_stop425, "stop425");
 
 
   // Background samples
 
   TChain *ch_ttbar = new TChain("t");
   ch_ttbar->Add( babyPath + "ttbar_powheg_pythia8_25ns.root" );
-  ScanChain(ch_ttbar, "tt2l");
-
-  ScanChain(ch_ttbar, "tt1l"); //Same baby, pick out different final state
 
   TChain *ch_wjets = new TChain("t");
   ch_wjets->Add( babyPath + "WJetsToLNu_HT100To200_madgraph_pythia8_25ns.root" );
   ch_wjets->Add( babyPath + "WJetsToLNu_HT200To400_madgraph_pythia8_25ns.root" );
   ch_wjets->Add( babyPath + "WJetsToLNu_HT400To600_madgraph_pythia8_25ns.root" );
   ch_wjets->Add( babyPath + "WJetsToLNu_HT600ToInf_madgraph_pythia8_25ns.root" );
-  ScanChain(ch_wjets, "Wb");
-
-  ScanChain(ch_wjets, "Wucsd"); //Same baby, pick out different final state
 
   TChain *ch_dy = new TChain("t");
   ch_dy->Add( babyPath + "DYJetsToLL_m10To50_amcnlo_pythia8_25ns.root" );
   ch_dy->Add( babyPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns.root" );
-  ScanChain(ch_dy, "dy");
-
-  TChain *ch_ttw = new TChain("t");
-  ch_ttw->Add( babyPath + "TTWJetsToLNu_amcnlo_pythia8_25ns.root" );
-  ScanChain(ch_ttw, "ttw");
-
-  TChain *ch_ttz = new TChain("t");
-  ch_ttz->Add( babyPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns.root" );
-  ch_ttz->Add( babyPath + "TTZToQQ_amcnlo_pythia8_25ns.root" );
-  ScanChain(ch_ttz, "ttz");
 
   TChain *ch_stch = new TChain("t");
   // ch_stch->Add( babyPath + "t_sch_4f_amcnlo_pythia8_25ns.root" ); // Not a default sample
   ch_stch->Add( babyPath + "t_tch_4f_powheg_pythia8_25ns.root" );
   ch_stch->Add( babyPath + "tbar_tch_4f_powheg_pythia8_25ns.root" );
-  ScanChain(ch_stch, "STstchan");
 
   TChain *ch_sttw = new TChain("t");
   ch_sttw->Add( babyPath + "t_tW_5f_powheg_pythia8_25ns.root" );
   ch_sttw->Add( babyPath + "t_tbarW_5f_powheg_pythia8_25ns.root" );
-  ScanChain(ch_sttw, "STtWchan");
+
+  TChain *ch_ttw = new TChain("t");
+  ch_ttw->Add( babyPath + "TTWJetsToLNu_amcnlo_pythia8_25ns.root" );
+
+  TChain *ch_ttz = new TChain("t");
+  ch_ttz->Add( babyPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns.root" );
+  ch_ttz->Add( babyPath + "TTZToQQ_amcnlo_pythia8_25ns.root" );
 
   TChain *ch_vv = new TChain("t");
   ch_vv->Add( babyPath + "WWTo2l2Nu_powheg_25ns.root" );
@@ -89,9 +74,37 @@
   ch_vv->Add( babyPath + "ZZTo2L2Q_amcnlo_pythia8_25ns.root" );
   ch_vv->Add( babyPath + "ZZTo2L2Nu_powheg_pythia8_25ns.root" );
   ch_vv->Add( babyPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns.root" );
-  // ch_vv->Add( babyPath + ".root" );
-  // ch_vv->Add( babyPath + ".root" );
-  ScanChain(ch_vv, "vv");
+
+
+  TChain *ch_singletop = new TChain("t");
+  ch_singletop->Add( ch_stch );
+  ch_singletop->Add( ch_sttw );
+
+  TChain *ch_rare = new TChain("t");
+  ch_rare->Add( ch_ttw );
+  ch_rare->Add( ch_ttz );
+  ch_rare->Add( ch_vv );
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // Run ScanChain
+   ScanChain(ch_stop850, "stop850");
+  ScanChain(ch_stop650, "stop650");
+  ScanChain(ch_stop500, "stop500");
+  ScanChain(ch_stop425, "stop425");  
+  ScanChain(ch_ttbar, "tt2l");
+  ScanChain(ch_ttbar, "tt1l"); //Same baby, pick out different final state
+  // ScanChain(ch_wjets, "Wb");
+  // ScanChain(ch_wjets, "Wucsd"); //Same baby, pick out different final state
+  ScanChain(ch_wjets, "wjets"); //
+  ScanChain(ch_dy, "dy");
+  // ScanChain(ch_stch, "STstchan");
+  // ScanChain(ch_sttw, "STtWchan");
+  ScanChain(ch_singletop, "singletop");
+  // ScanChain(ch_ttw, "ttw");
+  // ScanChain(ch_ttz, "ttz");
+  // ScanChain(ch_vv, "vv");
+  ScanChain(ch_rare, "rare");
 
 
   makeTables();

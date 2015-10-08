@@ -41,14 +41,17 @@ void makeStack() {
 
 	  TString name_tt2l		= varNames.at(i) + "_tt2l_"     + regNames.at(j);
 	  TString name_tt1l		= varNames.at(i) + "_tt1l_"     + regNames.at(j);
-	  TString name_wb		= varNames.at(i) + "_Wb_"       + regNames.at(j);
-	  TString name_wlight	= varNames.at(i) + "_Wucsd_"    + regNames.at(j);
+	  // TString name_wb		= varNames.at(i) + "_Wb_"       + regNames.at(j);
+	  // TString name_wlight	= varNames.at(i) + "_Wucsd_"    + regNames.at(j);
+	  TString name_wjets    = varNames.at(i) + "_wjets_"    + regNames.at(j);
 	  TString name_dy		= varNames.at(i) + "_dy_"       + regNames.at(j);
-	  TString name_ttw		= varNames.at(i) + "_ttw_"      + regNames.at(j);
-	  TString name_ttz		= varNames.at(i) + "_ttz_"      + regNames.at(j);
-	  TString name_stst		= varNames.at(i) + "_STstchan_" + regNames.at(j);
-	  TString name_sttw		= varNames.at(i) + "_STtWchan_" + regNames.at(j);
-	  TString name_vv		= varNames.at(i) + "_vv_"       + regNames.at(j);
+	  // TString name_stst		= varNames.at(i) + "_STstchan_" + regNames.at(j);
+	  // TString name_sttw		= varNames.at(i) + "_STtWchan_" + regNames.at(j);
+	  TString name_singletop= varNames.at(i) + "_singletop_" + regNames.at(j);
+	  // TString name_ttw		= varNames.at(i) + "_ttw_"      + regNames.at(j);
+	  // TString name_ttz		= varNames.at(i) + "_ttz_"      + regNames.at(j);
+	  // TString name_vv		= varNames.at(i) + "_vv_"       + regNames.at(j);
+	  TString name_rare		= varNames.at(i) + "_rare_"     + regNames.at(j);
 
 	  TString name_stop850	= varNames.at(i) + "_stop850_"  + regNames.at(j);
 	  TString name_stop650	= varNames.at(i) + "_stop650_"  + regNames.at(j);
@@ -58,14 +61,18 @@ void makeStack() {
 	  // Extract a histogram for each of the backgrounds and signals
 	  TH1F* h_tt2l		= (TH1F*)plotfile->Get(name_tt2l);
 	  TH1F* h_tt1l		= (TH1F*)plotfile->Get(name_tt1l);
-	  TH1F* h_wb		= (TH1F*)plotfile->Get(name_wb);
-	  TH1F* h_wlight	= (TH1F*)plotfile->Get(name_wlight);
+	  // TH1F* h_wb		= (TH1F*)plotfile->Get(name_wb);
+	  // TH1F* h_wlight	= (TH1F*)plotfile->Get(name_wlight);
+	  TH1F* h_wjets 	= (TH1F*)plotfile->Get(name_wjets);
 	  TH1F* h_dy		= (TH1F*)plotfile->Get(name_dy);
-	  TH1F* h_ttw		= (TH1F*)plotfile->Get(name_ttw);
-	  TH1F* h_ttz		= (TH1F*)plotfile->Get(name_ttz);
-	  TH1F* h_stst		= (TH1F*)plotfile->Get(name_stst);
-	  TH1F* h_sttw		= (TH1F*)plotfile->Get(name_sttw);
-	  TH1F* h_vv		= (TH1F*)plotfile->Get(name_vv);
+	  // TH1F* h_stst		= (TH1F*)plotfile->Get(name_stst);
+	  // TH1F* h_sttw		= (TH1F*)plotfile->Get(name_sttw);
+	  TH1F* h_singletop	= (TH1F*)plotfile->Get(name_singletop);
+	  // TH1F* h_ttw		= (TH1F*)plotfile->Get(name_ttw);
+	  // TH1F* h_ttz		= (TH1F*)plotfile->Get(name_ttz);
+	  // TH1F* h_vv		= (TH1F*)plotfile->Get(name_vv);
+	  TH1F* h_rare		= (TH1F*)plotfile->Get(name_rare);
+
 
 	  TH1F* h_stop850	= (TH1F*)plotfile->Get(name_stop850);
 	  TH1F* h_stop650	= (TH1F*)plotfile->Get(name_stop650);
@@ -78,14 +85,17 @@ void makeStack() {
 	  vector<TH1F*> bkgs;
 	  bkgs.push_back(h_tt2l);
 	  bkgs.push_back(h_tt1l);
-	  bkgs.push_back(h_wb);
-	  bkgs.push_back(h_wlight);
+	  // bkgs.push_back(h_wb);
+	  // bkgs.push_back(h_wlight);
+	  bkgs.push_back(h_wjets);
 	  bkgs.push_back(h_dy);
-	  bkgs.push_back(h_ttw);
-	  bkgs.push_back(h_ttz);
-	  bkgs.push_back(h_stst);
-	  bkgs.push_back(h_sttw);
-	  bkgs.push_back(h_vv);
+	  // bkgs.push_back(h_stst);
+	  // bkgs.push_back(h_sttw);
+	  bkgs.push_back(h_singletop);
+	  // bkgs.push_back(h_ttw);
+	  // bkgs.push_back(h_ttz);
+	  // bkgs.push_back(h_vv);
+	  bkgs.push_back(h_rare);
 
 	  vector<TH1F*> sigs;
 	  sigs.push_back(h_stop850);
@@ -97,14 +107,17 @@ void makeStack() {
 	  vector<string> bkg_titles;
 	  bkg_titles.push_back("ttbar 2l");
 	  bkg_titles.push_back("ttbar 1l");
-	  bkg_titles.push_back("W+b");
-	  bkg_titles.push_back("W+light");
+	  // bkg_titles.push_back("W+b");
+	  // bkg_titles.push_back("W+light");
+	  bkg_titles.push_back("W+jets");
 	  bkg_titles.push_back("Drell-Yan");
-	  bkg_titles.push_back("ttW");
-	  bkg_titles.push_back("ttZ");
-	  bkg_titles.push_back("Single top, s/t-channels");
-	  bkg_titles.push_back("Single top, tW channel");
-	  bkg_titles.push_back("Diboson");
+	  // bkg_titles.push_back("Single top, s/t-channels");
+	  // bkg_titles.push_back("Single top, tW channel");
+	  bkg_titles.push_back("Single top");
+	  // bkg_titles.push_back("ttW");
+	  // bkg_titles.push_back("ttZ");
+	  // bkg_titles.push_back("Diboson");
+	  bkg_titles.push_back("Rare");
 
 	  vector<string> sig_titles;
 	  sig_titles.push_back("stop-850-100");
