@@ -56,12 +56,12 @@
 
   TChain *ch_ttw = new TChain("t");
   ch_ttw->Add( babyPath + "TTWJetsToLNu_amcnlo_pythia8_25ns.root" );
-  ScanChain(ch_ttw, "ttw", 1);
+  ScanChain(ch_ttw, "ttw");
 
   TChain *ch_ttz = new TChain("t");
   ch_ttz->Add( babyPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns.root" );
   ch_ttz->Add( babyPath + "TTZToQQ_amcnlo_pythia8_25ns.root" );
-  ScanChain(ch_ttz, "ttz", 1);
+  ScanChain(ch_ttz, "ttz");
 
   TChain *ch_stch = new TChain("t");
   // ch_stch->Add( babyPath + "t_sch_4f_amcnlo_pythia8_25ns.root" ); // Not a default sample
