@@ -109,7 +109,6 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   float yield_1goodlep = 0;
   float yield_2lepveto = 0;
   float yield_lepSel = 0;
-  // float yield_lepIso = 0;
   float yield_trkVeto = 0;
   float yield_tauVeto = 0;
   float yield_4jets = 0;
@@ -118,6 +117,20 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   float yield_MTcut = 0;
   float yield_dPhi = 0;
   float yield_chi2 = 0;
+
+  int yGen_total = 0;
+  int yGen_vtx = 0;
+  int yGen_1goodlep = 0;
+  int yGen_2lepveto = 0;
+  int yGen_lepSel = 0;
+  int yGen_trkVeto = 0;
+  int yGen_tauVeto = 0;
+  int yGen_4jets = 0;
+  int yGen_1bjet = 0;
+  int yGen_METcut = 0;
+  int yGen_MTcut = 0;
+  int yGen_dPhi = 0;
+  int yGen_chi2 = 0;
 
 
   /////////////////////////////////////////////////////////////////////
@@ -169,18 +182,22 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 
 	  // Count the number of events processed
 	  yield_total += myLumi*scale1fb();
+	  yGen_total++;
 
 	  // First vertex must be good
 	  if( firstGoodVtxIdx() != 0 ) continue;
 	  yield_vtx += myLumi*scale1fb();
+	  yGen_vtx++;
 
 	  // Must have exactly 1 good lepton
 	  if( ngoodleps() != 1 ) continue;
 	  yield_1goodlep += myLumi*scale1fb();
+	  yGen_1goodlep++;
 
 	  // Second lepton veto
 	  if( nvetoleps() > 1 && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) > 0.01 ) continue;
 	  yield_2lepveto += myLumi*scale1fb();
+	  yGen_2lepveto++;
 
 	  // Must pass lepton selections
 	  if( lep1_is_el() ) {
@@ -198,18 +215,22 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 		if( lep1_miniRelIsoDB() >= 0.2 ) continue;
 	  }
 	  yield_lepSel += myLumi*scale1fb();
+	  yGen_lepSel++;
 
 	  // Track veto
 	  if( !PassTrackVeto_v3() ) continue;
 	  yield_trkVeto += myLumi*scale1fb();
+	  yGen_trkVeto++;
 
 	  // Tau veto
 	  if( !PassTauVeto() ) continue;
 	  yield_tauVeto += myLumi*scale1fb();
+	  yGen_tauVeto++;
 
 	  // 4-jet requirement
 	  if( ngoodjets() < 4 ) continue;
 	  yield_4jets += myLumi*scale1fb();
+	  yGen_4jets++;
 
 	  // B-tag requirement
 	  // if( ngoodbtags() < 1 ) continue;
@@ -224,22 +245,27 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 	  }
 	  if( nbtags < 1 ) continue;
 	  yield_1bjet += myLumi*scale1fb();
+	  yGen_1bjet++;
 
 	  // Baseline MET cut
 	  if( pfmet() <= 200. ) continue;
 	  yield_METcut += myLumi*scale1fb();
+	  yGen_METcut++;
 
 	  // MT cut
 	  if( mt_met_lep() <= 150. ) continue;
 	  yield_MTcut += myLumi*scale1fb();
+	  yGen_MTcut++;
 
 	  // Min delta-phi between MET and j1/j2
 	  if( mindphi_met_j1_j2() <= 0.8 ) continue;
 	  yield_dPhi += myLumi*scale1fb();
+	  yGen_dPhi++;
 
 	  // Chi^2 cut
 	  // if( hadronic_top_chi2() >= 10. ) continue;
 	  yield_chi2 += myLumi*scale1fb();
+	  yGen_chi2++;
 
 
 	  //////////////////////////////////////////////////////////
@@ -311,21 +337,20 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 
   cout << "Cutflow yields:" << endl;
 
-  printf("Total number of events:             %10.2f\n", yield_total );
-  printf("Events with 1st vertex good:        %10.2f\n", yield_vtx );
-  printf("Events with at least 1 good lepton: %10.2f\n", yield_1goodlep );
-  printf("Events passing second lepton veto:  %10.2f\n", yield_2lepveto );
-  printf("Events passing lepton selection:    %10.2f\n", yield_lepSel );
-  // printf("Events passing lepton isolation:    %10.2f\n", yield_lepIso );
-  printf("Events passing track veto:          %10.2f\n", yield_trkVeto );
-  printf("Events passing tau veto:            %10.2f\n", yield_tauVeto );
-  printf("Events with at least 4 jets:        %10.2f\n", yield_4jets );
-  printf("Events with at least 1 b-tag:       %10.2f\n", yield_1bjet );
-  printf("Events with MET > 200 GeV:          %10.2f\n", yield_METcut );
-  printf("Events with MT > 150 GeV:           %10.2f\n", yield_MTcut );
-  printf("Events with min dPhi > 0.8:         %10.2f\n", yield_dPhi );
-  // printf("Events with chi2 < 10:              %10.2f\n", yield_chi2 );
-  printf("Yield after preselection:           %10.2f\n", yield_chi2 );
+  printf("Total number of events:             %10.2f %9i\n", yield_total	, yGen_total		);
+  printf("Events with 1st vertex good:        %10.2f %9i\n", yield_vtx		, yGen_vtx			);
+  printf("Events with at least 1 good lepton: %10.2f %9i\n", yield_1goodlep	, yGen_1goodlep		);
+  printf("Events passing second lepton veto:  %10.2f %9i\n", yield_2lepveto	, yGen_2lepveto		);
+  printf("Events passing lepton selection:    %10.2f %9i\n", yield_lepSel	, yGen_lepSel		);
+  printf("Events passing track veto:          %10.2f %9i\n", yield_trkVeto	, yGen_trkVeto		);
+  printf("Events passing tau veto:            %10.2f %9i\n", yield_tauVeto	, yGen_tauVeto		);
+  printf("Events with at least 4 jets:        %10.2f %9i\n", yield_4jets	, yGen_4jets		);
+  printf("Events with at least 1 b-tag:       %10.2f %9i\n", yield_1bjet	, yGen_1bjet		);
+  printf("Events with MET > 200 GeV:          %10.2f %9i\n", yield_METcut	, yGen_METcut		);
+  printf("Events with MT > 150 GeV:           %10.2f %9i\n", yield_MTcut	, yGen_MTcut		);
+  printf("Events with min dPhi > 0.8:         %10.2f %9i\n", yield_dPhi		, yGen_dPhi			);
+  // printf("Events with chi2 < 10:              %10.2f %9i\n", yield_chi2 	, yGen_chi2 		);
+  printf("Yield after preselection:           %10.2f %9i\n", yield_chi2		, yGen_chi2			);
 
   if ( nEventsChain != nEventsTotal ) {
     cout << Form( "ERROR: number of events from files (%d) is not equal to total number of events (%d)", nEventsChain, nEventsTotal ) << endl;
