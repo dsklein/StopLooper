@@ -3,6 +3,7 @@
 
 # Ignore compiled C++
 *.d
+*.o
 *.so
 *.pcm
 

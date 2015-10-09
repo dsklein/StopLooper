@@ -54,6 +54,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   TH1D *h_ptlep[9];
   TH1D *h_metht[9];
   TH1D *h_dphilw[9];
+  TH1D *h_njets[9];
 
   double met_min[9]  = {250., 300., 350., 400.,   250., 300., 350., 400., 500.};
   double met_max[9]  = {300., 350., 400., 99999., 300., 350., 400., 500., 99999.};
@@ -77,6 +78,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 	h_ptlep[i]    = new TH1D( Form( "ptlep_%s_%s"   , sampleName.c_str(), regNames[i].c_str()),	"p_{T} (lep)",				100, 0, 500);
 	h_metht[i]    = new TH1D( Form( "metht_%s_%s"   , sampleName.c_str(), regNames[i].c_str()),	"MET/sqrt(HT)",				50, 0, 100);
 	h_dphilw[i]   = new TH1D( Form( "dphilw_%s_%s"  , sampleName.c_str(), regNames[i].c_str()),	"#Delta#phi (lep,W)",		50, 0, 3.5);
+	h_njets[i]    = new TH1D( Form( "njets_%s_%s"   , sampleName.c_str(), regNames[i].c_str()), "Number of jets",           16, -0.5, 15.5);
 
 	h_bgtype[i]->SetDirectory(rootdir);
 
@@ -91,6 +93,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 	h_ptlep[i]->SetDirectory(rootdir);
 	h_metht[i]->SetDirectory(rootdir);
 	h_dphilw[i]->SetDirectory(rootdir);
+	h_njets[i]->SetDirectory(rootdir);
 
 	TAxis* axis = h_bgtype[i]->GetXaxis();
 	axis->SetBinLabel( 1, "1lep" );
@@ -321,6 +324,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 		h_ptlep[i]->Fill(   lep1_pt(),					myLumi*scale1fb() );
 		h_metht[i]->Fill(   MET_over_sqrtHT(),			myLumi*scale1fb() );
 		h_dphilw[i]->Fill(  dphi_Wlep(),				myLumi*scale1fb() );
+		h_njets[i]->Fill(   ngoodjets(),                myLumi*scale1fb() );
 
 		h_sigRegion->Fill( float(i+1),                  myLumi*scale1fb() );
 	  }
@@ -373,6 +377,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 	h_ptlep[j]->Write();
 	h_metht[j]->Write();
 	h_dphilw[j]->Write();
+	h_njets[j]->Write();
   }
   h_sigRegion->Write();
 
@@ -391,6 +396,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 	h_ptlep[j]->Delete();
 	h_metht[j]->Delete();
 	h_dphilw[j]->Delete();
+	h_njets[j]->Delete();
   }
   h_sigRegion->Delete();
 
