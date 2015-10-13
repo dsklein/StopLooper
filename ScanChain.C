@@ -215,7 +215,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 		if( !lep1_is_muoid_medium() ) continue;
 		if( fabs(lep1_d0()) >= 0.02 ) continue;
 		if( fabs(lep1_dz()) >= 0.1  ) continue;
-		if( lep1_miniRelIsoDB() >= 0.2 ) continue;
+		if( lep1_miniRelIsoDB() >= 0.1 ) continue;
 	  }
 	  yield_lepSel += myLumi*scale1fb();
 	  yGen_lepSel++;
