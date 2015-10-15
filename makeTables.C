@@ -15,13 +15,13 @@ void makeTables() {
   sampleNames.push_back("stop425");
   sampleNames.push_back("tt2l");
   sampleNames.push_back("tt1l");
+  // sampleNames.push_back("STstchan");
+  // sampleNames.push_back("STtWchan");
+  sampleNames.push_back("singletop");
   // sampleNames.push_back("Wb");
   // sampleNames.push_back("Wucsd");
   sampleNames.push_back("wjets");
   sampleNames.push_back("dy");
-  // sampleNames.push_back("STstchan");
-  // sampleNames.push_back("STtWchan");
-  sampleNames.push_back("singletop");
   // sampleNames.push_back("ttw");
   // sampleNames.push_back("ttz");
   // sampleNames.push_back("vv");
@@ -34,13 +34,13 @@ void makeTables() {
   printNames.push_back("T2tt (425, 325)");
   printNames.push_back("$t\\bar{t} \\rightarrow 2\\ell$");
   printNames.push_back("$t\\bar{t} \\rightarrow 1\\ell$");
+  // printNames.push_back("Single top, s/t-channels");
+  // printNames.push_back("Single top, tW channel");
+  printNames.push_back("Single top");
   // printNames.push_back("W+b");
   // printNames.push_back("W+light");
   printNames.push_back("W+Jets");
   printNames.push_back("Drell-Yan");
-  // printNames.push_back("Single top, s/t-channels");
-  // printNames.push_back("Single top, tW channel");
-  printNames.push_back("Single top");
   // printNames.push_back("ttW");
   // printNames.push_back("ttZ");
   // printNames.push_back("Diboson");
@@ -69,8 +69,8 @@ void makeTables() {
 
   // Also load in the histograms that store the decay channels
   // Loop 'i' is over signal regions; loop 'j' is over backgrounds
-  TH1D* h_bgtype[9];
-  for( int i=0; i<9; i++ ) {
+  TH1D* h_bgtype[regionNames.size()];
+  for( uint i=0; i<regionNames.size(); i++ ) {
 	h_bgtype[i] = (TH1D*)infile->Get( "bkgtype_" + sampleNames.at(0) + "_" + regionNames.at(i) )->Clone("bgtype_"+regionNames.at(i));
 	h_bgtype[i]->Reset();
 	for( uint j=4; j<sampleNames.size(); j++ ) h_bgtype[i]->Add( (TH1D*)infile->Get("bkgtype_"+sampleNames.at(j)+"_"+regionNames.at(i)) );

@@ -360,6 +360,21 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
     cout << Form( "ERROR: number of events from files (%d) is not equal to total number of events (%d)", nEventsChain, nEventsTotal ) << endl;
   }
 
+  // Zero any negative values in the yield- or bkg type-histograms
+  for( int j=0; j<9; j++ ) {
+	if( h_sigRegion->GetBinContent(j) < 0.0 ) {
+	  h_sigRegion->SetBinContent(j, 0.);
+	  h_sigRegion->SetBinError(j, 0.);
+	}
+	for( int k=1; k<= h_bgtype[j]->GetNbinsX(); k++ ) {
+	  if( h_bgtype[j]->GetBinContent(k) < 0.0 ) {
+		h_bgtype[j]->SetBinContent(k, 0.);
+		h_bgtype[j]->SetBinError(k, 0.);
+	  }
+	}
+  }
+
+
   // Store histograms and clean them up
   TFile* plotfile = new TFile("plots.root", "UPDATE");
   plotfile->cd();
