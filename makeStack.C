@@ -24,6 +24,7 @@ void makeStack() {
   varNames.push_back("dphilw" );  axisLabels.push_back("#Delta#phi");
   varNames.push_back("bkgtype");  axisLabels.push_back("Background type");
   varNames.push_back("njets"  );  axisLabels.push_back("Number of jets");
+  varNames.push_back("bkgtype");  axisLabels.push_back("Background type");
   
   vector<TString> regNames; //signal regions
   regNames.push_back("low250");
