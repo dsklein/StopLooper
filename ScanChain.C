@@ -66,7 +66,6 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   for( int i=0; i<9; i++ ) {
 
 	h_bgtype[i]   = new TH1D( Form("bkgtype_%s_%s",   sampleName.c_str(), regNames[i].c_str()), "Yield by background type", 4, 0.5, 4.5);
-
 	h_mt[i]       = new TH1D( Form( "mt_%s_%s"      , sampleName.c_str(), regNames[i].c_str()),	"Transverse mass",			80, 0, 800);
 	h_met[i]      = new TH1D( Form( "met_%s_%s"     , sampleName.c_str(), regNames[i].c_str()),	"MET",						50, 0, 1000);
 	h_mt2w[i]     = new TH1D( Form( "mt2w_%s_%s"    , sampleName.c_str(), regNames[i].c_str()),	"MT2W",						50, 0, 500);
@@ -276,18 +275,28 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 
 	  int nPromptLeps = 0;
 
-	  for( uint idx=0; idx<genels_p4().size(); idx++ ) {
-		if( abs(genels_motherid().at(idx)) == 15 ) continue;  // Skip leptons from tau decay
-		nPromptLeps++;
-	  }
+	  if( !TString(sampleName).Contains("stop") ) {
 
-	  for( uint idx=0; idx<genmus_p4().size(); idx++ ) {
-		if( abs(genmus_motherid().at(idx)) == 15 ) continue;  // Skip leptons from tau decay
-		nPromptLeps++;
-	  }
+		for( uint idx=0; idx<genels_p4().size(); idx++ ) {
+		  if( abs(genels_motherid().at(idx)) == 15 ) continue;  // Skip leptons from tau decay
+		  if( !genels_fromHardProcessFinalState().at(idx) ) continue;
+		  if( !genels_isLastCopy().at(idx) ) continue;
+		  nPromptLeps++;
+		}
 
-	  for( uint idx=0; idx<gentaus_p4().size(); idx++ ) {
-		nPromptLeps++;
+		for( uint idx=0; idx<genmus_p4().size(); idx++ ) {
+		  if( abs(genmus_motherid().at(idx)) == 15 ) continue;  // Skip leptons from tau decay
+		  if( !genmus_fromHardProcessFinalState().at(idx) ) continue;
+		  if( !genmus_isLastCopy().at(idx) ) continue;
+		  nPromptLeps++;
+		}
+
+		for( uint idx=0; idx<gentaus_p4().size(); idx++ ) {
+		  if( !gentaus_fromHardProcessDecayed().at(idx) ) continue;
+		  if( !gentaus_isLastCopy().at(idx) ) continue;
+		  nPromptLeps++;
+		}
+
 	  }
 
 	  int nNusFromZ = 0;
@@ -298,7 +307,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 
 
 	  int category = -99;
-	  if(      nNusFromZ >= 2 )   category = 3;   // Z to nu nu
+	  if(      nNusFromZ >= 2   ) category = 3;   // Z to nu nu
 	  else if( nPromptLeps >= 2 ) category = 2;   // 2 or more leptons
 	  else if( nPromptLeps == 1 ) category = 1;   // 1 lepton
 	  else                        category = 4;   // Other
@@ -339,7 +348,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
     delete file;
   }
 
-  cout << "Cutflow yields:" << endl;
+  cout << "Cutflow yields:                        (yield)  (gen evts)" << endl;
 
   printf("Total number of events:             %10.2f %9i\n", yield_total	, yGen_total		);
   printf("Events with 1st vertex good:        %10.2f %9i\n", yield_vtx		, yGen_vtx			);
@@ -360,20 +369,26 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
     cout << Form( "ERROR: number of events from files (%d) is not equal to total number of events (%d)", nEventsChain, nEventsTotal ) << endl;
   }
 
-  // Zero any negative values in the yield- or bkg type-histograms
+  // Zero negative values in each signal region
   for( int j=0; j<9; j++ ) {
-	if( h_sigRegion->GetBinContent(j) < 0.0 ) {
-	  h_sigRegion->SetBinContent(j, 0.);
-	  h_sigRegion->SetBinError(j, 0.);
-	}
+	bool negsFound = false;
+
+	// First zero any decay modes with negative yields
 	for( int k=1; k<= h_bgtype[j]->GetNbinsX(); k++ ) {
 	  if( h_bgtype[j]->GetBinContent(k) < 0.0 ) {
 		h_bgtype[j]->SetBinContent(k, 0.);
 		h_bgtype[j]->SetBinError(k, 0.);
+		negsFound = true;
 	  }
 	}
+	// If any negative yields were found in any decay mode, recalculate the total yield
+	if( negsFound ) {
+	  double newYield, newErr;
+	  newYield = h_bgtype[j]->IntegralAndError( 0, -1, newErr );
+	  h_sigRegion->SetBinContent(j+1, newYield);
+	  h_sigRegion->SetBinError(j+1, newErr);
+	}
   }
-
 
   // Store histograms and clean them up
   TFile* plotfile = new TFile("plots.root", "UPDATE");
