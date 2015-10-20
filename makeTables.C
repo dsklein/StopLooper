@@ -16,47 +16,13 @@ void makeTables( analysis* myAnalysis ) {
   vector<TString> sampleNames = myAnalysis->GetSignalNamesStorage();
   vector<TString> bkgNamesStorage = myAnalysis->GetBkgNamesStorage();
   sampleNames.insert( sampleNames.end(), bkgNamesStorage.begin(), bkgNamesStorage.end() );
-  /*  sampleNames.push_back("stop850");
-  sampleNames.push_back("stop650");
-  sampleNames.push_back("stop500");
-  sampleNames.push_back("stop425");
-  sampleNames.push_back("tt2l");
-  sampleNames.push_back("tt1l");
-  // sampleNames.push_back("STstchan");
-  // sampleNames.push_back("STtWchan");
-  sampleNames.push_back("singletop");
-  // sampleNames.push_back("Wb");
-  // sampleNames.push_back("Wucsd");
-  sampleNames.push_back("wjets");
-  sampleNames.push_back("dy");
-  // sampleNames.push_back("ttw");
-  // sampleNames.push_back("ttz");
-  // sampleNames.push_back("vv");
-  sampleNames.push_back("rare");*/
 
   vector<string> printNames = myAnalysis->GetSignalNamesTable();
   vector<string> bkgNamesTable = myAnalysis->GetBkgNamesTable();
   printNames.insert( printNames.end(), bkgNamesTable.begin(), bkgNamesTable.end() );
-  /*  printNames.push_back("T2tt (850, 100)");
-  printNames.push_back("T2tt (650, 325)");
-  printNames.push_back("T2tt (500, 325)");
-  printNames.push_back("T2tt (425, 325)");
-  printNames.push_back("$t\\bar{t} \\rightarrow 2\\ell$");
-  printNames.push_back("$t\\bar{t} \\rightarrow 1\\ell$");
-  // printNames.push_back("Single top, s/t-channels");
-  // printNames.push_back("Single top, tW channel");
-  printNames.push_back("Single top");
-  // printNames.push_back("W+b");
-  // printNames.push_back("W+light");
-  printNames.push_back("W+Jets");
-  printNames.push_back("Drell-Yan");
-  // printNames.push_back("ttW");
-  // printNames.push_back("ttZ");
-  // printNames.push_back("Diboson");
-  printNames.push_back("Rare"); */
 
   vector<TString> regionNames;
-   regionNames.push_back("low250");
+  regionNames.push_back("low250");
   regionNames.push_back("low300");
   regionNames.push_back("low350");
   regionNames.push_back("low400");
