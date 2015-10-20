@@ -1,4 +1,7 @@
 #include "dataMCplotMaker.h"
+#include "analysis.h"
+#include "sample.h"
+
 #include "TFile.h"
 // #include "TColor.h"
 
@@ -6,7 +9,7 @@
 
 using namespace std;
 
-void makeStack() {
+void makeStack( analysis* myAnalysis) {
 
   TFile* plotfile = new TFile("plots.root", "READ");
 
@@ -104,7 +107,7 @@ void makeStack() {
 	  sigs.push_back(h_stop650);
 	  sigs.push_back(h_stop500);
 	  sigs.push_back(h_stop425);
-
+	  /*
 	  // Make vectors of titles for backgrounds and signals
 	  vector<string> bkg_titles;
 	  bkg_titles.push_back("ttbar 2l");
@@ -140,6 +143,11 @@ void makeStack() {
 	  colors.push_back(kMagenta+3);
 	  colors.push_back(kOrange+7);
 	  // Need some more colors!
+	  */
+
+	  vector<string> bkg_titles = myAnalysis->GetBkgNamesLegend();
+	  vector<string> sig_titles = myAnalysis->GetSignalNamesLegend();
+	  vector<short int> colors  = myAnalysis->GetColors();
 
 	  // Get the title and subtitle for the plot
 	  TString plotTitle = bkgs.at(0)->GetTitle();

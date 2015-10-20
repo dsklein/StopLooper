@@ -4,12 +4,19 @@
 #include "TFile.h"
 #include "TH1.h"
 
-void makeTables() {
+#include "analysis.h"
+#include "sample.h"
+
+using namespace std;
+
+void makeTables( analysis* myAnalysis ) {
 
   TFile* infile = new TFile("plots.root", "READ");
 
-  vector<TString> sampleNames;
-  sampleNames.push_back("stop850");
+  vector<TString> sampleNames = myAnalysis->GetSignalNamesStorage();
+  vector<TString> bkgNamesStorage = myAnalysis->GetBkgNamesStorage();
+  sampleNames.insert( sampleNames.end(), bkgNamesStorage.begin(), bkgNamesStorage.end() );
+  /*  sampleNames.push_back("stop850");
   sampleNames.push_back("stop650");
   sampleNames.push_back("stop500");
   sampleNames.push_back("stop425");
@@ -25,10 +32,12 @@ void makeTables() {
   // sampleNames.push_back("ttw");
   // sampleNames.push_back("ttz");
   // sampleNames.push_back("vv");
-  sampleNames.push_back("rare");
+  sampleNames.push_back("rare");*/
 
-  vector<TString> printNames;
-  printNames.push_back("T2tt (850, 100)");
+  vector<string> printNames = myAnalysis->GetSignalNamesTable();
+  vector<string> bkgNamesTable = myAnalysis->GetBkgNamesTable();
+  printNames.insert( printNames.end(), bkgNamesTable.begin(), bkgNamesTable.end() );
+  /*  printNames.push_back("T2tt (850, 100)");
   printNames.push_back("T2tt (650, 325)");
   printNames.push_back("T2tt (500, 325)");
   printNames.push_back("T2tt (425, 325)");
@@ -44,10 +53,10 @@ void makeTables() {
   // printNames.push_back("ttW");
   // printNames.push_back("ttZ");
   // printNames.push_back("Diboson");
-  printNames.push_back("Rare");
+  printNames.push_back("Rare"); */
 
   vector<TString> regionNames;
-  regionNames.push_back("low250");
+   regionNames.push_back("low250");
   regionNames.push_back("low300");
   regionNames.push_back("low350");
   regionNames.push_back("low400");
@@ -106,7 +115,7 @@ void makeTables() {
 	err_400   = h_sigRegion->GetBinError( 4 );
 
 	// Print LaTeX table line
-	printf("%28s  &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", printNames.at(i).Data(), yield_250, err_250, yield_300, err_300);
+	printf("%28s  &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", printNames.at(i).c_str(), yield_250, err_250, yield_300, err_300);
 	printf("%8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f  \\\\\n", yield_350, err_350, yield_400, err_400);
 	if( sampleNames.at(i)=="stop425" ) cout << "\\hline" << endl;
   } // end loop over backgrounds
@@ -180,7 +189,7 @@ void makeTables() {
 	err_500   = h_sigRegion->GetBinError( 9 );
 
 	// Print LaTeX table line
-	printf("%28s  &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", printNames.at(i).Data(), yield_250, err_250, yield_300, err_300);
+	printf("%28s  &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", printNames.at(i).c_str(), yield_250, err_250, yield_300, err_300);
 	printf("%8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f &   %8.3f $\\pm$ %6.3f  \\\\\n", yield_350, err_350, yield_400, err_400, yield_500, err_500);
 	if( sampleNames.at(i)=="stop425" ) cout << "\\hline" << endl;
   } // end loop over backgrounds
