@@ -6,7 +6,7 @@ ROOTCFLAGS  = $(shell root-config --cflags --libs)
 
 
 
-runAll: ScanChain.o makeTables.o makeStack.o dataMCplotMaker.so sample.so analysis.so
+runAll: runAll.cc runAll.h ScanChain.o makeTables.o makeStack.o dataMCplotMaker.so sample.so analysis.so
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) runAll.cc ScanChain.o makeTables.o makeStack.o dataMCplotMaker.so sample.so analysis.so -Wl,-rpath,./ -o runAll
 
 
@@ -22,10 +22,10 @@ makeStack.o: makeStack.C
 dataMCplotMaker.so: dataMCplotMaker.cc dataMCplotMaker.h PlotMakingTools.h
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared dataMCplotMaker.cc dataMCplotMaker.h PlotMakingTools.h -o dataMCplotMaker.so
 
-sample.so: sample.cc
+sample.so: sample.cc sample.h
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared sample.cc -o sample.so
 
-analysis.so: analysis.cc
+analysis.so: analysis.cc analysis.h
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared analysis.cc -o analysis.so
 
 

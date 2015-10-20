@@ -119,8 +119,8 @@ int main() {
   sample* stop500   = new sample( "stop500", "T2tt (500,325)", kMagenta+3,true );
   sample* stop425   = new sample( "stop425", "T2tt (425,325)", kOrange+7, true );
 
-  sample* tt2l      = new sample( "tt2l",    "ttbar 2l",       kGreen-4,  false );
-  sample* tt1l      = new sample( "tt1l",    "ttbar 1l",       kCyan-3,   false );
+  sample* tt2l      = new sample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kGreen-4,  false );
+  sample* tt1l      = new sample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kCyan-3,   false );
   sample* wjets     = new sample( "wjets",   "W+Jets",         kRed-7,    false );
   sample* dy        = new sample( "dy",      "Drell-Yan",      kOrange-2, false );
   sample* singletop = new sample( "singletop", "Single Top",   kMagenta-5,false );
