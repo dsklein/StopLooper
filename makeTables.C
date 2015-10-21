@@ -25,6 +25,7 @@ void makeTables() {
   // sampleNames.push_back("ttw");
   // sampleNames.push_back("ttz");
   // sampleNames.push_back("vv");
+  // sampleNames.push_back("tzq");
   sampleNames.push_back("rare");
 
   vector<TString> printNames;
@@ -44,6 +45,7 @@ void makeTables() {
   // printNames.push_back("ttW");
   // printNames.push_back("ttZ");
   // printNames.push_back("Diboson");
+  // printNames.push_back("tZq");
   printNames.push_back("Rare");
 
   vector<TString> regionNames;

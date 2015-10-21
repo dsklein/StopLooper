@@ -59,13 +59,13 @@
   ch_ttz->Add( babyPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns.root" );
   ch_ttz->Add( babyPath + "TTZToQQ_amcnlo_pythia8_25ns.root" );
 
+  TChain *ch_tzq = new TChain("t");
+  ch_tzq->Add( babyPath + "tZq_ll_4f_amcnlo_pythia8_25ns.root" );
+  ch_tzq->Add( babyPath + "tZq_nunu_4f_amcnlo_pythia8_25ns.root" );
+
   TChain *ch_vv = new TChain("t");
-  ch_vv->Add( babyPath + "tZq_ll_4f_amcnlo_pythia8_25ns.root" );
-  ch_vv->Add( babyPath + "tZq_nunu_4f_amcnlo_pythia8_25ns.root" );
-  // ch_vv->Add( babyPath + "WZ_pythia8_25ns.root" );
-  // ch_vv->Add( babyPath + "ZZ_pythia8_25ns.root" );
   ch_vv->Add( babyPath + "WWTo2l2Nu_powheg_25ns.root" );
-  ch_vv->Add( babyPath + "WWToLNuQQ_powheg_25ns.root" ); // Formerly not a default sample
+  ch_vv->Add( babyPath + "WWToLNuQQ_powheg_25ns.root" );
   ch_vv->Add( babyPath + "WZTo3LNu_powheg_pythia8_25ns.root" );
   ch_vv->Add( babyPath + "WZTo2L2Q_amcnlo_pythia8_25ns.root" );
   ch_vv->Add( babyPath + "WZTo1Lnu2Q_amcnlo_pythia8_25ns.root" );
@@ -83,6 +83,7 @@
   ch_rare->Add( ch_ttw );
   ch_rare->Add( ch_ttz );
   ch_rare->Add( ch_vv );
+  ch_rare->Add( ch_tzq );
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -103,6 +104,7 @@
   // ScanChain(ch_ttw, "ttw");
   // ScanChain(ch_ttz, "ttz");
   // ScanChain(ch_vv, "vv");
+  // ScanChain(ch_tzq, "tzq");
   ScanChain(ch_rare, "rare");
 
 

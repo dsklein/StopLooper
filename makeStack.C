@@ -53,6 +53,7 @@ void makeStack() {
 	  // TString name_ttw		= varNames.at(i) + "_ttw_"      + regNames.at(j);
 	  // TString name_ttz		= varNames.at(i) + "_ttz_"      + regNames.at(j);
 	  // TString name_vv		= varNames.at(i) + "_vv_"       + regNames.at(j);
+	  // TString Name_tzq       = varNames.at(i) + "_tzq_"      + regNames.at(j);
 	  TString name_rare		= varNames.at(i) + "_rare_"     + regNames.at(j);
 
 	  TString name_stop850	= varNames.at(i) + "_stop850_"  + regNames.at(j);
@@ -73,6 +74,7 @@ void makeStack() {
 	  // TH1F* h_ttw		= (TH1F*)plotfile->Get(name_ttw);
 	  // TH1F* h_ttz		= (TH1F*)plotfile->Get(name_ttz);
 	  // TH1F* h_vv		= (TH1F*)plotfile->Get(name_vv);
+	  // TH1F* h_tzq    = (TH1F*)plotfile->Get(name_tzq);
 	  TH1F* h_rare		= (TH1F*)plotfile->Get(name_rare);
 
 
@@ -97,6 +99,7 @@ void makeStack() {
 	  // bkgs.push_back(h_ttw);
 	  // bkgs.push_back(h_ttz);
 	  // bkgs.push_back(h_vv);
+	  // bkgs.push_back(h_tzq);
 	  bkgs.push_back(h_rare);
 
 	  vector<TH1F*> sigs;
@@ -119,6 +122,7 @@ void makeStack() {
 	  // bkg_titles.push_back("ttW");
 	  // bkg_titles.push_back("ttZ");
 	  // bkg_titles.push_back("Diboson");
+	  // bkg_titles.push_back("tZq");
 	  bkg_titles.push_back("Rare");
 
 	  vector<string> sig_titles;
