@@ -94,13 +94,13 @@
   ScanChain(ch_stop425, "stop425");  
   ScanChain(ch_ttbar, "tt2l");
   ScanChain(ch_ttbar, "tt1l"); //Same baby, pick out different final state
+  // ScanChain(ch_stch, "STstchan");
+  // ScanChain(ch_sttw, "STtWchan");
+  ScanChain(ch_singletop, "singletop");
   // ScanChain(ch_wjets, "Wb");
   // ScanChain(ch_wjets, "Wucsd"); //Same baby, pick out different final state
   ScanChain(ch_wjets, "wjets"); //
   ScanChain(ch_dy, "dy");
-  // ScanChain(ch_stch, "STstchan");
-  // ScanChain(ch_sttw, "STtWchan");
-  ScanChain(ch_singletop, "singletop");
   // ScanChain(ch_ttw, "ttw");
   // ScanChain(ch_ttz, "ttz");
   // ScanChain(ch_vv, "vv");
