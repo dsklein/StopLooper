@@ -1,9 +1,14 @@
-{
+#include "analysis.h"
+#include "sample.h"
+#include "runAll.h"
 
-  gROOT->ProcessLine(".L ScanChain.C+");
-  gROOT->ProcessLine(".L makeTables.C+");
-  gROOT->ProcessLine(".L dataMCplotMaker.cc+");
-  gROOT->ProcessLine(".L makeStack.C+");
+#include "TChain.h"
+#include "TFile.h"
+#include "TString.h"
+
+int main() {
+
+
 
   // Clear out the file to be filled with histograms  
   TFile* outfile = new TFile("plots.root", "RECREATE");
@@ -44,7 +49,7 @@
   ch_dy->Add( bkgPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns.root" );
 
   TChain *ch_stch = new TChain("t");
-  // ch_stch->Add( bkgPath + "t_sch_4f_amcnlo_pythia8_25ns.root" ); // Not a default sample
+  ch_stch->Add( bkgPath + "t_sch_4f_amcnlo_pythia8_25ns.root" );
   ch_stch->Add( bkgPath + "t_tch_4f_powheg_pythia8_25ns.root" );
   ch_stch->Add( bkgPath + "tbar_tch_4f_powheg_pythia8_25ns.root" );
 
@@ -59,13 +64,13 @@
   ch_ttz->Add( bkgPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns.root" );
   ch_ttz->Add( bkgPath + "TTZToQQ_amcnlo_pythia8_25ns.root" );
 
-  TChain *ch_tzq = new TChain("t");
-  ch_tzq->Add( bkgPath + "tZq_ll_4f_amcnlo_pythia8_25ns.root" );
-  ch_tzq->Add( bkgPath + "tZq_nunu_4f_amcnlo_pythia8_25ns.root" );
-
   TChain *ch_vv = new TChain("t");
+  ch_vv->Add( bkgPath + "tZq_ll_4f_amcnlo_pythia8_25ns.root" );
+  ch_vv->Add( bkgPath + "tZq_nunu_4f_amcnlo_pythia8_25ns.root" );
+  // ch_vv->Add( bkgPath + "WZ_pythia8_25ns.root" );
+  // ch_vv->Add( bkgPath + "ZZ_pythia8_25ns.root" );
   ch_vv->Add( bkgPath + "WWTo2l2Nu_powheg_25ns.root" );
-  ch_vv->Add( bkgPath + "WWToLNuQQ_powheg_25ns.root" );
+  ch_vv->Add( bkgPath + "WWToLNuQQ_powheg_25ns.root" ); // Formerly not a default sample
   ch_vv->Add( bkgPath + "WZTo3LNu_powheg_pythia8_25ns.root" );
   ch_vv->Add( bkgPath + "WZTo2L2Q_amcnlo_pythia8_25ns.root" );
   ch_vv->Add( bkgPath + "WZTo1Lnu2Q_amcnlo_pythia8_25ns.root" );
@@ -83,31 +88,59 @@
   ch_rare->Add( ch_ttw );
   ch_rare->Add( ch_ttz );
   ch_rare->Add( ch_vv );
-  ch_rare->Add( ch_tzq );
 
 
   //////////////////////////////////////////////////////////////////////////
   // Run ScanChain
-   ScanChain(ch_stop850, "stop850");
+  ScanChain(ch_stop850, "stop850");
   ScanChain(ch_stop650, "stop650");
   ScanChain(ch_stop500, "stop500");
   ScanChain(ch_stop425, "stop425");  
   ScanChain(ch_ttbar, "tt2l");
   ScanChain(ch_ttbar, "tt1l"); //Same baby, pick out different final state
-  // ScanChain(ch_stch, "STstchan");
-  // ScanChain(ch_sttw, "STtWchan");
-  ScanChain(ch_singletop, "singletop");
   // ScanChain(ch_wjets, "Wb");
   // ScanChain(ch_wjets, "Wucsd"); //Same baby, pick out different final state
   ScanChain(ch_wjets, "wjets"); //
   ScanChain(ch_dy, "dy");
+  // ScanChain(ch_stch, "STstchan");
+  // ScanChain(ch_sttw, "STtWchan");
+  ScanChain(ch_singletop, "singletop");
   // ScanChain(ch_ttw, "ttw");
   // ScanChain(ch_ttz, "ttz");
   // ScanChain(ch_vv, "vv");
-  // ScanChain(ch_tzq, "tzq");
   ScanChain(ch_rare, "rare");
 
 
-  makeTables();
-  makeStack();
+  ////////////////////////////////////////////////////////////////////////////
+  // Make "analysis" object out of "samples", and pass them to makeTables and makeStack
+
+  sample* stop850   = new sample( "stop850", "T2tt (850,100)", kBlue+3,   true );
+  sample* stop650   = new sample( "stop650", "T2tt (650,325)", kGreen+3,  true );
+  sample* stop500   = new sample( "stop500", "T2tt (500,325)", kMagenta+3,true );
+  sample* stop425   = new sample( "stop425", "T2tt (425,325)", kOrange+7, true );
+
+  sample* tt2l      = new sample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kGreen-4,  false );
+  sample* tt1l      = new sample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kCyan-3,   false );
+  sample* wjets     = new sample( "wjets",   "W+Jets",         kRed-7,    false );
+  sample* dy        = new sample( "dy",      "Drell-Yan",      kOrange-2, false );
+  sample* singletop = new sample( "singletop", "Single Top",   kMagenta-5,false );
+  sample* rare      = new sample( "rare",    "Rare",           kRed+2,    false );
+
+  analysis* ThisAnalysis = new analysis;
+  ThisAnalysis->AddSample(stop850);
+  ThisAnalysis->AddSample(stop650);
+  ThisAnalysis->AddSample(stop500);
+  ThisAnalysis->AddSample(stop425);
+  ThisAnalysis->AddSample(tt2l);
+  ThisAnalysis->AddSample(tt1l);
+  ThisAnalysis->AddSample(wjets);
+  ThisAnalysis->AddSample(dy);
+  ThisAnalysis->AddSample(singletop);
+  ThisAnalysis->AddSample(rare);
+
+
+  makeTables( ThisAnalysis );
+  makeStack( ThisAnalysis );
+
+  return 0;
 }

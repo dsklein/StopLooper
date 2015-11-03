@@ -7,6 +7,9 @@
 *.so
 *.pcm
 
+# Ignore executables
+runAll
+
 # Ignore plots, and root files
 *.root
 *.pdf

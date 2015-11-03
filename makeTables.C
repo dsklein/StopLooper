@@ -4,49 +4,22 @@
 #include "TFile.h"
 #include "TH1.h"
 
-void makeTables() {
+#include "analysis.h"
+#include "sample.h"
+
+using namespace std;
+
+void makeTables( analysis* myAnalysis ) {
 
   TFile* infile = new TFile("plots.root", "READ");
 
-  vector<TString> sampleNames;
-  sampleNames.push_back("stop850");
-  sampleNames.push_back("stop650");
-  sampleNames.push_back("stop500");
-  sampleNames.push_back("stop425");
-  sampleNames.push_back("tt2l");
-  sampleNames.push_back("tt1l");
-  // sampleNames.push_back("STstchan");
-  // sampleNames.push_back("STtWchan");
-  sampleNames.push_back("singletop");
-  // sampleNames.push_back("Wb");
-  // sampleNames.push_back("Wucsd");
-  sampleNames.push_back("wjets");
-  sampleNames.push_back("dy");
-  // sampleNames.push_back("ttw");
-  // sampleNames.push_back("ttz");
-  // sampleNames.push_back("vv");
-  // sampleNames.push_back("tzq");
-  sampleNames.push_back("rare");
+  vector<TString> sampleNames = myAnalysis->GetSignalNamesStorage();
+  vector<TString> bkgNamesStorage = myAnalysis->GetBkgNamesStorage();
+  sampleNames.insert( sampleNames.end(), bkgNamesStorage.begin(), bkgNamesStorage.end() );
 
-  vector<TString> printNames;
-  printNames.push_back("T2tt (850, 100)");
-  printNames.push_back("T2tt (650, 325)");
-  printNames.push_back("T2tt (500, 325)");
-  printNames.push_back("T2tt (425, 325)");
-  printNames.push_back("$t\\bar{t} \\rightarrow 2\\ell$");
-  printNames.push_back("$t\\bar{t} \\rightarrow 1\\ell$");
-  // printNames.push_back("Single top, s/t-channels");
-  // printNames.push_back("Single top, tW channel");
-  printNames.push_back("Single top");
-  // printNames.push_back("W+b");
-  // printNames.push_back("W+light");
-  printNames.push_back("W+Jets");
-  printNames.push_back("Drell-Yan");
-  // printNames.push_back("ttW");
-  // printNames.push_back("ttZ");
-  // printNames.push_back("Diboson");
-  // printNames.push_back("tZq");
-  printNames.push_back("Rare");
+  vector<string> printNames = myAnalysis->GetSignalNamesTable();
+  vector<string> bkgNamesTable = myAnalysis->GetBkgNamesTable();
+  printNames.insert( printNames.end(), bkgNamesTable.begin(), bkgNamesTable.end() );
 
   vector<TString> regionNames;
   regionNames.push_back("low250");
@@ -108,7 +81,7 @@ void makeTables() {
 	err_400   = h_sigRegion->GetBinError( 4 );
 
 	// Print LaTeX table line
-	printf("%28s  &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", printNames.at(i).Data(), yield_250, err_250, yield_300, err_300);
+	printf("%28s  &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", printNames.at(i).c_str(), yield_250, err_250, yield_300, err_300);
 	printf("%8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f  \\\\\n", yield_350, err_350, yield_400, err_400);
 	if( sampleNames.at(i)=="stop425" ) cout << "\\hline" << endl;
   } // end loop over backgrounds
@@ -182,7 +155,7 @@ void makeTables() {
 	err_500   = h_sigRegion->GetBinError( 9 );
 
 	// Print LaTeX table line
-	printf("%28s  &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", printNames.at(i).Data(), yield_250, err_250, yield_300, err_300);
+	printf("%28s  &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", printNames.at(i).c_str(), yield_250, err_250, yield_300, err_300);
 	printf("%8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f &   %8.3f $\\pm$ %6.3f  \\\\\n", yield_350, err_350, yield_400, err_400, yield_500, err_500);
 	if( sampleNames.at(i)=="stop425" ) cout << "\\hline" << endl;
   } // end loop over backgrounds

@@ -1,4 +1,7 @@
 #include "dataMCplotMaker.h"
+#include "analysis.h"
+#include "sample.h"
+
 #include "TFile.h"
 // #include "TColor.h"
 
@@ -6,7 +9,7 @@
 
 using namespace std;
 
-void makeStack() {
+void makeStack( analysis* myAnalysis) {
 
   TFile* plotfile = new TFile("plots.root", "READ");
 
@@ -108,42 +111,10 @@ void makeStack() {
 	  sigs.push_back(h_stop500);
 	  sigs.push_back(h_stop425);
 
-	  // Make vectors of titles for backgrounds and signals
-	  vector<string> bkg_titles;
-	  bkg_titles.push_back("ttbar 2l");
-	  bkg_titles.push_back("ttbar 1l");
-	  // bkg_titles.push_back("W+b");
-	  // bkg_titles.push_back("W+light");
-	  bkg_titles.push_back("W+jets");
-	  bkg_titles.push_back("Drell-Yan");
-	  // bkg_titles.push_back("Single top, s/t-channels");
-	  // bkg_titles.push_back("Single top, tW channel");
-	  bkg_titles.push_back("Single top");
-	  // bkg_titles.push_back("ttW");
-	  // bkg_titles.push_back("ttZ");
-	  // bkg_titles.push_back("Diboson");
-	  // bkg_titles.push_back("tZq");
-	  bkg_titles.push_back("Rare");
-
-	  vector<string> sig_titles;
-	  sig_titles.push_back("stop-850-100");
-	  sig_titles.push_back("stop-650-325");
-	  sig_titles.push_back("stop-500-325");
-	  sig_titles.push_back("stop-425-325");
-
-	  // Make a vector of colors for the backgrounds and signals
-	  vector<short int> colors;
-	  colors.push_back(kGreen-4);
-	  colors.push_back(kCyan-3);
-	  colors.push_back(kRed-7);
-	  colors.push_back(kOrange-2);
-	  colors.push_back(kMagenta-5);
-	  colors.push_back(kRed+2);
-	  colors.push_back(kBlue+3);
-	  colors.push_back(kGreen+3);
-	  colors.push_back(kMagenta+3);
-	  colors.push_back(kOrange+7);
-	  // Need some more colors!
+	  // Get sample titles and colors from the "analysis" object
+	  vector<string> bkg_titles = myAnalysis->GetBkgNamesLegend();
+	  vector<string> sig_titles = myAnalysis->GetSignalNamesLegend();
+	  vector<short int> colors  = myAnalysis->GetColors();
 
 	  // Get the title and subtitle for the plot
 	  TString plotTitle = bkgs.at(0)->GetTitle();
