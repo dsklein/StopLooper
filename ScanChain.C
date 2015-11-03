@@ -274,6 +274,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 	  // Classify event based on number of leptons / neutrinos
 
 	  int nPromptLeps = 0;
+	  bool nusFromZ = false;
 
 	  if( !TString(sampleName).Contains("stop") ) {
 
@@ -297,17 +298,42 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 		  nPromptLeps++;
 		}
 
-	  }
+		vector<int> nuIDs, nuMoms;
 
-	  int nNusFromZ = 0;
+		// Make lists of neutrino IDs and parent indices
+		for( uint idx=0; idx<gennuels_p4().size(); idx++  ) {
+		  if( !gennuels_fromHardProcessFinalState().at(idx) ) continue;
+		  if( !gennuels_isLastCopy().at(idx)  ) continue;
+		  nuIDs.push_back( gennuels_id().at(idx) );
+		  nuMoms.push_back( gennuels_motheridx().at(idx) );
+		}
+		for( uint idx=0; idx<gennumus_p4().size(); idx++  ) {
+		  if( !gennumus_fromHardProcessFinalState().at(idx) ) continue;
+		  if( !gennumus_isLastCopy().at(idx)  ) continue;
+		  nuIDs.push_back( gennumus_id().at(idx) );
+		  nuMoms.push_back( gennumus_motheridx().at(idx) );
+		}
+		for( uint idx=0; idx<gennutaus_p4().size(); idx++ ) {
+		  if( !gennutaus_fromHardProcessFinalState().at(idx) ) continue;
+		  if( !gennutaus_isLastCopy().at(idx) ) continue;
+		  nuIDs.push_back( gennutaus_id().at(idx) );
+		  nuMoms.push_back( gennutaus_motheridx().at(idx) );
+		}
 
-	  for( uint idx=0; idx<gennuels_p4().size(); idx++  )  if( gennuels_motherid().at(idx)  == 23 && gennuels_isLastCopy().at(idx)  ) nNusFromZ++;
-	  for( uint idx=0; idx<gennumus_p4().size(); idx++  )  if( gennumus_motherid().at(idx)  == 23 && gennumus_isLastCopy().at(idx)  ) nNusFromZ++;
-	  for( uint idx=0; idx<gennutaus_p4().size(); idx++ )  if( gennutaus_motherid().at(idx) == 23 && gennutaus_isLastCopy().at(idx) ) nNusFromZ++;
+
+		// Hunt for two neutrinos with opposite PDG IDs and the same mother idx
+		uint upperBound = nuIDs.size()<2 ?  0  :  nuIDs.size()-1;
+		for( uint x=0; x<upperBound; x++ ) {
+		  for( uint y=x+1; y<nuIDs.size(); y++ ) {
+			if( (nuIDs.at(x) + nuIDs.at(y) == 0) && (nuMoms.at(x) == nuMoms.at(y) ) ) nusFromZ = true;
+		  }
+		}
+
+	  } // End "if sampleName doesn't contain 'stop'"
 
 
 	  int category = -99;
-	  if(      nNusFromZ >= 2   ) category = 3;   // Z to nu nu
+	  if(      nusFromZ==true   ) category = 3;   // Z to nu nu
 	  else if( nPromptLeps >= 2 ) category = 2;   // 2 or more leptons
 	  else if( nPromptLeps == 1 ) category = 1;   // 1 lepton
 	  else                        category = 4;   // Other
