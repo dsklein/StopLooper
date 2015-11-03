@@ -64,13 +64,13 @@ int main() {
   ch_ttz->Add( bkgPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns.root" );
   ch_ttz->Add( bkgPath + "TTZToQQ_amcnlo_pythia8_25ns.root" );
 
+  TChain *ch_tzq = new TChain("t");
+  ch_tzq->Add( bkgPath + "tZq_ll_4f_amcnlo_pythia8_25ns.root" );
+  ch_tzq->Add( bkgPath + "tZq_nunu_4f_amcnlo_pythia8_25ns.root" );
+
   TChain *ch_vv = new TChain("t");
-  ch_vv->Add( bkgPath + "tZq_ll_4f_amcnlo_pythia8_25ns.root" );
-  ch_vv->Add( bkgPath + "tZq_nunu_4f_amcnlo_pythia8_25ns.root" );
-  // ch_vv->Add( bkgPath + "WZ_pythia8_25ns.root" );
-  // ch_vv->Add( bkgPath + "ZZ_pythia8_25ns.root" );
   ch_vv->Add( bkgPath + "WWTo2l2Nu_powheg_25ns.root" );
-  ch_vv->Add( bkgPath + "WWToLNuQQ_powheg_25ns.root" ); // Formerly not a default sample
+  ch_vv->Add( bkgPath + "WWToLNuQQ_powheg_25ns.root" );
   ch_vv->Add( bkgPath + "WZTo3LNu_powheg_pythia8_25ns.root" );
   ch_vv->Add( bkgPath + "WZTo2L2Q_amcnlo_pythia8_25ns.root" );
   ch_vv->Add( bkgPath + "WZTo1Lnu2Q_amcnlo_pythia8_25ns.root" );
@@ -88,6 +88,7 @@ int main() {
   ch_rare->Add( ch_ttw );
   ch_rare->Add( ch_ttz );
   ch_rare->Add( ch_vv );
+  ch_rare->Add( ch_tzq );
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -98,13 +99,13 @@ int main() {
   ScanChain(ch_stop425, "stop425");  
   ScanChain(ch_ttbar, "tt2l");
   ScanChain(ch_ttbar, "tt1l"); //Same baby, pick out different final state
+  // ScanChain(ch_stch, "STstchan");
+  // ScanChain(ch_sttw, "STtWchan");
+  ScanChain(ch_singletop, "singletop");
   // ScanChain(ch_wjets, "Wb");
   // ScanChain(ch_wjets, "Wucsd"); //Same baby, pick out different final state
   ScanChain(ch_wjets, "wjets"); //
   ScanChain(ch_dy, "dy");
-  // ScanChain(ch_stch, "STstchan");
-  // ScanChain(ch_sttw, "STtWchan");
-  ScanChain(ch_singletop, "singletop");
   // ScanChain(ch_ttw, "ttw");
   // ScanChain(ch_ttz, "ttz");
   // ScanChain(ch_vv, "vv");
