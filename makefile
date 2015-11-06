@@ -7,7 +7,8 @@ ROOTCFLAGS  = $(shell root-config --cflags --libs)
 
 
 runAll: runAll.cc runAll.h ScanChain.o makeTables.o makeStack.o dataMCplotMaker.so sample.so analysis.so
-	g++ $(CXXFLAGS) $(ROOTCFLAGS) runAll.cc ScanChain.o makeTables.o makeStack.o dataMCplotMaker.so sample.so analysis.so -Wl,-rpath,./ -o runAll
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runAll.cc ScanChain.o makeTables.o makeStack.o dataMCplotMaker.so sample.so analysis.so -Wl,-rpath,./ -o runAll
+#GenVector seems to be necessary to take a LorentzVector invariant mass. The error was "undefined reference to Math::GenVector::Throw()"
 
 
 ScanChain.o: ScanChain.C
@@ -33,4 +34,4 @@ analysis.so: analysis.cc analysis.h
 .PHONY: clean
 
 clean:
-	rm -v *.o *.so *.d *.pcm
+	rm -v *.o *.so *.d *.pcm runAll
