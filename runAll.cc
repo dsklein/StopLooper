@@ -122,9 +122,9 @@ int main() {
 
   sample* tt2l      = new sample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kGreen-4,  false );
   sample* tt1l      = new sample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kCyan-3,   false );
+  sample* singletop = new sample( "singletop", "Single Top",   kMagenta-5,false );
   sample* wjets     = new sample( "wjets",   "W+Jets",         kRed-7,    false );
   sample* dy        = new sample( "dy",      "Drell-Yan",      kOrange-2, false );
-  sample* singletop = new sample( "singletop", "Single Top",   kMagenta-5,false );
   sample* rare      = new sample( "rare",    "Rare",           kRed+2,    false );
 
   analysis* ThisAnalysis = new analysis;
@@ -134,10 +134,15 @@ int main() {
   ThisAnalysis->AddSample(stop425);
   ThisAnalysis->AddSample(tt2l);
   ThisAnalysis->AddSample(tt1l);
+  ThisAnalysis->AddSample(singletop);
   ThisAnalysis->AddSample(wjets);
   ThisAnalysis->AddSample(dy);
-  ThisAnalysis->AddSample(singletop);
   ThisAnalysis->AddSample(rare);
+
+  std::vector<TString> lowDMreg  = {"low250",  "low300",  "low350",  "low400"};
+  std::vector<TString> highDMreg = {"high250", "high300", "high350", "high400", "high500"};
+  ThisAnalysis->AddSigRegs( lowDMreg );
+  ThisAnalysis->AddSigRegs( highDMreg );
 
 
   makeTables( ThisAnalysis );
