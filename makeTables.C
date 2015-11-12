@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+// #include <string>
 
 #include "TFile.h"
 #include "TH1.h"
@@ -13,195 +14,132 @@ void makeTables( analysis* myAnalysis ) {
 
   TFile* infile = new TFile("plots.root", "READ");
 
-  vector<TString> sampleNames = myAnalysis->GetSignalNamesStorage();
-  vector<TString> bkgNamesStorage = myAnalysis->GetBkgNamesStorage();
-  sampleNames.insert( sampleNames.end(), bkgNamesStorage.begin(), bkgNamesStorage.end() );
+  vector<TString> decayNames;
+  decayNames.push_back("1 lepton");
+  decayNames.push_back("$\\geq$2 leptons");
+  decayNames.push_back("Z $\\rightarrow \\nu\\nu$");
+  decayNames.push_back("Other");
 
-  vector<string> printNames = myAnalysis->GetSignalNamesTable();
-  vector<string> bkgNamesTable = myAnalysis->GetBkgNamesTable();
-  printNames.insert( printNames.end(), bkgNamesTable.begin(), bkgNamesTable.end() );
-
-  vector<TString> regionNames;
-  regionNames.push_back("low250");
-  regionNames.push_back("low300");
-  regionNames.push_back("low350");
-  regionNames.push_back("low400");
-  regionNames.push_back("high250");
-  regionNames.push_back("high300");
-  regionNames.push_back("high350");
-  regionNames.push_back("high400");
-  regionNames.push_back("high500");
-
-  vector<TString> bkgNames;
-  bkgNames.push_back("1 lepton");
-  bkgNames.push_back("$\\geq$2 leptons");
-  bkgNames.push_back("Z $\\rightarrow \\nu\\nu$");
-  bkgNames.push_back("Other");
+  TString dummySampleName = myAnalysis->GetBkgNamesStorage().at(0);
+  TString dummyRegionName = myAnalysis->GetSigRegionsAll().at(0);
 
   // Keep a histogram for the total yields
-  TH1D* h_totals_sregion = (TH1D*)infile->Get("sregion_" + sampleNames.at(0))->Clone("signal_region_totals");
-  h_totals_sregion->Reset();
+  TH1D* h_totals_sregion = (TH1D*)infile->Get("sregion_" + dummySampleName)->Clone("signal_region_totals");
 
-  // Also load in the histograms that store the decay channels
-  // Loop 'i' is over signal regions; loop 'j' is over backgrounds
-  TH1D* h_bgtype[regionNames.size()];
-  for( uint i=0; i<regionNames.size(); i++ ) {
-	h_bgtype[i] = (TH1D*)infile->Get( "bkgtype_" + sampleNames.at(0) + "_" + regionNames.at(i) )->Clone("bgtype_"+regionNames.at(i));
-	h_bgtype[i]->Reset();
-	for( uint j=4; j<sampleNames.size(); j++ ) h_bgtype[i]->Add( (TH1D*)infile->Get("bkgtype_"+sampleNames.at(j)+"_"+regionNames.at(i)) );
-  }
+  uint binOffsetSignal = 0;
+  uint binOffsetBkg = 0;
 
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Make the first table, for the low Delta-M region
 
-  // Make the upper part of the table, with rows = different samples, columns = signal regions
+  for( vector<TString> regNameList : myAnalysis->GetSigRegions() ) {
 
-  double yield_250, err_250;
-  double yield_300, err_300;
-  double yield_350, err_350;
-  double yield_400, err_400;
+	double yield, error;
+	h_totals_sregion->Reset();
 
-  cout << "\\begin{tabular}{ l | c c c c }" << endl;
-  cout << "Low $\\Delta M$   &  250 $\\leq E_T^{miss} <$ 300  &   300 $\\leq E_T^{miss} <$ 350  &   350 $\\leq E_T^{miss} <$ 400  & $E_T^{miss} \\geq$ 400  \\\\ \\hline" << endl;
+	// Prep histograms that will store the total yields by decay type
+	uint nRegions = regNameList.size();
+	TH1D* yieldsByDecayType[nRegions];
+	for( uint i=0; i<nRegions; i++ ) {
+	  yieldsByDecayType[i] = (TH1D*)infile->Get("bkgtype_" + dummySampleName + "_" + dummyRegionName)->Clone( "decayType_" + regNameList.at(i) );
+	  yieldsByDecayType[i]->Reset();
+	}
 
-  for( uint i=0; i<sampleNames.size(); i++ ) {
-	// Read in yields and errors from stored histograms
-	TH1D* h_sigRegion = (TH1D*)infile->Get("sregion_" + sampleNames.at(i));
-	if( !sampleNames.at(i).Contains("stop") ) h_totals_sregion->Add(h_sigRegion); // If it's not a signal sample, add it to the background totals
+	// Begin LaTeX table
+	cout << "\\begin{tabular}{ l | ";
+	for( TString srName : regNameList ) cout << "c ";
+	cout << "}" << endl;
 
-	yield_250 = h_sigRegion->GetBinContent( 1 );
-	yield_300 = h_sigRegion->GetBinContent( 2 );
-	yield_350 = h_sigRegion->GetBinContent( 3 );
-	yield_400 = h_sigRegion->GetBinContent( 4 );
-	err_250   = h_sigRegion->GetBinError( 1 );
-	err_300   = h_sigRegion->GetBinError( 2 );
-	err_350   = h_sigRegion->GetBinError( 3 );
-	err_400   = h_sigRegion->GetBinError( 4 );
-
-	// Print LaTeX table line
-	printf("%28s  &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", printNames.at(i).c_str(), yield_250, err_250, yield_300, err_300);
-	printf("%8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f  \\\\\n", yield_350, err_350, yield_400, err_400);
-	if( sampleNames.at(i)=="stop425" ) cout << "\\hline" << endl;
-  } // end loop over backgrounds
-  cout << "\\hline" << endl;
-
-  // Get total yields
-  yield_250 = h_totals_sregion->GetBinContent( 1 );
-  yield_300 = h_totals_sregion->GetBinContent( 2 );
-  yield_350 = h_totals_sregion->GetBinContent( 3 );
-  yield_400 = h_totals_sregion->GetBinContent( 4 );
-  err_250   = h_totals_sregion->GetBinError( 1 );
-  err_300   = h_totals_sregion->GetBinError( 2 );
-  err_350   = h_totals_sregion->GetBinError( 3 );
-  err_400   = h_totals_sregion->GetBinError( 4 );
-
-  // Print LaTeX table line
-  printf("%28s  &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", "Total background", yield_250, err_250, yield_300, err_300);
-  printf("%8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f  \\\\\n", yield_350, err_350, yield_400, err_400);
-
-  cout << "\\hline \\hline" << endl;
-
-
-  /////////////////////////////////////////////////////////////////////////////////
-  // Make the lower half of the table, with the rows = final states
-
-  for( uint i=0; i<bkgNames.size()-1; i++ ) {
-	// Grab the yields and errors by background type
-	yield_250 = h_bgtype[0]->GetBinContent( i+1 );
-	yield_300 = h_bgtype[1]->GetBinContent( i+1 );
-	yield_350 = h_bgtype[2]->GetBinContent( i+1 );
-	yield_400 = h_bgtype[3]->GetBinContent( i+1 );
-	err_250   = h_bgtype[0]->GetBinError( i+1 );
-	err_300   = h_bgtype[1]->GetBinError( i+1 );
-	err_350   = h_bgtype[2]->GetBinError( i+1 );
-	err_400   = h_bgtype[3]->GetBinError( i+1 );
-
-	// Print LaTeX table line
-	printf( "%28s   &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", bkgNames.at(i).Data(), yield_250, err_250, yield_300, err_300 );
-	printf( "%8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   \\\\\n", yield_350, err_350, yield_400, err_400 );
-  }
-
-  cout << "\\end{tabular}\n\n" << endl;
+	// Print column headers
+	cout << " Sample  ";
+	for( TString srName : regNameList ) cout << "  &  " << srName;
+	cout << " \\\\ \\hline" << endl;
 
 
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Now do the second table, for the high Delta-M region
+	///////////////////////////////////////////////////////////
+	// Loop over signal samples, and print a table row for each
+	for( sample* thisSample : myAnalysis->GetSignals() ) {
 
-  // Make the upper part of the table, with rows = different samples, columns = signal regions
+	  printf( "%28s  ", thisSample->GetTableName().Data() );       // Print start of row
+	  TH1D* h_yields = (TH1D*)infile->Get( "sregion_" + thisSample->GetIntName() ); // Retrieve yield histo for this sample
 
-  double yield_500, err_500;
-
-  cout << "\\begin{tabular}{ l | c c c c c }" << endl;
-  cout << "High $\\Delta M$   &  250 $\\leq E_T^{miss} <$ 300  &   300 $\\leq E_T^{miss} <$ 350  &   350 $\\leq E_T^{miss} <$ 400  &   400 $\\leq E_T^{miss} <$ 500 & $E_T^{miss} \\geq$ 500  \\\\ \\hline" << endl;
-
-  for( uint i=0; i<sampleNames.size(); i++ ) {
-	// Read in yields and errors from stored histograms
-	TH1D* h_sigRegion = (TH1D*)infile->Get("sregion_" + sampleNames.at(i));
-	// h_totals_sregion->Add(h_sigRegion); // already summed up backgrounds in the first table; don't need to repeat
-
-	yield_250 = h_sigRegion->GetBinContent( 5 );
-	yield_300 = h_sigRegion->GetBinContent( 6 );
-	yield_350 = h_sigRegion->GetBinContent( 7 );
-	yield_400 = h_sigRegion->GetBinContent( 8 );
-	yield_500 = h_sigRegion->GetBinContent( 9 );
-	err_250   = h_sigRegion->GetBinError( 5 );
-	err_300   = h_sigRegion->GetBinError( 6 );
-	err_350   = h_sigRegion->GetBinError( 7 );
-	err_400   = h_sigRegion->GetBinError( 8 );
-	err_500   = h_sigRegion->GetBinError( 9 );
-
-	// Print LaTeX table line
-	printf("%28s  &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", printNames.at(i).c_str(), yield_250, err_250, yield_300, err_300);
-	printf("%8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f &   %8.3f $\\pm$ %6.3f  \\\\\n", yield_350, err_350, yield_400, err_400, yield_500, err_500);
-	if( sampleNames.at(i)=="stop425" ) cout << "\\hline" << endl;
-  } // end loop over backgrounds
-  cout << "\\hline" << endl;
-
-  // Get total yields
-  yield_250 = h_totals_sregion->GetBinContent( 5 );
-  yield_300 = h_totals_sregion->GetBinContent( 6 );
-  yield_350 = h_totals_sregion->GetBinContent( 7 );
-  yield_400 = h_totals_sregion->GetBinContent( 8 );
-  yield_500 = h_totals_sregion->GetBinContent( 9 );
-  err_250   = h_totals_sregion->GetBinError( 5 );
-  err_300   = h_totals_sregion->GetBinError( 6 );
-  err_350   = h_totals_sregion->GetBinError( 7 );
-  err_400   = h_totals_sregion->GetBinError( 8 );
-  err_500   = h_totals_sregion->GetBinError( 9 );
-
-  // Print LaTeX table line
-  printf("%28s  &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", "Total background", yield_250, err_250, yield_300, err_300);
-  printf("%8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f &   %8.3f $\\pm$ %6.3f  \\\\\n", yield_350, err_350, yield_400, err_400, yield_500, err_500);
-
-  cout << "\\hline \\hline" << endl;
+	  // Read in yields and errors, and print out another cell in the table row
+	  for( uint i=1; i<=regNameList.size(); i++ ) {
+		yield = h_yields->GetBinContent( i + binOffsetSignal );
+		error = h_yields->GetBinError( i + binOffsetSignal );
+		printf( "  &   %8.3f $\\pm$ %6.3f", yield, error );
+	  }
+	  cout << "  \\\\" << endl;
+	} // End loop over signal samples
+	binOffsetSignal += regNameList.size();
 
 
-  /////////////////////////////////////////////////////////////////////////////////
-  // Make the lower half of the table, with the rows = final states
+	cout << "\\hline" << endl;
 
-  for( uint i=0; i<bkgNames.size()-1; i++ ) {
-	// Grab the yields and errors by background type
-	yield_250 = h_bgtype[4]->GetBinContent( i+1 );
-	yield_300 = h_bgtype[5]->GetBinContent( i+1 );
-	yield_350 = h_bgtype[6]->GetBinContent( i+1 );
-	yield_400 = h_bgtype[7]->GetBinContent( i+1 );
-	yield_500 = h_bgtype[8]->GetBinContent( i+1 );
-	err_250   = h_bgtype[4]->GetBinError( i+1 );
-	err_300   = h_bgtype[5]->GetBinError( i+1 );
-	err_350   = h_bgtype[6]->GetBinError( i+1 );
-	err_400   = h_bgtype[7]->GetBinError( i+1 );
-	err_500   = h_bgtype[8]->GetBinError( i+1 );
+	///////////////////////////////////////////////////////////////
+	// Loop over background samples, and print a table row for each
+	for( sample* thisSample : myAnalysis->GetBkgs() ) {
 
-	// Print LaTeX table line
-	printf( "%28s   &   %8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f   &   ", bkgNames.at(i).Data(), yield_250, err_250, yield_300, err_300 );
-	printf( "%8.3f $\\pm$ %6.3f   &   %8.3f $\\pm$ %6.3f &   %8.3f $\\pm$ %6.3f   \\\\\n", yield_350, err_350, yield_400, err_400, yield_500, err_500 );
-  }
+	  printf( "%28s  ", thisSample->GetTableName().Data() );       // Print start of row
+	  TH1D* h_yields = (TH1D*)infile->Get( "sregion_" + thisSample->GetIntName() ); // Retrieve yield histo for this sample
+	  h_totals_sregion->Add( h_yields );
 
-  cout << "\\end{tabular}\n\n" << endl;
+	  // Read in yields and errors, and print out another cell in the table row
+	  // Also add yields by background type to running tally
+	  for( uint i=1; i<=regNameList.size(); i++ ) {
+		yield = h_yields->GetBinContent( i + binOffsetBkg );
+		error = h_yields->GetBinError( i + binOffsetBkg );
+		printf( "  &   %8.3f $\\pm$ %6.3f", yield, error );
+		
+		TH1D* h_decayType = (TH1D*)infile->Get( "bkgtype_" + thisSample->GetIntName() + "_" + regNameList.at(i-1) );
+		yieldsByDecayType[i-1]->Add(h_decayType);
+	  }
+	  cout << "  \\\\" << endl;
+	} // End loop over background samples
+	binOffsetBkg += regNameList.size();
+
+
+
+	cout << "\\hline" << endl;
+
+	////////////////////////////////////////
+	// Print row for total background yield
+
+	cout << "            Total Background  ";
+	for( uint i=1; i<=regNameList.size(); i++ ) {
+	  yield = h_totals_sregion->GetBinContent(i);
+	  error = h_totals_sregion->GetBinError(i);
+	  printf( "  &   %8.3f $\\pm$ %6.3f", yield, error);
+	}
+	cout << "  \\\\" << endl;
+
+
+
+	cout << "\\hline \\hline" << endl;
+
+	/////////////////////////////////////////////////////////////////////////////////
+	// Make the lower half of the table, with the rows = final states
+
+	for( uint i=0; i<decayNames.size()-1; i++ ) {
+
+	  printf( "%28s  ", decayNames.at(i).Data() );
+
+	  for( uint j=0; j<regNameList.size(); j++ ) {
+		yield = yieldsByDecayType[j]->GetBinContent(i+1);
+		error = yieldsByDecayType[j]->GetBinError(i+1);
+		printf( "  &   %8.3f $\\pm$ %6.3f", yield, error );
+	  }
+	  cout << "  \\\\" << endl;
+
+	} // end loop over signal regions
+
+	cout << "\\end{tabular}\n\n" << endl;
+
+
+  } // end loop over (lists of signal regions)
+ 
 
 
 }

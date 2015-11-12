@@ -29,16 +29,7 @@ void makeStack( analysis* myAnalysis) {
   varNames.push_back("njets"  );  axisLabels.push_back("Number of jets");
   varNames.push_back("nbtags" );  axisLabels.push_back("Number of b-tags");
   
-  vector<TString> regNames; //signal regions
-  regNames.push_back("low250");
-  regNames.push_back("low300");
-  regNames.push_back("low350");
-  regNames.push_back("low400");
-  regNames.push_back("high250");
-  regNames.push_back("high300");
-  regNames.push_back("high350");
-  regNames.push_back("high400");
-  regNames.push_back("high500");
+  vector<TString> regNames = myAnalysis->GetSigRegionsAll(); //signal region names
 
   // Loop over all the variables we're plotting
   for( uint j=0; j<regNames.size(); j++ ) {
