@@ -34,4 +34,4 @@ analysis.so: analysis.cc analysis.h
 .PHONY: clean
 
 clean:
-	rm -v *.o *.so *.d *.pcm runAll
+	rm -v -f *.o *.so *.d *.pcm runAll
