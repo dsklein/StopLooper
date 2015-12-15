@@ -26,8 +26,7 @@ void makeTables( analysis* myAnalysis ) {
   // Keep a histogram for the total yields
   TH1D* h_totals_sregion = (TH1D*)infile->Get("sregion_" + dummySampleName)->Clone("signal_region_totals");
 
-  uint binOffsetSignal = 0;
-  uint binOffsetBkg = 0;
+  uint binOffset = 0;
 
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,14 +65,13 @@ void makeTables( analysis* myAnalysis ) {
 	  TH1D* h_yields = (TH1D*)infile->Get( "sregion_" + thisSample->GetIntName() ); // Retrieve yield histo for this sample
 
 	  // Read in yields and errors, and print out another cell in the table row
-	  for( uint i=1; i<=regNameList.size(); i++ ) {
-		yield = h_yields->GetBinContent( i + binOffsetSignal );
-		error = h_yields->GetBinError( i + binOffsetSignal );
+	  for( uint i=1; i<=nRegions; i++ ) {
+		yield = h_yields->GetBinContent( i + binOffset );
+		error = h_yields->GetBinError( i + binOffset );
 		printf( "  &   %8.3f $\\pm$ %6.3f", yield, error );
 	  }
 	  cout << "  \\\\" << endl;
 	} // End loop over signal samples
-	binOffsetSignal += regNameList.size();
 
 
 	cout << "\\hline" << endl;
@@ -88,9 +86,9 @@ void makeTables( analysis* myAnalysis ) {
 
 	  // Read in yields and errors, and print out another cell in the table row
 	  // Also add yields by background type to running tally
-	  for( uint i=1; i<=regNameList.size(); i++ ) {
-		yield = h_yields->GetBinContent( i + binOffsetBkg );
-		error = h_yields->GetBinError( i + binOffsetBkg );
+	  for( uint i=1; i<=nRegions; i++ ) {
+		yield = h_yields->GetBinContent( i + binOffset );
+		error = h_yields->GetBinError( i + binOffset );
 		printf( "  &   %8.3f $\\pm$ %6.3f", yield, error );
 		
 		TH1D* h_decayType = (TH1D*)infile->Get( "bkgtype_" + thisSample->GetIntName() + "_" + regNameList.at(i-1) );
@@ -98,7 +96,6 @@ void makeTables( analysis* myAnalysis ) {
 	  }
 	  cout << "  \\\\" << endl;
 	} // End loop over background samples
-	binOffsetBkg += regNameList.size();
 
 
 
@@ -108,16 +105,15 @@ void makeTables( analysis* myAnalysis ) {
 	// Print row for total background yield
 
 	cout << "            Total Background  ";
-	for( uint i=1; i<=regNameList.size(); i++ ) {
-	  yield = h_totals_sregion->GetBinContent(i);
-	  error = h_totals_sregion->GetBinError(i);
+	for( uint i=1; i<=nRegions; i++ ) {
+	  yield = h_totals_sregion->GetBinContent(i + binOffset);
+	  error = h_totals_sregion->GetBinError(i + binOffset);
 	  printf( "  &   %8.3f $\\pm$ %6.3f", yield, error);
 	}
 	cout << "  \\\\" << endl;
-
-
-
 	cout << "\\hline \\hline" << endl;
+
+	binOffset += nRegions;
 
 	/////////////////////////////////////////////////////////////////////////////////
 	// Make the lower half of the table, with the rows = final states
@@ -126,7 +122,7 @@ void makeTables( analysis* myAnalysis ) {
 
 	  printf( "%28s  ", decayNames.at(i).Data() );
 
-	  for( uint j=0; j<regNameList.size(); j++ ) {
+	  for( uint j=0; j<nRegions; j++ ) {
 		yield = yieldsByDecayType[j]->GetBinContent(i+1);
 		error = yieldsByDecayType[j]->GetBinError(i+1);
 		printf( "  &   %8.3f $\\pm$ %6.3f", yield, error );
