@@ -152,8 +152,8 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   while ( (currentFile = (TFile*)fileIter.Next()) ) {
 
     // Get File Content
-    TFile *file = new TFile( currentFile->GetTitle() );
-    TTree *tree = (TTree*)file->Get("t");
+    TFile file( currentFile->GetTitle() );
+    TTree *tree = (TTree*)file.Get("t");
     if(fast) TTreeCache::SetLearnEntries(10);
     if(fast) tree->SetCacheSize(128*1024*1024);
     cms3.Init(tree);
@@ -374,8 +374,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   
     // Clean Up
     delete tree;
-    file->Close();
-    delete file;
+    file.Close();
   }
 
   cout << "Cutflow yields:                        (yield)  (gen evts)" << endl;
