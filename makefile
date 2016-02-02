@@ -6,8 +6,8 @@ ROOTCFLAGS  = $(shell root-config --cflags --libs)
 
 
 
-runAll: runAll.cc runAll.h ScanChain.o makeTables.o makeStack.o dataMCplotMaker.so sample.so analysis.so
-	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runAll.cc ScanChain.o makeTables.o makeStack.o dataMCplotMaker.so sample.so analysis.so -Wl,-rpath,./ -o runAll
+runAll: runAll.cc runAll.h ScanChain.o makeTables.o makeStack.o libdataMCplotMaker.so libsample.so libanalysis.so
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runAll.cc ScanChain.o makeTables.o makeStack.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lsample -lanalysis -o runAll
 #GenVector seems to be necessary to take a LorentzVector invariant mass. The error was "undefined reference to Math::GenVector::Throw()"
 
 
@@ -20,14 +20,14 @@ makeTables.o: makeTables.C
 makeStack.o: makeStack.C
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -c makeStack.C -o makeStack.o
 
-dataMCplotMaker.so: dataMCplotMaker.cc dataMCplotMaker.h PlotMakingTools.h
-	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared dataMCplotMaker.cc dataMCplotMaker.h PlotMakingTools.h -o dataMCplotMaker.so
+libdataMCplotMaker.so: dataMCplotMaker.cc dataMCplotMaker.h PlotMakingTools.h
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared dataMCplotMaker.cc dataMCplotMaker.h PlotMakingTools.h -o libdataMCplotMaker.so
 
-sample.so: sample.cc sample.h
-	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared sample.cc -o sample.so
+libsample.so: sample.cc sample.h
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared sample.cc -o libsample.so
 
-analysis.so: analysis.cc analysis.h
-	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared analysis.cc -o analysis.so
+libanalysis.so: analysis.cc analysis.h
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared analysis.cc -o libanalysis.so
 
 
 
