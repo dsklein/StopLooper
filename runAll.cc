@@ -9,11 +9,6 @@
 int main() {
 
 
-
-  // Clear out the file to be filled with histograms  
-  TFile* outfile = new TFile("plots.root", "RECREATE");
-  outfile->Close();
-
   TString bkgPath = "/nfs-7/userdata/stopRun2/StopBabies__CMS3_V07-04-XX/Spring15_25ns_Samples/StopBabyMaker__v7.4.x_v5/Skim__METge30__LEPge1_elPt20_elEta2p1_muPt20_muEta2p1_vetoElPt5_vetoElEta2p4_vetoMuPt5_vetoMuEta2p4__JETge1_jPt30_jEta2p4__20150728/";
 
   TString sigPath = "/nfs-7/userdata/stopRun2/StopBabies__CMS3_V07-04-XX/Phys14Signals/StopBabyMaker__v7.4.x_v5/Skim__METge30__LEPge1_elPt20_elEta2p1_muPt20_muEta2p1_vetoElPt5_vetoElEta2p4_vetoMuPt5_vetoMuEta2p4__JETge1_jPt30_jEta2p4__20150728/";
@@ -92,7 +87,11 @@ int main() {
 
 
   //////////////////////////////////////////////////////////////////////////
-  // Run ScanChain
+  // Reset output file and run ScanChain
+
+  TFile* outfile = new TFile("plots.root", "RECREATE");
+  outfile->Close();
+
   ScanChain(ch_stop850, "stop850");
   ScanChain(ch_stop650, "stop650");
   ScanChain(ch_stop500, "stop500");
@@ -120,12 +119,12 @@ int main() {
   sample* stop500   = new sample( "stop500", "T2tt (500,325)", kMagenta+3,true );
   sample* stop425   = new sample( "stop425", "T2tt (425,325)", kOrange+7, true );
 
-  sample* tt2l      = new sample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kGreen-4,  false );
-  sample* tt1l      = new sample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kCyan-3,   false );
-  sample* singletop = new sample( "singletop", "Single Top",   kMagenta-5,false );
-  sample* wjets     = new sample( "wjets",   "W+Jets",         kRed-7,    false );
-  sample* dy        = new sample( "dy",      "Drell-Yan",      kOrange-2, false );
-  sample* rare      = new sample( "rare",    "Rare",           kRed+2,    false );
+  sample* tt2l      = new sample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   false );
+  sample* tt1l      = new sample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    false );
+  sample* singletop = new sample( "singletop", "Single Top",   kGreen-4,  false );
+  sample* wjets     = new sample( "wjets",   "W+Jets",         kOrange-2, false );
+  sample* dy        = new sample( "dy",      "Drell-Yan",      kRed+2,  false );
+  sample* rare      = new sample( "rare",    "Rare",           kMagenta-5,false );
 
   analysis* ThisAnalysis = new analysis;
   ThisAnalysis->AddSample(stop850);
