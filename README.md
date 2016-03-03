@@ -9,6 +9,6 @@ To compile all the code, simply type `make`. The plotmaking scripts mentioned ab
 
 ###Running
 
-To run the looper, do `./runAll`.
+To run the looper, do `./runLooper`.
 
 Stacked histograms will be saved in the 'plots' directory. Raw histograms will be stored in `plots.root`. The LaTeX code for the yield table(s) will be printed to the screen.
