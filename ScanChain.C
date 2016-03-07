@@ -24,7 +24,7 @@ using namespace tas;
 
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > LorentzVector;
 
-double myLumi = 5.;
+double myLumi = 2.26;
 
 int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, bool fast = true) {
 
@@ -116,7 +116,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   float yield_lepSel = 0;
   float yield_trkVeto = 0;
   float yield_tauVeto = 0;
-  float yield_4jets = 0;
+  float yield_njets = 0;
   float yield_1bjet = 0;
   float yield_METcut = 0;
   float yield_MTcut = 0;
@@ -130,7 +130,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   int yGen_lepSel = 0;
   int yGen_trkVeto = 0;
   int yGen_tauVeto = 0;
-  int yGen_4jets = 0;
+  int yGen_njets = 0;
   int yGen_1bjet = 0;
   int yGen_METcut = 0;
   int yGen_MTcut = 0;
@@ -206,18 +206,18 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 
 	  // Must pass lepton selections
 	  if( lep1_is_el() ) {
-		if( lep1_pt() <= 40. ) continue;
-		if( fabs(lep1_eta()) >= 2.1 ) continue;
-		if( !lep1_is_phys14_medium_noIso() ) continue;
-		if( lep1_miniRelIsoDB() >= 0.1 ) continue;
+		if( lep1_pt() <= 20. ) continue;
+		if( fabs(lep1_eta()) >= 1.442 ) continue;
+		if( !lep1_is_eleid_medium() ) continue;
+		if( lep1_miniRelIsoEA() >= 0.1 ) continue;
 	  }
 	  else if( lep1_is_mu() ) {
-		if( lep1_pt() <= 30. ) continue;
-		if( fabs(lep1_eta()) >= 2.1 ) continue;
-		if( !lep1_is_muoid_medium() ) continue;
+		if( lep1_pt() <= 20. ) continue;
+		if( fabs(lep1_eta()) >= 2.4 ) continue;
+		if( !lep1_is_muoid_tight() ) continue;
 		if( fabs(lep1_d0()) >= 0.02 ) continue;
 		if( fabs(lep1_dz()) >= 0.1  ) continue;
-		if( lep1_miniRelIsoDB() >= 0.1 ) continue;
+		if( lep1_miniRelIsoEA() >= 0.1 ) continue;
 	  }
 	  yield_lepSel += myLumi*scale1fb();
 	  yGen_lepSel++;
@@ -232,10 +232,10 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 	  yield_tauVeto += myLumi*scale1fb();
 	  yGen_tauVeto++;
 
-	  // 4-jet requirement
-	  if( ngoodjets() < 4 ) continue;
-	  yield_4jets += myLumi*scale1fb();
-	  yGen_4jets++;
+	  // N-jet requirement
+	  if( ngoodjets() < 2 ) continue;
+	  yield_njets += myLumi*scale1fb();
+	  yGen_njets++;
 
 	  // B-tag requirement
 	  // if( ngoodbtags() < 1 ) continue;
@@ -253,7 +253,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 	  yGen_1bjet++;
 
 	  // Baseline MET cut
-	  if( pfmet() <= 200. ) continue;
+	  if( pfmet() <= 250. ) continue;
 	  yield_METcut += myLumi*scale1fb();
 	  yGen_METcut++;
 
@@ -386,7 +386,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   printf("Events passing lepton selection:    %10.2f %9i\n", yield_lepSel	, yGen_lepSel		);
   printf("Events passing track veto:          %10.2f %9i\n", yield_trkVeto	, yGen_trkVeto		);
   printf("Events passing tau veto:            %10.2f %9i\n", yield_tauVeto	, yGen_tauVeto		);
-  printf("Events with at least 4 jets:        %10.2f %9i\n", yield_4jets	, yGen_4jets		);
+  printf("Events with at least 2 jets:        %10.2f %9i\n", yield_njets	, yGen_njets		);
   printf("Events with at least 1 b-tag:       %10.2f %9i\n", yield_1bjet	, yGen_1bjet		);
   printf("Events with MET > 200 GeV:          %10.2f %9i\n", yield_METcut	, yGen_METcut		);
   printf("Events with MT > 150 GeV:           %10.2f %9i\n", yield_MTcut	, yGen_MTcut		);
