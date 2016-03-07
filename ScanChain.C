@@ -179,9 +179,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 
 	  ///////////////////////////////////////////////////////////////
 	  // Special filters to more finely categorize background events
-	  if(      sampleName == "Wb"    && genbs_p4().size() < 1 ) continue;  //Make sure there are b-quarks in the "W+b" events
-	  else if( sampleName == "Wucsd" && genbs_p4().size() > 0 ) continue;  //Make sure there are no b-quarks in the "W+ucsd" events
-	  else if( sampleName == "tt2l"  && genlepsfromtop() != 2 ) continue;  //Require 2 leps from top in "tt2l" events
+	  if(      sampleName == "tt2l"  && genlepsfromtop() != 2 ) continue;  //Require 2 leps from top in "tt2l" events
 	  else if( sampleName == "tt1l"  && genlepsfromtop() != 1 ) continue;  //Require 1 lep from top in "tt1l" events
 
 
@@ -244,8 +242,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 		if( ak4pfjets_pt().at(idx) <= 30. ) continue;
 		if( fabs(ak4pfjets_eta().at(idx)) >= 2.4 ) continue;
 		if( !ak4pfjets_loose_pfid().at(idx) ) continue;
-		if(        TString(sampleName).Contains("stop")  && ak4pfjets_CSV().at(idx) < 0.814 ) continue; // Different CSV cut for phys14 signal samples
-		else if( !(TString(sampleName).Contains("stop")) && ak4pfjets_CSV().at(idx) < 0.890 ) continue;
+		if( ak4pfjets_CSV().at(idx) < 0.890 ) continue;
 		nbtags++;
 	  }
 	  if( nbtags < 1 ) continue;
@@ -276,70 +273,11 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 	  //////////////////////////////////////////////////////////
 	  // Classify event based on number of leptons / neutrinos
 
-	  int nPromptLeps = 0;
-	  bool nusFromZ = false;
-
-	  if( !TString(sampleName).Contains("stop") ) {
-
-		for( uint idx=0; idx<genels_p4().size(); idx++ ) {
-		  if( abs(genels_motherid().at(idx)) == 15 ) continue;  // Skip leptons from tau decay
-		  if( !genels_fromHardProcessFinalState().at(idx) ) continue;
-		  if( !genels_isLastCopy().at(idx) ) continue;
-		  nPromptLeps++;
-		}
-
-		for( uint idx=0; idx<genmus_p4().size(); idx++ ) {
-		  if( abs(genmus_motherid().at(idx)) == 15 ) continue;  // Skip leptons from tau decay
-		  if( !genmus_fromHardProcessFinalState().at(idx) ) continue;
-		  if( !genmus_isLastCopy().at(idx) ) continue;
-		  nPromptLeps++;
-		}
-
-		for( uint idx=0; idx<gentaus_p4().size(); idx++ ) {
-		  if( !gentaus_fromHardProcessDecayed().at(idx) ) continue;
-		  if( !gentaus_isLastCopy().at(idx) ) continue;
-		  nPromptLeps++;
-		}
-
-		vector<int> nuIDs, nuMoms;
-
-		// Make lists of neutrino IDs and parent indices
-		for( uint idx=0; idx<gennuels_p4().size(); idx++  ) {
-		  if( !gennuels_fromHardProcessFinalState().at(idx) ) continue;
-		  if( !gennuels_isLastCopy().at(idx)  ) continue;
-		  nuIDs.push_back( gennuels_id().at(idx) );
-		  nuMoms.push_back( gennuels_motheridx().at(idx) );
-		}
-		for( uint idx=0; idx<gennumus_p4().size(); idx++  ) {
-		  if( !gennumus_fromHardProcessFinalState().at(idx) ) continue;
-		  if( !gennumus_isLastCopy().at(idx)  ) continue;
-		  nuIDs.push_back( gennumus_id().at(idx) );
-		  nuMoms.push_back( gennumus_motheridx().at(idx) );
-		}
-		for( uint idx=0; idx<gennutaus_p4().size(); idx++ ) {
-		  if( !gennutaus_fromHardProcessFinalState().at(idx) ) continue;
-		  if( !gennutaus_isLastCopy().at(idx) ) continue;
-		  nuIDs.push_back( gennutaus_id().at(idx) );
-		  nuMoms.push_back( gennutaus_motheridx().at(idx) );
-		}
-
-
-		// Hunt for two neutrinos with opposite PDG IDs and the same mother idx
-		uint upperBound = nuIDs.size()<2 ?  0  :  nuIDs.size()-1;
-		for( uint x=0; x<upperBound; x++ ) {
-		  for( uint y=x+1; y<nuIDs.size(); y++ ) {
-			if( (nuIDs.at(x) + nuIDs.at(y) == 0) && (nuMoms.at(x) == nuMoms.at(y) ) ) nusFromZ = true;
-		  }
-		}
-
-	  } // End "if sampleName doesn't contain 'stop'"
-
-
 	  int category = -99;
-	  if(      nusFromZ==true   ) category = 3;   // Z to nu nu
-	  else if( nPromptLeps >= 2 ) category = 2;   // 2 or more leptons
-	  else if( nPromptLeps == 1 ) category = 1;   // 1 lepton
-	  else                        category = 4;   // Other
+	  if(   isZtoNuNu() ) category = 3;   // Z to nu nu
+	  else if( is2lep() ) category = 2;   // 2 or more leptons
+	  else if( is1lep() ) category = 1;   // 1 lepton
+	  else                category = 4;   // Other
 
 	  ///////////////////////////////////////////
 	  // MET/MT2W cuts and histo filling
@@ -388,7 +326,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   printf("Events passing tau veto:            %10.2f %9i\n", yield_tauVeto	, yGen_tauVeto		);
   printf("Events with at least 2 jets:        %10.2f %9i\n", yield_njets	, yGen_njets		);
   printf("Events with at least 1 b-tag:       %10.2f %9i\n", yield_1bjet	, yGen_1bjet		);
-  printf("Events with MET > 200 GeV:          %10.2f %9i\n", yield_METcut	, yGen_METcut		);
+  printf("Events with MET > 250 GeV:          %10.2f %9i\n", yield_METcut	, yGen_METcut		);
   printf("Events with MT > 150 GeV:           %10.2f %9i\n", yield_MTcut	, yGen_MTcut		);
   printf("Events with min dPhi > 0.8:         %10.2f %9i\n", yield_dPhi		, yGen_dPhi			);
   // printf("Events with chi2 < 10:              %10.2f %9i\n", yield_chi2 	, yGen_chi2 		);
