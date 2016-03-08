@@ -25,6 +25,7 @@ using namespace tas;
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > LorentzVector;
 
 double myLumi = 2.26;
+const int nSigRegs = 10;
 
 int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, bool fast = true) {
 
@@ -41,30 +42,32 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   TH1::SetDefaultSumw2();
 
 
-  TH1D* h_bgtype[9];
+  TH1D* h_bgtype[nSigRegs];
 
-  TH1D *h_mt[9];
-  TH1D *h_met[9];
-  TH1D *h_mt2w[9];
-  TH1D *h_chi2[9];
-  TH1D *h_htratio[9];
-  TH1D *h_mindphi[9];
-  TH1D *h_ptb1[9];
-  TH1D *h_drlb1[9];
-  TH1D *h_ptlep[9];
-  TH1D *h_metht[9];
-  TH1D *h_dphilw[9];
-  TH1D *h_njets[9];
-  TH1D *h_nbtags[9];
+  TH1D *h_mt[nSigRegs];
+  TH1D *h_met[nSigRegs];
+  TH1D *h_mt2w[nSigRegs];
+  TH1D *h_chi2[nSigRegs];
+  TH1D *h_htratio[nSigRegs];
+  TH1D *h_mindphi[nSigRegs];
+  TH1D *h_ptb1[nSigRegs];
+  TH1D *h_drlb1[nSigRegs];
+  TH1D *h_ptlep[nSigRegs];
+  TH1D *h_metht[nSigRegs];
+  TH1D *h_dphilw[nSigRegs];
+  TH1D *h_njets[nSigRegs];
+  TH1D *h_nbtags[nSigRegs];
 
-  double met_min[9]  = {250., 300., 350., 400.,   250., 300., 350., 400., 500.};
-  double met_max[9]  = {300., 350., 400., 99999., 300., 350., 400., 500., 99999.};
-  double mt2w_min[9] = {  0.,   0.,   0.,   0.,   200., 200., 200., 200., 200.};
-  double mt2w_max[9] = {200., 200., 200., 200., 99999., 99999., 99999., 99999., 99999.};
-  string regNames[9] = {"low250", "low300", "low350", "low400", "high250", "high300", "high350", "high400", "high500"};
+  double met_min[nSigRegs]   = {250., 350., 250., 350.,   250., 325., 250., 350., 450., 250.};
+  double met_max[nSigRegs]   = {350., 99999., 350., 99999., 325., 99999., 350., 450., 99999., 99999.};
+  double mt2w_min[nSigRegs]  = {  0.,   0., 200., 200.,     0.,   0., 200., 200., 200., 0.};
+  double mt2w_max[nSigRegs]  = {99999., 99999., 99999., 99999., 200., 200., 99999., 99999., 99999., 99999,};
+  double njets_min[nSigRegs] = {   2,    2,    3,    3,      4,    4,    4,    4,    4, 2};
+  double njets_max[nSigRegs] = {   2,    2,    3,    3,    999,  999,  999,  999,  999, 999};
+  string regNames[nSigRegs] = {"compr250", "compr350", "boost250", "boost350", "low250", "low325", "high250", "high350", "high450", "inclusive"};
 
 
-  for( int i=0; i<9; i++ ) {
+  for( int i=0; i<nSigRegs; i++ ) {
 
 	h_bgtype[i]   = new TH1D( Form( "bkgtype_%s_%s" , sampleName.c_str(), regNames[i].c_str()), "Yield by background type", 4, 0.5, 4.5);
 	h_mt[i]       = new TH1D( Form( "mt_%s_%s"      , sampleName.c_str(), regNames[i].c_str()),	"Transverse mass",			80, 0, 800);
@@ -105,7 +108,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 
   }
 
-  TH1D *h_sigRegion = new TH1D( Form("sregion_%s", sampleName.c_str()), "Yield by signal region", 9, 0.5, 9.5);
+  TH1D *h_sigRegion = new TH1D( Form("sregion_%s", sampleName.c_str()), "Yield by signal region", nSigRegs, 0.5, float(nSigRegs)+0.5);
   h_sigRegion->SetDirectory(rootdir);
 
 
@@ -283,9 +286,11 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 	  // MET/MT2W cuts and histo filling
 
 	  // If the event passes the SR cuts, store which background type this event is, and fill histograms
-	  for( int i=0; i<9; i++ ) {
+	  for( int i=0; i<nSigRegs; i++ ) {
 		if( pfmet() < met_min[i] || pfmet() >= met_max[i] ) continue;
 		if( MT2W() < mt2w_min[i] || MT2W() >= mt2w_max[i] ) continue;
+		if( ngoodjets() < njets_min[i] || ngoodjets() > njets_max[i] ) continue;
+		if( (regNames[i] == "compr250" || regNames[i] == "compr350") && topnessMod() <= 6.4 ) continue;
 
 		h_bgtype[i]->Fill( category,                    myLumi*scale1fb() );
 
@@ -337,7 +342,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   }
 
   // Zero negative values in each signal region
-  for( int j=0; j<9; j++ ) {
+  for( int j=0; j<nSigRegs; j++ ) {
 	bool negsFound = false;
 
 	// First zero any decay modes with negative yields
@@ -361,7 +366,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
   TFile* plotfile = new TFile("plots.root", "UPDATE");
   plotfile->cd();
 
-  for( int j=0; j<9; j++ ) {
+  for( int j=0; j<nSigRegs; j++ ) {
 	h_bgtype[j]->Write();
 	h_mt[j]->Write();
 	h_met[j]->Write();
@@ -381,7 +386,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 
   plotfile->Close();
 
-  for( int j=0; j<9; j++ ) {
+  for( int j=0; j<nSigRegs; j++ ) {
 	h_bgtype[j]->Delete();
 	h_mt[j]->Delete();
 	h_met[j]->Delete();

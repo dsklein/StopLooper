@@ -165,10 +165,16 @@ int main( int argc, char* argv[] ) {
   ThisAnalysis->AddSample(dy);
   ThisAnalysis->AddSample(rare);
 
-  std::vector<TString> lowDMreg  = {"low250",  "low300",  "low350",  "low400"};
-  std::vector<TString> highDMreg = {"high250", "high300", "high350", "high400", "high500"};
+  std::vector<TString> compressed  = {"compr250",  "compr350"};
+  std::vector<TString> boosted     = {"boost250",  "boost350"};
+  std::vector<TString> lowDMreg    = {"low250",  "low325"};
+  std::vector<TString> highDMreg = {"high250", "high350", "high450"};
+  std::vector<TString> inclusive = {"inclusive"};
+  ThisAnalysis->AddSigRegs( compressed );
+  ThisAnalysis->AddSigRegs( boosted );
   ThisAnalysis->AddSigRegs( lowDMreg );
   ThisAnalysis->AddSigRegs( highDMreg );
+  ThisAnalysis->AddSigRegs( inclusive );
 
 
   if( argument=="all" || argument=="output" || argument=="out" || argument=="table" || argument=="tables" ) makeTables( ThisAnalysis );
