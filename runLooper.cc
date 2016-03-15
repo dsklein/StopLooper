@@ -141,17 +141,19 @@ int main( int argc, char* argv[] ) {
   ////////////////////////////////////////////////////////////////////////////////////////
   // Make "analysis" object out of "samples", and pass them to makeTables and makeStack
 
-  sample* stop700   = new sample( "stop700", "T2tt (700,50)", kBlue+3,   true );
-  sample* stop600   = new sample( "stop600", "T2tt (600,250)", kGreen+3,  true );
-  sample* stop300   = new sample( "stop300", "T2tt (300,200)", kMagenta+3,true );
-  sample* stop275   = new sample( "stop275", "T2tt (275,100)", kOrange+7, true );
+  //sample( "Storage name", "Display name", TColor, isData, isSignal
 
-  sample* tt2l      = new sample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   false );
-  sample* tt1l      = new sample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    false );
-  sample* singletop = new sample( "singletop", "Single Top",   kGreen-4,  false );
-  sample* wjets     = new sample( "wjets",   "W+Jets",         kOrange-2, false );
-  sample* dy        = new sample( "dy",      "Drell-Yan",      kRed+2,    false );
-  sample* rare      = new sample( "rare",    "Rare",           kMagenta-5,false );
+  sample* stop700   = new sample( "stop700", "T2tt (700,50)",  kBlue+3,   false, true );
+  sample* stop600   = new sample( "stop600", "T2tt (600,250)", kGreen+3,  false, true );
+  sample* stop300   = new sample( "stop300", "T2tt (300,200)", kMagenta+3,false, true );
+  sample* stop275   = new sample( "stop275", "T2tt (275,100)", kOrange+7, false, true );
+
+  sample* tt2l      = new sample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   false, false );
+  sample* tt1l      = new sample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    false, false );
+  sample* singletop = new sample( "singletop", "Single Top",   kGreen-4,  false, false );
+  sample* wjets     = new sample( "wjets",   "W+Jets",         kOrange-2, false, false );
+  sample* dy        = new sample( "dy",      "Drell-Yan",      kRed+2,    false, false );
+  sample* rare      = new sample( "rare",    "Rare",           kMagenta-5,false, false );
 
   analysis* ThisAnalysis = new analysis;
   ThisAnalysis->AddSample(stop700);

@@ -1,9 +1,16 @@
 #include "analysis.h"
 
+// Constructor
+analysis::analysis() {
+  data = NULL;
+}
+
+// Everything else
 
 void analysis::AddSample( sample* newSample ) {
-  if( newSample->IsData() ) signals.push_back( newSample );
-  else                  backgrounds.push_back( newSample );
+  if( newSample->IsData() ) data = newSample;
+  else if( newSample->IsSignal() ) signals.push_back( newSample );
+  else backgrounds.push_back( newSample );
 }
 
 void analysis::AddSigRegs( std::vector<TString> regions ) { sigRegions.push_back(regions); }
@@ -60,6 +67,12 @@ std::vector<std::string> analysis::GetSignalNamesLegend() {
 
 std::vector<sample*> analysis::GetSignals() { return signals; }
 
+sample* analysis::GetData() {
+  if( data ) return data;
+  std::cout << "Error: no data sample defined for this analysis!" << std::endl;
+  throw(5);
+}
+
 std::vector<short int> analysis::GetColors() {
   std::vector<short int> colors;
   for( sample* mySample : backgrounds ) colors.push_back( mySample->GetColor() );
@@ -70,12 +83,18 @@ std::vector<short int> analysis::GetColors() {
 sample* analysis::GetSample( std::string name ) {
   for( sample* mySample : backgrounds ) if( mySample->GetIntName() == name ) return mySample;
   for( sample* mySample : signals     ) if( mySample->GetIntName() == name ) return mySample;
+  if( data && data->GetIntName() == name ) return data;
   std::cout << "Error! Sample '" << name << "' was not found!" << std::endl;
   throw(5);
 }
 
 const int analysis::GetNsignals() { return static_cast<int>(signals.size()); };
 const int analysis::GetNbkgs() { return static_cast<int>(backgrounds.size()); };
+
+bool analysis::HasData() {
+  if( data ) return true;
+  else return false;
+}
 
 std::vector<std::vector<TString> > analysis::GetSigRegions() { return sigRegions; }
 

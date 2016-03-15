@@ -15,6 +15,8 @@
 class analysis{
 
 public:
+  analysis();
+
   void AddSample( sample* newSample );
   void AddSigRegs( std::vector<TString> regions );
   std::vector<short int> GetBkgColors();
@@ -27,14 +29,17 @@ public:
   std::vector<std::string> GetSignalNamesTable();
   std::vector<std::string> GetSignalNamesLegend();
   std::vector<sample*> GetSignals();
+  sample* GetData();
   std::vector<short int> GetColors();
   std::vector<std::vector<TString> > GetSigRegions();
   std::vector<TString> GetSigRegionsAll();
   sample* GetSample( std::string name );
   const int GetNsignals();
   const int GetNbkgs();
+  bool HasData();
 
 private:
+  sample* data;
   std::vector<sample*> backgrounds;
   std::vector<sample*> signals;
   std::vector<std::vector<TString> > sigRegions;
