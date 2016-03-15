@@ -37,7 +37,7 @@ void makeTables( analysis* myAnalysis ) {
 	double yield, error;
 	h_totals_sregion->Reset();
 
-	// Prep histograms that will store the total yields by decay type
+	// Prep histograms that will store the total bkg yields by decay type
 	uint nRegions = regNameList.size();
 	TH1D* yieldsByDecayType[nRegions];
 	for( uint i=0; i<nRegions; i++ ) {
@@ -56,6 +56,23 @@ void makeTables( analysis* myAnalysis ) {
 	cout << " \\\\ \\hline" << endl;
 
 
+	/////////////////////////////////////////////////////
+	// If we have a data sample, print a table row for it
+	if( myAnalysis->HasData() ) {
+
+	  sample* data = myAnalysis->GetData();
+	  printf( "%28s  ", data->GetTableName().Data() );       // Print start of row
+	  TH1D* h_yields = (TH1D*)infile->Get( "sregion_" + data->GetIntName() ); // Retrieve yield histo for this sample
+
+	  // Read in yields and errors, and print out another cell in the table row
+	  for( uint i=1; i<=nRegions; i++ ) {
+		yield = h_yields->GetBinContent( i + binOffset );
+		error = h_yields->GetBinError( i + binOffset );
+		printf( "  &   %8.3f $\\pm$ %6.3f", yield, error );
+	  }
+	  cout << "  \\\\" << endl;
+	  cout << "\\hline" << endl;
+	}
 
 	///////////////////////////////////////////////////////////
 	// Loop over signal samples, and print a table row for each
@@ -74,7 +91,7 @@ void makeTables( analysis* myAnalysis ) {
 	} // End loop over signal samples
 
 
-	cout << "\\hline" << endl;
+	if( myAnalysis->GetNsignals() > 0 ) cout << "\\hline" << endl;
 
 	///////////////////////////////////////////////////////////////
 	// Loop over background samples, and print a table row for each
@@ -134,8 +151,9 @@ void makeTables( analysis* myAnalysis ) {
 	cout << "\\end{tabular}\n\n" << endl;
 
 
-  } // end loop over (lists of signal regions)
+  } // end loop over lists of signal regions
  
-
+  infile->Close();
+  delete infile;
 
 }

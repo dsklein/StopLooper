@@ -37,6 +37,7 @@ void makeStack( analysis* myAnalysis) {
 
 	  vector<TH1F*> bkgs;
 	  vector<TH1F*> sigs;
+	  TH1F* data;
 
 	  // Retrieve the histograms for each background
 	  for( TString sampleName : myAnalysis->GetBkgNamesStorage() ) {
@@ -52,8 +53,12 @@ void makeStack( analysis* myAnalysis) {
 		sigs.push_back(histo);
 	  }
 
-
-	  TH1F* nullData = new TH1F("", "", 1, 0, 1);
+	  // If there's a data sample, get the histogram
+	  if( myAnalysis->HasData() ) {
+		TString plotname = varNames.at(i) + "_" + myAnalysis->GetData()->GetIntName() + "_" + regNames.at(j);
+		data = (TH1F*)plotfile->Get(plotname);
+	  }
+	  else data = new TH1F("", "", 1, 0, 1);
 
 	  // Get sample titles and colors from the "analysis" object
 	  vector<string> bkg_titles = myAnalysis->GetBkgNamesLegend();
@@ -70,7 +75,7 @@ void makeStack( analysis* myAnalysis) {
 	  // (try also --isLinear);  --legendTextSize 0.022
 
 	  // Run the big tamale...
-	  dataMCplotMaker( nullData,
+	  dataMCplotMaker( data,
 					   bkgs,
 					   bkg_titles,
 					   plotTitle.Data(), //title
@@ -83,7 +88,7 @@ void makeStack( analysis* myAnalysis) {
 	} // End loop over variables to plot
   } // End loop over signal regions
 
-
-
+  plotfile->Close();
+  delete plotfile;
 
 }
