@@ -155,7 +155,7 @@ int main( int argc, char* argv[] ) {
   sample* dy        = new sample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
   sample* rare      = new sample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
 
-  analysis* ThisAnalysis = new analysis;
+  analysis* ThisAnalysis = new analysis( 2.26 );
   ThisAnalysis->AddSample(stop700);
   ThisAnalysis->AddSample(stop600);
   ThisAnalysis->AddSample(stop300);

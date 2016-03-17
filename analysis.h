@@ -15,7 +15,7 @@
 class analysis{
 
 public:
-  analysis();
+  analysis( float lumi );
 
   void AddSample( sample* newSample );
   void AddSigRegs( std::vector<TString> regions );
@@ -37,13 +37,14 @@ public:
   const int GetNsignals();
   const int GetNbkgs();
   bool HasData();
+  const float GetLumi();
 
 private:
   sample* data;
   std::vector<sample*> backgrounds;
   std::vector<sample*> signals;
   std::vector<std::vector<TString> > sigRegions;
-
+  float luminosity;
 };
 
 #endif

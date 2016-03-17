@@ -1,7 +1,9 @@
 #include "analysis.h"
 
 // Constructor
-analysis::analysis() {
+analysis::analysis( float lumi)
+  : luminosity(lumi)
+{
   data = NULL;
 }
 
@@ -88,8 +90,8 @@ sample* analysis::GetSample( std::string name ) {
   throw(5);
 }
 
-const int analysis::GetNsignals() { return static_cast<int>(signals.size()); };
-const int analysis::GetNbkgs() { return static_cast<int>(backgrounds.size()); };
+const int analysis::GetNsignals() { return static_cast<int>(signals.size()); }
+const int analysis::GetNbkgs() { return static_cast<int>(backgrounds.size()); }
 
 bool analysis::HasData() {
   if( data ) return true;
@@ -103,3 +105,5 @@ std::vector<TString> analysis::GetSigRegionsAll() {
   for( std::vector<TString> SRset : sigRegions ) output.insert( output.end(), SRset.begin(), SRset.end() );
   return output;
 }
+
+const float analysis::GetLumi() { return luminosity; }

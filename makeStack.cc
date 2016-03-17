@@ -69,9 +69,15 @@ void makeStack( analysis* myAnalysis) {
 	  TString plotTitle = bkgs.at(0)->GetTitle();
 	  TString plotSubTitle = "Region: " + regNames.at(j);
 
+	  // Convert the lumi to a TString
+	  char tmpStr[10];
+	  sprintf( tmpStr, "%f", myAnalysis->GetLumi() );
+	  TString lumi(tmpStr);
+	  
+
 
 	  // Make the options string for each stack
-	  TString optString = "--energy 13 --lumi 5 --xAxisLabel "+axisLabels.at(i)+" --xAxisUnit --outputName plots/stack_" + varNames.at(i) + "_" + regNames.at(j); // + " --png";
+	  TString optString = "--energy 13 --lumi " + lumi + " --xAxisLabel "+axisLabels.at(i)+" --xAxisUnit --outputName plots/stack_" + varNames.at(i) + "_" + regNames.at(j); // + " --png";
 	  // (try also --isLinear);  --legendTextSize 0.022
 
 	  // Run the big tamale...
