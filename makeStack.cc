@@ -40,14 +40,14 @@ void makeStack( analysis* myAnalysis) {
 	  TH1F* data;
 
 	  // Retrieve the histograms for each background
-	  for( TString sampleName : myAnalysis->GetBkgNamesStorage() ) {
+	  for( TString sampleName : myAnalysis->GetBkgLabels() ) {
 		TString plotname = varNames.at(i) + "_" + sampleName + "_" + regNames.at(j);
 		TH1F*   histo    = (TH1F*)plotfile->Get(plotname);
 		bkgs.push_back(histo);
 	  }
 
 	  // Retrieve the histograms for each signal
-	  for( TString sampleName : myAnalysis->GetSignalNamesStorage() ) {
+	  for( TString sampleName : myAnalysis->GetSignalLabels() ) {
 		TString plotname = varNames.at(i) + "_" + sampleName + "_" + regNames.at(j);
 		TH1F*   histo    = (TH1F*)plotfile->Get(plotname);
 		sigs.push_back(histo);
@@ -55,7 +55,7 @@ void makeStack( analysis* myAnalysis) {
 
 	  // If there's a data sample, get the histogram
 	  if( myAnalysis->HasData() ) {
-		TString plotname = varNames.at(i) + "_" + myAnalysis->GetData()->GetIntName() + "_" + regNames.at(j);
+		TString plotname = varNames.at(i) + "_" + myAnalysis->GetData()->GetLabel() + "_" + regNames.at(j);
 		data = (TH1F*)plotfile->Get(plotname);
 	  }
 	  else data = new TH1F("", "", 1, 0, 1);

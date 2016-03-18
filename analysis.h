@@ -20,12 +20,12 @@ public:
   void AddSample( sample* newSample );
   void AddSigRegs( std::vector<TString> regions );
   std::vector<short int> GetBkgColors();
-  std::vector<TString> GetBkgNamesStorage();
+  std::vector<TString> GetBkgLabels();
   std::vector<std::string> GetBkgNamesTable();
   std::vector<std::string> GetBkgNamesLegend();
   std::vector<sample*> GetBkgs();
   std::vector<short int> GetSignalColors();
-  std::vector<TString> GetSignalNamesStorage();
+  std::vector<TString> GetSignalLabels();
   std::vector<std::string> GetSignalNamesTable();
   std::vector<std::string> GetSignalNamesLegend();
   std::vector<sample*> GetSignals();

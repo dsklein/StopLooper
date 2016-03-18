@@ -23,10 +23,10 @@ std::vector<short int> analysis::GetBkgColors() {
   return colors;
 }
 
-std::vector<TString> analysis::GetBkgNamesStorage() {
-  std::vector<TString> stoNames;
-  for( sample* mySample : backgrounds ) stoNames.push_back( mySample->GetIntName() );
-  return stoNames;
+std::vector<TString> analysis::GetBkgLabels() {
+  std::vector<TString> labels;
+  for( sample* mySample : backgrounds ) labels.push_back( mySample->GetLabel() );
+  return labels;
 }
 
 std::vector<std::string> analysis::GetBkgNamesTable() {
@@ -49,10 +49,10 @@ std::vector<short int> analysis::GetSignalColors() {
   return colors;
 }
 
-std::vector<TString> analysis::GetSignalNamesStorage() {
-  std::vector<TString> stoNames;
-  for( sample* mySample : signals ) stoNames.push_back( mySample->GetIntName() );
-  return stoNames;
+std::vector<TString> analysis::GetSignalLabels() {
+  std::vector<TString> labels;
+  for( sample* mySample : signals ) labels.push_back( mySample->GetLabel() );
+  return labels;
 }
 
 std::vector<std::string> analysis::GetSignalNamesTable() {
@@ -83,9 +83,9 @@ std::vector<short int> analysis::GetColors() {
 }
 
 sample* analysis::GetSample( std::string name ) {
-  for( sample* mySample : backgrounds ) if( mySample->GetIntName() == name ) return mySample;
-  for( sample* mySample : signals     ) if( mySample->GetIntName() == name ) return mySample;
-  if( data && data->GetIntName() == name ) return data;
+  for( sample* mySample : backgrounds ) if( mySample->GetLabel() == name ) return mySample;
+  for( sample* mySample : signals     ) if( mySample->GetLabel() == name ) return mySample;
+  if( data && data->GetLabel() == name ) return data;
   std::cout << "Error! Sample '" << name << "' was not found!" << std::endl;
   throw(5);
 }

@@ -20,7 +20,7 @@ void makeTables( analysis* myAnalysis ) {
   decayNames.push_back("Z $\\rightarrow \\nu\\nu$");
   decayNames.push_back("Other");
 
-  TString dummySampleName = myAnalysis->GetBkgNamesStorage().at(0);
+  TString dummySampleName = myAnalysis->GetBkgLabels().at(0);
   TString dummyRegionName = myAnalysis->GetSigRegionsAll().at(0);
 
   // Keep a histogram for the total yields
@@ -62,7 +62,7 @@ void makeTables( analysis* myAnalysis ) {
 
 	  sample* data = myAnalysis->GetData();
 	  printf( "%28s  ", data->GetTableName().Data() );       // Print start of row
-	  TH1D* h_yields = (TH1D*)infile->Get( "sregion_" + data->GetIntName() ); // Retrieve yield histo for this sample
+	  TH1D* h_yields = (TH1D*)infile->Get( "sregion_" + data->GetLabel() ); // Retrieve yield histo for this sample
 
 	  // Read in yields and errors, and print out another cell in the table row
 	  for( uint i=1; i<=nRegions; i++ ) {
@@ -79,7 +79,7 @@ void makeTables( analysis* myAnalysis ) {
 	for( sample* thisSample : myAnalysis->GetSignals() ) {
 
 	  printf( "%28s  ", thisSample->GetTableName().Data() );       // Print start of row
-	  TH1D* h_yields = (TH1D*)infile->Get( "sregion_" + thisSample->GetIntName() ); // Retrieve yield histo for this sample
+	  TH1D* h_yields = (TH1D*)infile->Get( "sregion_" + thisSample->GetLabel() ); // Retrieve yield histo for this sample
 
 	  // Read in yields and errors, and print out another cell in the table row
 	  for( uint i=1; i<=nRegions; i++ ) {
@@ -98,7 +98,7 @@ void makeTables( analysis* myAnalysis ) {
 	for( sample* thisSample : myAnalysis->GetBkgs() ) {
 
 	  printf( "%28s  ", thisSample->GetTableName().Data() );       // Print start of row
-	  TH1D* h_yields = (TH1D*)infile->Get( "sregion_" + thisSample->GetIntName() ); // Retrieve yield histo for this sample
+	  TH1D* h_yields = (TH1D*)infile->Get( "sregion_" + thisSample->GetLabel() ); // Retrieve yield histo for this sample
 	  h_totals_sregion->Add( h_yields );
 
 	  // Read in yields and errors, and print out another cell in the table row
@@ -108,7 +108,7 @@ void makeTables( analysis* myAnalysis ) {
 		error = h_yields->GetBinError( i + binOffset );
 		printf( "  &   %8.3f $\\pm$ %6.3f", yield, error );
 		
-		TH1D* h_decayType = (TH1D*)infile->Get( "bkgtype_" + thisSample->GetIntName() + "_" + regNameList.at(i-1) );
+		TH1D* h_decayType = (TH1D*)infile->Get( "bkgtype_" + thisSample->GetLabel() + "_" + regNameList.at(i-1) );
 		yieldsByDecayType[i-1]->Add(h_decayType);
 	  }
 	  cout << "  \\\\" << endl;

@@ -3,8 +3,8 @@
 
 // Constructors
 
-sample::sample(std::string stName, std::string niceName)
-  : name_storage(stName),
+sample::sample(std::string myLabel, std::string niceName)
+  : storage_label(myLabel),
 	name_table(niceName),
 	name_legend(niceName),
 	myType(kBackground),
@@ -12,8 +12,8 @@ sample::sample(std::string stName, std::string niceName)
 {
 }
 
-sample::sample(std::string stName, std::string niceName, short int color, sampleType type = kBackground)
-  : name_storage(stName),
+sample::sample(std::string myLabel, std::string niceName, short int color, sampleType type = kBackground)
+  : storage_label(myLabel),
 	name_table(niceName),
 	name_legend(niceName),
 	myType(type),
@@ -21,8 +21,8 @@ sample::sample(std::string stName, std::string niceName, short int color, sample
 {
 }
 
-sample::sample(std::string stName, std::string tabName, std::string legName)
-  : name_storage(stName),
+sample::sample(std::string myLabel, std::string tabName, std::string legName)
+  : storage_label(myLabel),
 	name_table(tabName),
 	name_legend(legName),
 	myType(kBackground),
@@ -30,8 +30,8 @@ sample::sample(std::string stName, std::string tabName, std::string legName)
 {
 }
 
-sample::sample(std::string stName, std::string tabName, std::string legName, short int color, sampleType type = kBackground)
-  : name_storage(stName),
+sample::sample(std::string myLabel, std::string tabName, std::string legName, short int color, sampleType type = kBackground)
+  : storage_label(myLabel),
 	name_table(tabName),
 	name_legend(legName),
 	myType(type),
@@ -42,7 +42,7 @@ sample::sample(std::string stName, std::string tabName, std::string legName, sho
 // Other member functions
 // Get or set various properties
 
-TString sample::GetIntName()   { return static_cast<TString>(name_storage); }
+TString sample::GetLabel()     { return static_cast<TString>(storage_label); }
 TString sample::GetTableName() { return static_cast<TString>(name_table);   }
 TString sample::GetLegName()   { return static_cast<TString>(name_legend);  }
 bool    sample::IsData()       { return (myType==kData);       }
