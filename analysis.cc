@@ -15,6 +15,30 @@ void analysis::AddSample( sample* newSample ) {
   else backgrounds.push_back( newSample );
 }
 
+sample* analysis::AddSample(std::string myLabel, std::string niceName) {
+  sample* myPointer = new sample( myLabel, niceName );
+  AddSample( myPointer );
+  return myPointer;
+}
+
+sample* analysis::AddSample(std::string myLabel, std::string niceName, short int color, sample::sampleType type = sample::kBackground) {
+  sample* myPointer = new sample( myLabel, niceName, color, type );
+  AddSample( myPointer );
+  return myPointer;
+}
+
+sample* analysis::AddSample(std::string myLabel, std::string tabName, std::string legName) {
+  sample* myPointer = new sample( myLabel, tabName, legName );
+  AddSample( myPointer );
+  return myPointer;
+}
+
+sample* analysis::AddSample(std::string myLabel, std::string tabName, std::string legName, short int color, sample::sampleType type = sample::kBackground) {
+  sample* myPointer = new sample( myLabel, tabName, legName, color, type );
+  AddSample( myPointer );
+  return myPointer;
+}
+
 void analysis::AddSigRegs( std::vector<TString> regions ) { sigRegions.push_back(regions); }
 
 std::vector<short int> analysis::GetBkgColors() {

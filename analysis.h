@@ -18,6 +18,10 @@ public:
   analysis( float lumi );
 
   void AddSample( sample* newSample );
+  sample* AddSample( std::string myLabel, std::string niceName );
+  sample* AddSample( std::string myLabel, std::string niceName, short int color, sample::sampleType type );
+  sample* AddSample( std::string myLabel, std::string tabName, std::string legName );
+  sample* AddSample( std::string myLabel, std::string tabName, std::string legName, short int color, sample::sampleType type );
   void AddSigRegs( std::vector<TString> regions );
   std::vector<short int> GetBkgColors();
   std::vector<TString> GetBkgLabels();

@@ -125,47 +125,30 @@ int main( int argc, char* argv[] ) {
 	ScanChain(ch_stop275, "stop275");
 	ScanChain(ch_ttbar, "tt2l");
 	ScanChain(ch_ttbar, "tt1l"); //Same baby, pick out different final state
-	// ScanChain(ch_stch, "STstchan");
-	// ScanChain(ch_sttw, "STtWchan");
 	ScanChain(ch_singletop, "singletop");
-	// ScanChain(ch_wjets, "Wb");
-	// ScanChain(ch_wjets, "Wucsd"); //Same baby, pick out different final state
-	ScanChain(ch_wjets, "wjets"); //
+	ScanChain(ch_wjets, "wjets");
 	ScanChain(ch_dy, "dy");
-	// ScanChain(ch_ttw, "ttw");
-	// ScanChain(ch_ttz, "ttz");
-	// ScanChain(ch_vv, "vv");
 	ScanChain(ch_rare, "rare");
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////
   // Make "analysis" object out of "samples", and pass them to makeTables and makeStack
 
-  //sample( "Storage name", "Display name", TColor, isData, isSignal
-
-  sample* stop700   = new sample( "stop700", "T2tt (700,50)",  kBlue+3,   sample::kSignal );
-  sample* stop600   = new sample( "stop600", "T2tt (600,250)", kGreen+3,  sample::kSignal );
-  sample* stop300   = new sample( "stop300", "T2tt (300,200)", kMagenta+3,sample::kSignal );
-  sample* stop275   = new sample( "stop275", "T2tt (275,100)", kOrange+7, sample::kSignal );
-
-  sample* tt2l      = new sample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
-  sample* tt1l      = new sample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
-  sample* singletop = new sample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
-  sample* wjets     = new sample( "wjets",   "W+Jets",         kOrange-2, sample::kBackground );
-  sample* dy        = new sample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
-  sample* rare      = new sample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
-
   analysis* ThisAnalysis = new analysis( 2.26 );
-  ThisAnalysis->AddSample(stop700);
-  ThisAnalysis->AddSample(stop600);
-  ThisAnalysis->AddSample(stop300);
-  ThisAnalysis->AddSample(stop275);
-  ThisAnalysis->AddSample(tt2l);
-  ThisAnalysis->AddSample(tt1l);
-  ThisAnalysis->AddSample(singletop);
-  ThisAnalysis->AddSample(wjets);
-  ThisAnalysis->AddSample(dy);
-  ThisAnalysis->AddSample(rare);
+
+  //           new sample( "Label",  "Display name",   TColor,   sampleType )
+
+  ThisAnalysis->AddSample( "stop700", "T2tt (700,50)",  kBlue+3,   sample::kSignal );
+  ThisAnalysis->AddSample( "stop600", "T2tt (600,250)", kGreen+3,  sample::kSignal );
+  ThisAnalysis->AddSample( "stop300", "T2tt (300,200)", kMagenta+3,sample::kSignal );
+  ThisAnalysis->AddSample( "stop275", "T2tt (275,100)", kOrange+7, sample::kSignal );
+
+  ThisAnalysis->AddSample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
+  ThisAnalysis->AddSample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
+  ThisAnalysis->AddSample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
+  ThisAnalysis->AddSample( "wjets",   "W+Jets",         kOrange-2, sample::kBackground );
+  ThisAnalysis->AddSample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
+  ThisAnalysis->AddSample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
 
   std::vector<TString> compressed  = {"compr250",  "compr350"};
   std::vector<TString> boosted     = {"boost250",  "boost350"};
