@@ -14,8 +14,9 @@ int main( int argc, char* argv[] ) {
   TString sigPath = "/nfs-7/userdata/stopRun2/signalbabies/";
 
 
-
+  ////////////////////////////////////////////////////////////////
   // Parse command-line argument(s)
+
   TString argument;
   if( argc==1 )       argument = "all";
   else if( argc > 1 ) argument = TString(argv[1]);
@@ -35,120 +36,24 @@ int main( int argc, char* argv[] ) {
   }
 
 
-  // Make Chains and run ScanChain
-  if( argument=="all" || argument=="scanchain" || argument=="scan" || argument=="loop" ) {
-
-	// Signal samples
-
-	TChain *ch_stop700 = new TChain("t");
-	ch_stop700->Add( sigPath + "Signal_T2tt_700_50.root");
-
-	TChain *ch_stop600 = new TChain("t");
-	ch_stop600->Add( sigPath + "Signal_T2tt_600_250.root");
-
-	TChain *ch_stop300 = new TChain("t");
-	ch_stop300->Add( sigPath + "Signal_T2tt_300_200.root");
-
-	TChain *ch_stop275 = new TChain("t");
-	ch_stop275->Add( sigPath + "Signal_T2tt_275_100.root");
-
-
-	// Background samples
-
-	TChain *ch_ttbar = new TChain("t");
-	ch_ttbar->Add( bkgPath + "ttbar_powheg_pythia8_25ns_skimmed.root" );
-	// ch_ttbar->Add( bkgPath + "ttbar_powheg_pythia8_ext3_25ns_skimmed.root" );
-
-	TChain *ch_wjets = new TChain("t");
-	ch_wjets->Add( bkgPath + "WJetsToLNu_HT100To200_madgraph_pythia8_25ns_skimmed.root" );
-	ch_wjets->Add( bkgPath + "WJetsToLNu_HT200To400_madgraph_pythia8_25ns_skimmed.root" );
-	ch_wjets->Add( bkgPath + "WJetsToLNu_HT400To600_madgraph_pythia8_25ns_skimmed.root" );
-	ch_wjets->Add( bkgPath + "WJetsToLNu_HT600ToInf_madgraph_pythia8_25ns_skimmed.root" );
-
-	TChain *ch_dy = new TChain("t");
-	ch_dy->Add( bkgPath + "DYJetsToLL_m10To50_amcnlo_pythia8_25ns_skimmed.root" );
-	ch_dy->Add( bkgPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns_skimmed.root" );
-
-	TChain *ch_stch = new TChain("t");
-	ch_stch->Add( bkgPath + "t_sch_4f_amcnlo_pythia8_25ns_skimmed.root" );
-	ch_stch->Add( bkgPath + "t_tch_4f_powheg_pythia8_25ns_skimmed.root" );
-	ch_stch->Add( bkgPath + "tbar_tch_4f_powheg_pythia8_25ns_skimmed.root" );
-
-	TChain *ch_sttw = new TChain("t");
-	ch_sttw->Add( bkgPath + "t_tW_5f_powheg_pythia8_25ns_skimmed.root" );
-	ch_sttw->Add( bkgPath + "t_tbarW_5f_powheg_pythia8_25ns_skimmed.root" );
-
-	TChain *ch_ttw = new TChain("t");
-	ch_ttw->Add( bkgPath + "TTWJetsToLNu_amcnlo_pythia8_25ns_skimmed.root" );
-	ch_ttw->Add( bkgPath + "TTWJetsToQQ_amcnlo_pythia8_25ns_skimmed.root" );
-
-	TChain *ch_ttz = new TChain("t");
-	ch_ttz->Add( bkgPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns_skimmed.root" );
-	ch_ttz->Add( bkgPath + "TTZToQQ_amcnlo_pythia8_25ns_skimmed.root" );
-
-	TChain *ch_tzq = new TChain("t");
-	ch_tzq->Add( bkgPath + "tZq_ll_4f_amcnlo_pythia8_25ns_skimmed.root" );
-	ch_tzq->Add( bkgPath + "tZq_nunu_4f_amcnlo_pythia8_25ns_skimmed.root" );
-
-	TChain *ch_vv = new TChain("t");
-	ch_vv->Add( bkgPath + "WWTo2l2Nu_powheg_25ns_skimmed.root" );
-	ch_vv->Add( bkgPath + "WWToLNuQQ_powheg_25ns_skimmed.root" );
-	ch_vv->Add( bkgPath + "WZTo3LNu_powheg_pythia8_25ns_skimmed.root" );
-	ch_vv->Add( bkgPath + "WZTo2L2Q_amcnlo_pythia8_25ns_skimmed.root" );
-	ch_vv->Add( bkgPath + "WZTo1LNu2Q_amcnlo_pythia8_25ns_skimmed.root" );
-	ch_vv->Add( bkgPath + "ZZTo4L_powheg_pythia8_25ns_skimmed.root" );
-	ch_vv->Add( bkgPath + "ZZTo2L2Q_amcnlo_pythia8_25ns_skimmed.root" );
-	ch_vv->Add( bkgPath + "ZZTo2L2Nu_powheg_pythia8_25ns_skimmed.root" );
-	ch_vv->Add( bkgPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns_skimmed.root" );
-
-
-	TChain *ch_singletop = new TChain("t");
-	ch_singletop->Add( ch_stch );
-	ch_singletop->Add( ch_sttw );
-
-	TChain *ch_rare = new TChain("t");
-	ch_rare->Add( ch_ttw );
-	ch_rare->Add( ch_ttz );
-	ch_rare->Add( ch_vv );
-	ch_rare->Add( ch_tzq );
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// Reset output file and run ScanChain
-
-	TFile* outfile = new TFile("plots.root", "RECREATE");
-	outfile->Close();
-
-	ScanChain(ch_stop700, "stop700");
-	ScanChain(ch_stop600, "stop600");
-	ScanChain(ch_stop300, "stop300");
-	ScanChain(ch_stop275, "stop275");
-	ScanChain(ch_ttbar, "tt2l");
-	ScanChain(ch_ttbar, "tt1l"); //Same baby, pick out different final state
-	ScanChain(ch_singletop, "singletop");
-	ScanChain(ch_wjets, "wjets");
-	ScanChain(ch_dy, "dy");
-	ScanChain(ch_rare, "rare");
-  }
-
   ////////////////////////////////////////////////////////////////////////////////////////
-  // Make "analysis" object out of "samples", and pass them to makeTables and makeStack
+  // Make "analysis" object out of "samples"
 
-  analysis* ThisAnalysis = new analysis( 2.26 );
+  analysis* ThisAnalysis = new analysis( 2.26 ); // Luminosity
 
-  //           new sample( "Label",  "Display name",   TColor,   sampleType )
+  //                             new sample( "Label",  "Display name",    TColor,    sampleType )
 
-  ThisAnalysis->AddSample( "stop700", "T2tt (700,50)",  kBlue+3,   sample::kSignal );
-  ThisAnalysis->AddSample( "stop600", "T2tt (600,250)", kGreen+3,  sample::kSignal );
-  ThisAnalysis->AddSample( "stop300", "T2tt (300,200)", kMagenta+3,sample::kSignal );
-  ThisAnalysis->AddSample( "stop275", "T2tt (275,100)", kOrange+7, sample::kSignal );
+  sample* stop700 = ThisAnalysis->AddSample( "stop700", "T2tt (700,50)",  kBlue+3,   sample::kSignal );
+  sample* stop600 = ThisAnalysis->AddSample( "stop600", "T2tt (600,250)", kGreen+3,  sample::kSignal );
+  sample* stop300 = ThisAnalysis->AddSample( "stop300", "T2tt (300,200)", kMagenta+3,sample::kSignal );
+  sample* stop275 = ThisAnalysis->AddSample( "stop275", "T2tt (275,100)", kOrange+7, sample::kSignal );
 
-  ThisAnalysis->AddSample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
-  ThisAnalysis->AddSample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
-  ThisAnalysis->AddSample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
-  ThisAnalysis->AddSample( "wjets",   "W+Jets",         kOrange-2, sample::kBackground );
-  ThisAnalysis->AddSample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
-  ThisAnalysis->AddSample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
+  sample* tt2l    = ThisAnalysis->AddSample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
+  sample* tt1l    = ThisAnalysis->AddSample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
+  sample* singtop = ThisAnalysis->AddSample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
+  sample* wjets   = ThisAnalysis->AddSample( "wjets",   "W+Jets",         kOrange-2, sample::kBackground );
+  sample* dy      = ThisAnalysis->AddSample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
+  sample* rare    = ThisAnalysis->AddSample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
 
   std::vector<TString> compressed  = {"compr250",  "compr350"};
   std::vector<TString> boosted     = {"boost250",  "boost350"};
@@ -161,6 +66,77 @@ int main( int argc, char* argv[] ) {
   ThisAnalysis->AddSigRegs( highDMreg );
   ThisAnalysis->AddSigRegs( inclusive );
 
+
+
+  //////////////////////////////////////////////
+  // Make chains and run ScanChain
+
+  if( argument=="all" || argument=="scanchain" || argument=="scan" || argument=="loop" ) {
+
+	// Signal samples
+
+	stop700->AddFile( sigPath + "Signal_T2tt_700_50.root");
+	stop600->AddFile( sigPath + "Signal_T2tt_600_250.root");
+	stop300->AddFile( sigPath + "Signal_T2tt_300_200.root");
+	stop275->AddFile( sigPath + "Signal_T2tt_275_100.root");
+
+
+	// Background samples
+
+	tt2l->AddFile( bkgPath + "ttbar_powheg_pythia8_25ns_skimmed.root" );
+
+	tt1l->AddFile( bkgPath + "ttbar_powheg_pythia8_25ns_skimmed.root" );
+
+	wjets->AddFile( bkgPath + "WJetsToLNu_HT100To200_madgraph_pythia8_25ns_skimmed.root" );
+	wjets->AddFile( bkgPath + "WJetsToLNu_HT200To400_madgraph_pythia8_25ns_skimmed.root" );
+	wjets->AddFile( bkgPath + "WJetsToLNu_HT400To600_madgraph_pythia8_25ns_skimmed.root" );
+	wjets->AddFile( bkgPath + "WJetsToLNu_HT600ToInf_madgraph_pythia8_25ns_skimmed.root" );
+
+	dy->AddFile( bkgPath + "DYJetsToLL_m10To50_amcnlo_pythia8_25ns_skimmed.root" );
+	dy->AddFile( bkgPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns_skimmed.root" );
+
+	singtop->AddFile( bkgPath + "t_sch_4f_amcnlo_pythia8_25ns_skimmed.root" );
+	singtop->AddFile( bkgPath + "t_tch_4f_powheg_pythia8_25ns_skimmed.root" );
+	singtop->AddFile( bkgPath + "tbar_tch_4f_powheg_pythia8_25ns_skimmed.root" );
+	singtop->AddFile( bkgPath + "t_tW_5f_powheg_pythia8_25ns_skimmed.root" );
+	singtop->AddFile( bkgPath + "t_tbarW_5f_powheg_pythia8_25ns_skimmed.root" );
+
+	rare->AddFile( bkgPath + "TTWJetsToLNu_amcnlo_pythia8_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "TTWJetsToQQ_amcnlo_pythia8_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "TTZToQQ_amcnlo_pythia8_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "tZq_ll_4f_amcnlo_pythia8_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "tZq_nunu_4f_amcnlo_pythia8_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "WWTo2l2Nu_powheg_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "WWToLNuQQ_powheg_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "WZTo3LNu_powheg_pythia8_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "WZTo2L2Q_amcnlo_pythia8_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "WZTo1LNu2Q_amcnlo_pythia8_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "ZZTo4L_powheg_pythia8_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "ZZTo2L2Q_amcnlo_pythia8_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "ZZTo2L2Nu_powheg_pythia8_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns_skimmed.root" );
+
+
+	// Reset output file and run ScanChain on all samples
+	TFile* outfile = new TFile("plots.root", "RECREATE");
+	outfile->Close();
+
+	ScanChain( ThisAnalysis, stop700 );
+	ScanChain( ThisAnalysis, stop600 );
+	ScanChain( ThisAnalysis, stop300 );
+	ScanChain( ThisAnalysis, stop275 );
+	ScanChain( ThisAnalysis, tt2l    );
+	ScanChain( ThisAnalysis, tt1l    );
+	ScanChain( ThisAnalysis, singtop );
+	ScanChain( ThisAnalysis, wjets   );
+	ScanChain( ThisAnalysis, dy      );
+	ScanChain( ThisAnalysis, rare    );
+  }
+
+
+  /////////////////////////////////////////////////////
+  // Make stacked histograms and/or yield tables
 
   if( argument=="all" || argument=="output" || argument=="out" || argument=="table" || argument=="tables" ) makeTables( ThisAnalysis );
   if( argument=="all" || argument=="output" || argument=="out" || argument=="plots" || argument=="stacks" ) makeStack(  ThisAnalysis );

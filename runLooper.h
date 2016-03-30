@@ -5,4 +5,4 @@
 
 void makeTables( analysis* myAnalysis );
 void makeStack(  analysis* myAnalysis );
-int ScanChain( TChain* chain, std::string sampleName = "default", int nEvents = -1, bool fast = true);
+int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fast = true);

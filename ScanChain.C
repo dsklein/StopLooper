@@ -19,21 +19,28 @@
 // CMS3
 #include "CMS3.cc"
 
+// Custom
+#include "analysis.h"
+#include "sample.h"
+
 using namespace std;
 using namespace tas;
 
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > LorentzVector;
 
-double myLumi = 2.26;
-const int nSigRegs = 10;
 
-int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, bool fast = true) {
-
-  cout << "\nSample: " << sampleName << endl;
+int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fast = true) {
 
   // Benchmark
   TBenchmark *bmark = new TBenchmark();
   bmark->Start("benchmark");
+
+  // Setup
+  TChain *chain = mySample->GetChain();
+  TString sampleName = mySample->GetLabel();
+  const double myLumi = myAnalysis->GetLumi();
+  const int nSigRegs = myAnalysis->GetSigRegionsAll().size();
+  cout << "\nSample: " << sampleName.Data() << endl;
 
   /////////////////////////////////////////////////////////
   // Histograms
@@ -69,20 +76,20 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 
   for( int i=0; i<nSigRegs; i++ ) {
 
-	h_bgtype[i]   = new TH1D( Form( "bkgtype_%s_%s" , sampleName.c_str(), regNames[i].c_str()), "Yield by background type", 4, 0.5, 4.5);
-	h_mt[i]       = new TH1D( Form( "mt_%s_%s"      , sampleName.c_str(), regNames[i].c_str()),	"Transverse mass",			80, 0, 800);
-	h_met[i]      = new TH1D( Form( "met_%s_%s"     , sampleName.c_str(), regNames[i].c_str()),	"MET",						50, 0, 1000);
-	h_mt2w[i]     = new TH1D( Form( "mt2w_%s_%s"    , sampleName.c_str(), regNames[i].c_str()),	"MT2W",						50, 0, 500);
-	h_chi2[i]     = new TH1D( Form( "chi2_%s_%s"    , sampleName.c_str(), regNames[i].c_str()),	"Hadronic #chi^{2}",		50, 0, 15);
-	h_htratio[i]  = new TH1D( Form( "htratio_%s_%s" , sampleName.c_str(), regNames[i].c_str()),	"H_{T} ratio",				50, 0, 1);
-	h_mindphi[i]  = new TH1D( Form( "mindphi_%s_%s" , sampleName.c_str(), regNames[i].c_str()),	"min #Delta#phi(j12,MET)",	50, 0, 4);
-	h_ptb1[i]     = new TH1D( Form( "ptb1_%s_%s"    , sampleName.c_str(), regNames[i].c_str()),	"p_{T} (b1)",				100, 0, 500);
-	h_drlb1[i]    = new TH1D( Form( "drlb1_%s_%s"   , sampleName.c_str(), regNames[i].c_str()),	"#DeltaR (lep, b1)",		50, 0, 5);
-	h_ptlep[i]    = new TH1D( Form( "ptlep_%s_%s"   , sampleName.c_str(), regNames[i].c_str()),	"p_{T} (lep)",				100, 0, 500);
-	h_metht[i]    = new TH1D( Form( "metht_%s_%s"   , sampleName.c_str(), regNames[i].c_str()),	"MET/sqrt(HT)",				50, 0, 100);
-	h_dphilw[i]   = new TH1D( Form( "dphilw_%s_%s"  , sampleName.c_str(), regNames[i].c_str()),	"#Delta#phi (lep,W)",		50, 0, 3.5);
-	h_njets[i]    = new TH1D( Form( "njets_%s_%s"   , sampleName.c_str(), regNames[i].c_str()), "Number of jets",           16, -0.5, 15.5);
-	h_nbtags[i]   = new TH1D( Form( "nbtags_%s_%s"  , sampleName.c_str(), regNames[i].c_str()), "Number of b-tags",         7, -0.5, 6.5);
+	h_bgtype[i]   = new TH1D( Form( "bkgtype_%s_%s" , sampleName.Data(), regNames[i].c_str()), "Yield by background type",  4, 0.5, 4.5);
+	h_mt[i]       = new TH1D( Form( "mt_%s_%s"      , sampleName.Data(), regNames[i].c_str()), "Transverse mass",			80, 0, 800);
+	h_met[i]      = new TH1D( Form( "met_%s_%s"     , sampleName.Data(), regNames[i].c_str()), "MET",						40, 0, 1000);
+	h_mt2w[i]     = new TH1D( Form( "mt2w_%s_%s"    , sampleName.Data(), regNames[i].c_str()), "MT2W",						50, 0, 500);
+	h_chi2[i]     = new TH1D( Form( "chi2_%s_%s"    , sampleName.Data(), regNames[i].c_str()), "Hadronic #chi^{2}", 		50, 0, 15);
+	h_htratio[i]  = new TH1D( Form( "htratio_%s_%s" , sampleName.Data(), regNames[i].c_str()), "H_{T} ratio",				50, 0, 1);
+	h_mindphi[i]  = new TH1D( Form( "mindphi_%s_%s" , sampleName.Data(), regNames[i].c_str()), "min #Delta#phi(j12,MET)",	50, 0, 4);
+	h_ptb1[i]     = new TH1D( Form( "ptb1_%s_%s"    , sampleName.Data(), regNames[i].c_str()), "p_{T} (b1)",				100, 0, 500);
+	h_drlb1[i]    = new TH1D( Form( "drlb1_%s_%s"   , sampleName.Data(), regNames[i].c_str()), "#DeltaR (lep, b1)", 		50, 0, 5);
+	h_ptlep[i]    = new TH1D( Form( "ptlep_%s_%s"   , sampleName.Data(), regNames[i].c_str()), "p_{T} (lep)",				100, 0, 500);
+	h_metht[i]    = new TH1D( Form( "metht_%s_%s"   , sampleName.Data(), regNames[i].c_str()), "MET/sqrt(HT)",				50, 0, 100);
+	h_dphilw[i]   = new TH1D( Form( "dphilw_%s_%s"  , sampleName.Data(), regNames[i].c_str()), "#Delta#phi (lep,W)",		50, 0, 3.5);
+	h_njets[i]    = new TH1D( Form( "njets_%s_%s"   , sampleName.Data(), regNames[i].c_str()), "Number of jets",            16, -0.5, 15.5);
+	h_nbtags[i]   = new TH1D( Form( "nbtags_%s_%s"  , sampleName.Data(), regNames[i].c_str()), "Number of b-tags",          7, -0.5, 6.5);
 
 	h_bgtype[i]->SetDirectory(rootdir);
 
@@ -108,7 +115,7 @@ int ScanChain( TChain* chain, string sampleName = "default", int nEvents = -1, b
 
   }
 
-  TH1D *h_sigRegion = new TH1D( Form("sregion_%s", sampleName.c_str()), "Yield by signal region", nSigRegs, 0.5, float(nSigRegs)+0.5);
+  TH1D *h_sigRegion = new TH1D( Form("sregion_%s", sampleName.Data()), "Yield by signal region", nSigRegs, 0.5, float(nSigRegs)+0.5);
   h_sigRegion->SetDirectory(rootdir);
 
 
