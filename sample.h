@@ -5,6 +5,7 @@
 #include <string>
 
 #include "TString.h"
+#include "TChain.h"
 
 
 class sample{
@@ -16,6 +17,7 @@ public:
   sample(std::string myLabel, std::string tabName, std::string legName);
   sample(std::string myLabel, std::string tabName, std::string legName, short int color, sampleType type);
 
+  void    AddFile(TString filename);
   TString GetLabel();
   TString GetTableName();
   TString GetLegName();
@@ -23,6 +25,7 @@ public:
   bool    IsSignal();
   bool    IsBkg();
   short int GetColor();
+  TChain* GetChain();
 
   void SetNiceName(std::string name);
   void SetColor(short int color);
@@ -34,7 +37,7 @@ private:
   std::string name_legend;
   sampleType myType;
   short int hist_color;
-  // TChain ch;
+  TChain chain;
 
 };
 
