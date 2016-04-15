@@ -6,6 +6,21 @@
 #include "TFile.h"
 #include "TString.h"
 
+// Help with program options
+void printHelp() {
+  std::cout << "\nUsage: ./runLooper [arg]\n" << std::endl;
+
+  std::cout << "Takes zero or more arguments from the following list:" << std::endl;
+  std::cout << "[blank]     equivalent to 'all'" << std::endl;
+  std::cout << "help        show this message" << std::endl;
+  std::cout << "all         run ScanChain, makeTables, and makeStack" << std::endl;
+  std::cout << "scan        run ScanChain only" << std::endl;
+  std::cout << "plots       run makeStack only" << std::endl;
+  std::cout << "tables      run makeTables only" << std::endl;
+  std::cout << "output      run makeStack and makeTables only" << std::endl;
+}
+
+///// MAIN PROGRAM /////
 int main( int argc, char* argv[] ) {
 
 
@@ -17,22 +32,40 @@ int main( int argc, char* argv[] ) {
   ////////////////////////////////////////////////////////////////
   // Parse command-line argument(s)
 
-  TString argument;
-  if( argc==1 )       argument = "all";
-  else if( argc > 1 ) argument = TString(argv[1]);
+  std::vector<TString> arguments;
+  if( argc==1 )                       arguments.push_back( "all" );
+  else  for( int i=1; i<argc; i++ )  arguments.push_back( TString(argv[i]) );
 
-  if( argc > 2 || argument=="help" || argument=="h" ) {
-	std::cout << "Usage: ./runLooper [arg]\n" << std::endl;
+  bool needshelp = false;
+  bool runlooper = false;
+  bool runstacks = false;
+  bool runtables = false;
 
-	std::cout << "Takes at most one argument from the following list:" << std::endl;
-	std::cout << "help        show this message" << std::endl;
-	std::cout << "[blank]     equivalent to 'all'" << std::endl;
-	std::cout << "all         run ScanChain, makeTables, and makeStack" << std::endl;
-	std::cout << "scanchain   run ScanChain only" << std::endl;
-	std::cout << "plots       run makeStack only" << std::endl;
-	std::cout << "tables      run makeTables only" << std::endl;
-	std::cout << "output      run makeStack and makeTables only" << std::endl;
-	return 0;
+
+  for( TString arg : arguments ) {
+	if(      arg=="help"  || arg=="h" ) needshelp = true;
+	else if( arg=="scan"  || arg=="loop"  || arg=="scanchain" ) runlooper = true;
+	else if( arg=="plot"  || arg=="plots" || arg=="stack" || arg=="stacks" ) runstacks = true;
+	else if( arg=="table" || arg=="tables" ) runtables = true;
+	else if( arg=="out"   || arg=="output" ) {
+	  runstacks = true;
+	  runtables = true;
+	}
+	else if( arg=="all") {
+	  runlooper = true;
+	  runstacks = true;
+	  runtables = true;
+	}
+	else {
+	  std::cout << "Unrecognized option: " << arg << std::endl;
+	  needshelp = true;
+	}
+  }
+
+  // If the user inputs a wrong option, print the help and exit
+  if( needshelp ) {
+	printHelp();
+	return 1;
   }
 
 
@@ -71,7 +104,7 @@ int main( int argc, char* argv[] ) {
   //////////////////////////////////////////////
   // Make chains and run ScanChain
 
-  if( argument=="all" || argument=="scanchain" || argument=="scan" || argument=="loop" ) {
+  if( runlooper ) {
 
 	// Signal samples
 
@@ -138,8 +171,8 @@ int main( int argc, char* argv[] ) {
   /////////////////////////////////////////////////////
   // Make stacked histograms and/or yield tables
 
-  if( argument=="all" || argument=="output" || argument=="out" || argument=="table" || argument=="tables" ) makeTables( ThisAnalysis );
-  if( argument=="all" || argument=="output" || argument=="out" || argument=="plots" || argument=="stacks" ) makeStack(  ThisAnalysis );
+  if( runtables ) makeTables( ThisAnalysis );
+  if( runstacks ) makeStack(  ThisAnalysis );
 
   return 0;
 }
