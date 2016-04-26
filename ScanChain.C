@@ -122,8 +122,8 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
   float yield_total = 0;
   float yield_vtx = 0;
   float yield_1goodlep = 0;
+  // float yield_lepSel = 0;
   float yield_2lepveto = 0;
-  float yield_lepSel = 0;
   float yield_trkVeto = 0;
   float yield_tauVeto = 0;
   float yield_njets = 0;
@@ -136,8 +136,8 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
   int yGen_total = 0;
   int yGen_vtx = 0;
   int yGen_1goodlep = 0;
+  // int yGen_lepSel = 0;
   int yGen_2lepveto = 0;
-  int yGen_lepSel = 0;
   int yGen_trkVeto = 0;
   int yGen_tauVeto = 0;
   int yGen_njets = 0;
@@ -202,33 +202,30 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	  yield_vtx += myLumi*scale1fb();
 	  yGen_vtx++;
 
-	  // Must have exactly 1 good lepton
-	  if( ngoodleps() != 1 ) continue;
+	  // Must have at least 1 good lepton
+	  if( ngoodleps() < 1 ) continue;
 	  yield_1goodlep += myLumi*scale1fb();
 	  yGen_1goodlep++;
+
+	  // Lep 1 must pass lepton selections
+	  // These aren't necessary unless syncing with John
+	  // if( lep1_is_el() ) {
+	  // 	if( lep1_pt() < 20. ) continue;
+	  // 	if( fabs(lep1_eta()) > 1.442 ) continue;  // It's 1.4442 in the babymaker, but John uses 1.442
+	  // 	if( !lep1_is_eleid_medium() ) continue;
+	  // }
+	  // else if( lep1_is_mu() ) {
+	  // 	if( lep1_pt() < 20. ) continue;
+	  // 	if( fabs(lep1_eta()) > 2.4 ) continue;
+	  // 	if( !lep1_is_muoid_tight() ) continue;
+	  // }
+	  // yield_lepSel += myLumi*scale1fb();
+	  // yGen_lepSel++;
 
 	  // Second lepton veto
 	  if( nvetoleps() > 1 && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) > 0.01 ) continue;
 	  yield_2lepveto += myLumi*scale1fb();
 	  yGen_2lepveto++;
-
-	  // Must pass lepton selections
-	  if( lep1_is_el() ) {
-		if( lep1_pt() <= 20. ) continue;
-		if( fabs(lep1_eta()) >= 1.442 ) continue;
-		if( !lep1_is_eleid_medium() ) continue;
-		if( lep1_miniRelIsoEA() >= 0.1 ) continue;
-	  }
-	  else if( lep1_is_mu() ) {
-		if( lep1_pt() <= 20. ) continue;
-		if( fabs(lep1_eta()) >= 2.4 ) continue;
-		if( !lep1_is_muoid_tight() ) continue;
-		if( fabs(lep1_d0()) >= 0.02 ) continue;
-		if( fabs(lep1_dz()) >= 0.1  ) continue;
-		if( lep1_miniRelIsoEA() >= 0.1 ) continue;
-	  }
-	  yield_lepSel += myLumi*scale1fb();
-	  yGen_lepSel++;
 
 	  // Track veto
 	  if( !PassTrackVeto_v3() ) continue;
@@ -246,16 +243,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	  yGen_njets++;
 
 	  // B-tag requirement
-	  // if( ngoodbtags() < 1 ) continue;
-	  int nbtags = 0;
-	  for( uint idx=0; idx<ak4pfjets_CSV().size(); idx++ ) {
-		if( ak4pfjets_pt().at(idx) <= 30. ) continue;
-		if( fabs(ak4pfjets_eta().at(idx)) >= 2.4 ) continue;
-		if( !ak4pfjets_loose_pfid().at(idx) ) continue;
-		if( ak4pfjets_CSV().at(idx) < 0.890 ) continue;
-		nbtags++;
-	  }
-	  if( nbtags < 1 ) continue;
+	  if( ngoodbtags() < 1 ) continue;
 	  yield_1bjet += myLumi*scale1fb();
 	  yGen_1bjet++;
 
@@ -313,7 +301,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 		h_metht[i]->Fill(   MET_over_sqrtHT(),			myLumi*scale1fb() );
 		h_dphilw[i]->Fill(  dphi_Wlep(),				myLumi*scale1fb() );
 		h_njets[i]->Fill(   ngoodjets(),                myLumi*scale1fb() );
-		h_nbtags[i]->Fill(  nbtags,                     myLumi*scale1fb() );
+		h_nbtags[i]->Fill(  ngoodbtags(),               myLumi*scale1fb() );
 
 		h_sigRegion->Fill( float(i+1),                  myLumi*scale1fb() );
 	  }
@@ -332,8 +320,8 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
   printf("Total number of events:             %10.2f %9i\n", yield_total	, yGen_total		);
   printf("Events with 1st vertex good:        %10.2f %9i\n", yield_vtx		, yGen_vtx			);
   printf("Events with at least 1 good lepton: %10.2f %9i\n", yield_1goodlep	, yGen_1goodlep		);
+  // printf("Events passing lepton selection:    %10.2f %9i\n", yield_lepSel	, yGen_lepSel		);
   printf("Events passing second lepton veto:  %10.2f %9i\n", yield_2lepveto	, yGen_2lepveto		);
-  printf("Events passing lepton selection:    %10.2f %9i\n", yield_lepSel	, yGen_lepSel		);
   printf("Events passing track veto:          %10.2f %9i\n", yield_trkVeto	, yGen_trkVeto		);
   printf("Events passing tau veto:            %10.2f %9i\n", yield_tauVeto	, yGen_tauVeto		);
   printf("Events with at least 2 jets:        %10.2f %9i\n", yield_njets	, yGen_njets		);
