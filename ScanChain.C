@@ -382,22 +382,22 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
   plotfile->Close();
 
   for( int j=0; j<nSigRegs; j++ ) {
-	h_bgtype[j]->Delete();
-	h_mt[j]->Delete();
-	h_met[j]->Delete();
-	h_mt2w[j]->Delete();
-	h_chi2[j]->Delete();
-	h_htratio[j]->Delete();
-	h_mindphi[j]->Delete();
-	h_ptb1[j]->Delete();
-	h_drlb1[j]->Delete();
-	h_ptlep[j]->Delete();
-	h_metht[j]->Delete();
-	h_dphilw[j]->Delete();
-	h_njets[j]->Delete();
-	h_nbtags[j]->Delete();
+	delete h_bgtype[j];
+	delete h_mt[j];
+	delete h_met[j];
+	delete h_mt2w[j];
+	delete h_chi2[j];
+	delete h_htratio[j];
+	delete h_mindphi[j];
+	delete h_ptb1[j];
+	delete h_drlb1[j];
+	delete h_ptlep[j];
+	delete h_metht[j];
+	delete h_dphilw[j];
+	delete h_njets[j];
+	delete h_nbtags[j];
   }
-  h_sigRegion->Delete();
+  delete h_sigRegion;
 
   // return
   bmark->Stop("benchmark");
