@@ -5,6 +5,8 @@
 
 Check out the [cmstas/Software](https://github.com/cmstas/Software) repository someplace. Copy the files `dataMCplotMaker.cc`, `dataMCplotMaker.h`, and `PlotMakingTools.h` from there into this directory.
 
+Also, make symlinks to [CORE](https://github.com/cmstas/CORE)/Tools/btagsf and [StopAnalysis](https://github.com/cmstas/StopAnalysis)/StopBabyMaker/lepsf in this directory (without giving the symlink different names).
+
 To compile all the code, simply type `make`. The plotmaking scripts mentioned above aren't necessarily designed to compile in g++, so you may find you have to edit them by hand to make them compliant.
 
 ###Running

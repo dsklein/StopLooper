@@ -6,8 +6,8 @@ ROOTCFLAGS  = $(shell root-config --cflags --libs)
 
 
 
-runLooper: runLooper.cc runLooper.h ScanChain.o makeTables.o makeStack.o libdataMCplotMaker.so libsample.so libanalysis.so
-	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runLooper.cc ScanChain.o makeTables.o makeStack.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lsample -lanalysis -o runLooper
+runLooper: runLooper.cc runLooper.h ScanChain.o makeTables.o makeStack.o libdataMCplotMaker.so libsample.so libanalysis.so libsfManager.so
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runLooper.cc ScanChain.o makeTables.o makeStack.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lsample -lanalysis -lsfManager -o runLooper
 #GenVector seems to be necessary to take a LorentzVector invariant mass. The error was "undefined reference to Math::GenVector::Throw()"
 
 
@@ -28,6 +28,9 @@ libsample.so: sample.cc sample.h
 
 libanalysis.so: analysis.cc analysis.h
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared analysis.cc -o libanalysis.so
+
+libsfManager.so: sfManager.cc sfManager.h btagsf/BTagCalibrationStandalone.cc
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared sfManager.cc btagsf/BTagCalibrationStandalone.cc -o libsfManager.so
 
 
 

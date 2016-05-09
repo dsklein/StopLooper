@@ -11,6 +11,8 @@
 #include "TChain.h"
 #include "TDirectory.h"
 #include "TFile.h"
+#include "TH2F.h"
+#include "TH3D.h"
 #include "TROOT.h"
 #include "TTreeCache.h"
 #include "TVector3.h"
@@ -22,6 +24,7 @@
 // Custom
 #include "analysis.h"
 #include "sample.h"
+#include "sfManager.h"
 
 using namespace std;
 using namespace tas;
@@ -40,6 +43,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
   TString sampleName = mySample->GetLabel();
   const double myLumi = myAnalysis->GetLumi();
   const int nSigRegs = myAnalysis->GetSigRegionsAll().size();
+  bool isFastsim = mySample->IsSignal();
   cout << "\nSample: " << sampleName.Data() << endl;
 
   /////////////////////////////////////////////////////////
@@ -167,6 +171,9 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
     if(fast) TTreeCache::SetLearnEntries(10);
     if(fast) tree->SetCacheSize(128*1024*1024);
     cms3.Init(tree);
+
+	// Initialize scale factor manager
+	sfManager mySFs( isFastsim, ".", (TH1D*)file.Get( "h_counter" ) );
     
     // Loop over Events in current file
     if( nEventsTotal >= nEventsChain ) continue;
@@ -193,18 +200,39 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	  else if( sampleName == "tt1l"  && genlepsfromtop() != 1 ) continue;  //Require 1 lep from top in "tt1l" events
 
 
+	  /////////////////////////////////
+	  // Set event weight
+
+	  double evtWeight = 1.;
+
+	  if( is_data() || mySample->IsData() ) evtWeight = 1.;
+	  else if( mySample->IsSignal() ) {
+		TH2F* hNEvts = (TH2F*)file.Get("histNEvts");
+		TH3D* hCounter = (TH3D*)file.Get("h_counterSMS");
+		double nEvtsSample = hNEvts->GetBinContent( hNEvts->FindBin( mass_stop(), mass_lsp() ) );
+		int binx = hCounter->GetXaxis()->FindBin( mass_stop() );
+		int biny = hCounter->GetYaxis()->FindBin( mass_lsp()  );
+		double bTagSumWeights = hCounter->GetBinContent( binx, biny, 14 );
+		mySFs.SetBtagNorm( nEvtsSample / bTagSumWeights );
+		evtWeight = myLumi * 1000. * xsec() / nEvtsSample;
+	  }
+	  else evtWeight = myLumi * scale1fb();
+
+
 	  // Count the number of events processed
-	  yield_total += myLumi*scale1fb();
+	  yield_total += evtWeight;
 	  yGen_total++;
 
 	  // First vertex must be good
 	  if( firstGoodVtxIdx() != 0 ) continue;
-	  yield_vtx += myLumi*scale1fb();
+	  yield_vtx += evtWeight;
 	  yGen_vtx++;
 
 	  // Must have at least 1 good lepton
 	  if( ngoodleps() < 1 ) continue;
-	  yield_1goodlep += myLumi*scale1fb();
+	  if(      !is_data() && lep1_is_el() ) evtWeight *= mySFs.GetSF_el( lep1_pt(), lep1_eta() );
+	  else if( !is_data() && lep1_is_mu() ) evtWeight *= mySFs.GetSF_mu( lep1_pt(), lep1_eta() );
+	  yield_1goodlep += evtWeight;
 	  yGen_1goodlep++;
 
 	  // Lep 1 must pass lepton selections
@@ -219,52 +247,60 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	  // 	if( fabs(lep1_eta()) > 2.4 ) continue;
 	  // 	if( !lep1_is_muoid_tight() ) continue;
 	  // }
-	  // yield_lepSel += myLumi*scale1fb();
+	  // yield_lepSel += evtWeight;
 	  // yGen_lepSel++;
 
 	  // Second lepton veto
 	  if( nvetoleps() > 1 && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) > 0.01 ) continue;
-	  yield_2lepveto += myLumi*scale1fb();
+	  yield_2lepveto += evtWeight;
 	  yGen_2lepveto++;
 
 	  // Track veto
 	  if( !PassTrackVeto_v3() ) continue;
-	  yield_trkVeto += myLumi*scale1fb();
+	  yield_trkVeto += evtWeight;
 	  yGen_trkVeto++;
 
 	  // Tau veto
 	  if( !PassTauVeto() ) continue;
-	  yield_tauVeto += myLumi*scale1fb();
+	  yield_tauVeto += evtWeight;
 	  yGen_tauVeto++;
 
 	  // N-jet requirement
 	  if( ngoodjets() < 2 ) continue;
-	  yield_njets += myLumi*scale1fb();
+	  if( !is_data() ) {
+		for( uint i=0; i<ak4pfjets_p4().size(); i++ ) {
+		  evtWeight *= mySFs.GetSF_btag( ak4pfjets_pt().at(i),
+										 ak4pfjets_eta().at(i),
+										 ak4pfjets_hadron_flavor().at(i),
+										 ak4pfjets_CSV().at(i) );
+		}
+	  }
+	  yield_njets += evtWeight;
 	  yGen_njets++;
 
 	  // B-tag requirement
 	  if( ngoodbtags() < 1 ) continue;
-	  yield_1bjet += myLumi*scale1fb();
+	  yield_1bjet += evtWeight;
 	  yGen_1bjet++;
 
 	  // Baseline MET cut
 	  if( pfmet() <= 250. ) continue;
-	  yield_METcut += myLumi*scale1fb();
+	  yield_METcut += evtWeight;
 	  yGen_METcut++;
 
 	  // MT cut
 	  if( mt_met_lep() <= 150. ) continue;
-	  yield_MTcut += myLumi*scale1fb();
+	  yield_MTcut += evtWeight;
 	  yGen_MTcut++;
 
 	  // Min delta-phi between MET and j1/j2
 	  if( mindphi_met_j1_j2() <= 0.8 ) continue;
-	  yield_dPhi += myLumi*scale1fb();
+	  yield_dPhi += evtWeight;
 	  yGen_dPhi++;
 
 	  // Chi^2 cut
 	  // if( hadronic_top_chi2() >= 10. ) continue;
-	  yield_chi2 += myLumi*scale1fb();
+	  yield_chi2 += evtWeight;
 	  yGen_chi2++;
 
 
@@ -287,23 +323,23 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 		if( ngoodjets() < njets_min[i] || ngoodjets() > njets_max[i] ) continue;
 		if( (regNames[i] == "compr250" || regNames[i] == "compr350") && topnessMod() <= 6.4 ) continue;
 
-		h_bgtype[i]->Fill( category,                    myLumi*scale1fb() );
+		h_bgtype[i]->Fill( category,                    evtWeight );
 
-		h_mt[i]->Fill(      mt_met_lep(), 				myLumi*scale1fb() );
-		h_met[i]->Fill(     pfmet(),					myLumi*scale1fb() );
-		h_mt2w[i]->Fill(	MT2W(),   					myLumi*scale1fb() );
-		h_chi2[i]->Fill(	hadronic_top_chi2(),		myLumi*scale1fb() );
-		h_htratio[i]->Fill( ak4_htratiom(),				myLumi*scale1fb() );
-		h_mindphi[i]->Fill( mindphi_met_j1_j2() ,		myLumi*scale1fb() );
-		h_ptb1[i]->Fill(	ak4pfjets_leadMEDbjet_pt(),	myLumi*scale1fb() );
-		h_drlb1[i]->Fill(   dR_lep_leadb(),				myLumi*scale1fb() );
-		h_ptlep[i]->Fill(   lep1_pt(),					myLumi*scale1fb() );
-		h_metht[i]->Fill(   MET_over_sqrtHT(),			myLumi*scale1fb() );
-		h_dphilw[i]->Fill(  dphi_Wlep(),				myLumi*scale1fb() );
-		h_njets[i]->Fill(   ngoodjets(),                myLumi*scale1fb() );
-		h_nbtags[i]->Fill(  ngoodbtags(),               myLumi*scale1fb() );
+		h_mt[i]->Fill(      mt_met_lep(), 				evtWeight );
+		h_met[i]->Fill(     pfmet(),					evtWeight );
+		h_mt2w[i]->Fill(	MT2W(),   					evtWeight );
+		h_chi2[i]->Fill(	hadronic_top_chi2(),		evtWeight );
+		h_htratio[i]->Fill( ak4_htratiom(),				evtWeight );
+		h_mindphi[i]->Fill( mindphi_met_j1_j2() ,		evtWeight );
+		h_ptb1[i]->Fill(	ak4pfjets_leadMEDbjet_pt(),	evtWeight );
+		h_drlb1[i]->Fill(   dR_lep_leadb(),				evtWeight );
+		h_ptlep[i]->Fill(   lep1_pt(),					evtWeight );
+		h_metht[i]->Fill(   MET_over_sqrtHT(),			evtWeight );
+		h_dphilw[i]->Fill(  dphi_Wlep(),				evtWeight );
+		h_njets[i]->Fill(   ngoodjets(),                evtWeight );
+		h_nbtags[i]->Fill(  ngoodbtags(),               evtWeight );
 
-		h_sigRegion->Fill( float(i+1),                  myLumi*scale1fb() );
+		h_sigRegion->Fill( float(i+1),                  evtWeight );
 	  }
 
 	  // ---------------------------------------------------------------------------------------------------//
