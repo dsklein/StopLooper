@@ -19,7 +19,7 @@
 #include "Math/VectorUtil.h"
 
 // CMS3
-#include "CMS3.cc"
+#include "CMS3.h"
 
 // Custom
 #include "analysis.h"
