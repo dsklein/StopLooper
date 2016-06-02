@@ -12,7 +12,7 @@ using namespace std;
 
 void makeTables( analysis* myAnalysis ) {
 
-  TFile* infile = new TFile("plots.root", "READ");
+  TFile* infile = new TFile( myAnalysis->GetFileName(), "READ" );
 
   vector<TString> decayNames;
   decayNames.push_back("1 lepton");

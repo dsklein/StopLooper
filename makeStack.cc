@@ -11,7 +11,7 @@ using namespace std;
 
 void makeStack( analysis* myAnalysis) {
 
-  TFile* plotfile = new TFile("plots.root", "READ");
+  TFile* plotfile = new TFile( myAnalysis->GetFileName(), "READ" );
 
   vector<TString> varNames;       vector<TString> axisLabels; //variables
   varNames.push_back("mt"     );  axisLabels.push_back("M_{T}");

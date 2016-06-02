@@ -72,7 +72,7 @@ int main( int argc, char* argv[] ) {
   ////////////////////////////////////////////////////////////////////////////////////////
   // Make "analysis" object out of "samples"
 
-  analysis* ThisAnalysis = new analysis( 2.26 ); // Luminosity
+  analysis* ThisAnalysis = new analysis( 2.26, "plots.root" ); // Luminosity
 
   //                             new sample( "Label",  "Display name",    TColor,    sampleType )
 
@@ -152,7 +152,7 @@ int main( int argc, char* argv[] ) {
 
 
 	// Reset output file and run ScanChain on all samples
-	TFile* outfile = new TFile("plots.root", "RECREATE");
+	TFile* outfile = new TFile( ThisAnalysis->GetFileName(), "RECREATE");
 	outfile->Close();
 
 	ScanChain( ThisAnalysis, stop700 );

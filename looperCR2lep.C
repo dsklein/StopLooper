@@ -443,7 +443,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   }
 
   // Store histograms and clean them up
-  TFile* plotfile = new TFile("plots.root", "UPDATE");
+  TFile* plotfile = new TFile( myAnalysis->GetFileName(), "UPDATE");
   plotfile->cd();
 
   for( int j=0; j<nSigRegs; j++ ) {

@@ -15,7 +15,7 @@
 class analysis{
 
 public:
-  analysis( float lumi );
+  analysis( float lumi, TString fname );
 
   void AddSample( sample* newSample );
   sample* AddSample( std::string myLabel, std::string niceName );
@@ -42,6 +42,7 @@ public:
   const int GetNbkgs();
   bool HasData();
   const float GetLumi();
+  const TString GetFileName();
 
 private:
   sample* data;
@@ -49,6 +50,7 @@ private:
   std::vector<sample*> signals;
   std::vector<std::vector<TString> > sigRegions;
   float luminosity;
+  TString plotfilename;
 };
 
 #endif

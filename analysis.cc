@@ -1,8 +1,9 @@
 #include "analysis.h"
 
 // Constructor
-analysis::analysis( float lumi)
-  : luminosity(lumi)
+analysis::analysis( float lumi = 1.0, TString fname = "default.root" )
+  : luminosity(lumi),
+	plotfilename(fname)
 {
   data = NULL;
 }
@@ -131,3 +132,5 @@ std::vector<TString> analysis::GetSigRegionsAll() {
 }
 
 const float analysis::GetLumi() { return luminosity; }
+
+const TString analysis::GetFileName() { return plotfilename; }
