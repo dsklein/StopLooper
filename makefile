@@ -6,8 +6,8 @@ ROOTCFLAGS  = $(shell root-config --cflags --libs)
 
 
 
-runLooper: runLooper.cc runLooper.h ScanChain.o looperCR2lep.o makeTables.o makeStack.o libdataMCplotMaker.so libCMS3.so libsample.so libanalysis.so libsfManager.so
-	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runLooper.cc ScanChain.o looperCR2lep.o makeTables.o makeStack.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lCMS3 -lsample -lanalysis -lsfManager -o runLooper
+runLooper: runLooper.cc runLooper.h ScanChain.o looperCR2lep.o makeTables.o makeStack.o makeDataCards.o libdataMCplotMaker.so libCMS3.so libsample.so libanalysis.so libsfManager.so
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runLooper.cc ScanChain.o looperCR2lep.o makeTables.o makeStack.o makeDataCards.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lCMS3 -lsample -lanalysis -lsfManager -o runLooper
 #GenVector seems to be necessary to take a LorentzVector invariant mass. The error was "undefined reference to Math::GenVector::Throw()"
 
 
@@ -22,6 +22,9 @@ makeTables.o: makeTables.cc
 
 makeStack.o: makeStack.cc
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -c makeStack.cc -o makeStack.o
+
+makeDataCards.o: makeDataCards.cc
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -c makeDataCards.cc -o makeDataCards.o
 
 libdataMCplotMaker.so: dataMCplotMaker.cc dataMCplotMaker.h PlotMakingTools.h
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared dataMCplotMaker.cc -o libdataMCplotMaker.so

@@ -13,11 +13,12 @@ void printHelp() {
   std::cout << "Takes zero or more arguments from the following list:" << std::endl;
   std::cout << "[blank]     equivalent to 'all'" << std::endl;
   std::cout << "help        show this message" << std::endl;
-  std::cout << "all         run ScanChain, makeTables, and makeStack" << std::endl;
+  std::cout << "all         run ScanChain, makeTables, makeStack, and makeDataCards" << std::endl;
   std::cout << "scan        run ScanChain only" << std::endl;
   std::cout << "plots       run makeStack only" << std::endl;
   std::cout << "tables      run makeTables only" << std::endl;
-  std::cout << "output      run makeStack and makeTables only" << std::endl;
+  std::cout << "cards       run makeDataCards only" << std::endl;
+  std::cout << "output      run makeStack, makeTables, and makeDataCards only" << std::endl;
 }
 
 ///// MAIN PROGRAM /////
@@ -40,6 +41,7 @@ int main( int argc, char* argv[] ) {
   bool runlooper = false;
   bool runstacks = false;
   bool runtables = false;
+  bool runcards  = false;
 
 
   for( TString arg : arguments ) {
@@ -47,14 +49,17 @@ int main( int argc, char* argv[] ) {
 	else if( arg=="scan"  || arg=="loop"  || arg=="scanchain" ) runlooper = true;
 	else if( arg=="plot"  || arg=="plots" || arg=="stack" || arg=="stacks" ) runstacks = true;
 	else if( arg=="table" || arg=="tables" ) runtables = true;
+	else if( arg=="cards" || arg=="card"  || arg=="datacards" || arg=="datacard" ) runcards = true;
 	else if( arg=="out"   || arg=="output" ) {
 	  runstacks = true;
 	  runtables = true;
+	  runcards  = true;
 	}
 	else if( arg=="all") {
 	  runlooper = true;
 	  runstacks = true;
 	  runtables = true;
+	  runcards  = true;
 	}
 	else {
 	  std::cout << "Unrecognized option: " << arg << std::endl;
@@ -151,10 +156,13 @@ int main( int argc, char* argv[] ) {
 	rare->AddFile( bkgPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns_skimmed.root" );
 
 
-	// Reset output file and run ScanChain on all samples
+	// Reset output files
 	TFile* outfile = new TFile( ThisAnalysis->GetFileName(), "RECREATE");
 	outfile->Close();
+	TFile* uncertFile = new TFile( "uncertainties.root", "RECREATE");
+	uncertFile->Close();
 
+	// Run ScanChain on all samples
 	ScanChain( ThisAnalysis, stop700 );
 	ScanChain( ThisAnalysis, stop600 );
 	ScanChain( ThisAnalysis, stop300 );
@@ -171,8 +179,9 @@ int main( int argc, char* argv[] ) {
   /////////////////////////////////////////////////////
   // Make stacked histograms and/or yield tables
 
-  if( runtables ) makeTables( ThisAnalysis );
-  if( runstacks ) makeStack(  ThisAnalysis );
+  if( runtables ) makeTables(    ThisAnalysis );
+  if( runstacks ) makeStack(     ThisAnalysis );
+  if( runcards  ) makeDataCards( ThisAnalysis );
 
   return 0;
 }

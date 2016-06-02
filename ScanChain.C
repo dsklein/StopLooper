@@ -122,6 +122,11 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
   TH1D *h_sigRegion = new TH1D( Form("sregion_%s", sampleName.Data()), "Yield by signal region", nSigRegs, 0.5, float(nSigRegs)+0.5);
   h_sigRegion->SetDirectory(rootdir);
 
+  // For combine machinery
+  TH1D *h_statunc = new TH1D( Form( "StatUnc_%s", sampleName.Data()), "Stat Uncertainty",       nSigRegs, 0.5, float(nSigRegs)+0.5);
+  TH1D *h_systunc = new TH1D( Form( "SystUnc_%s", sampleName.Data()), "Systematic Uncertainty", nSigRegs, 0.5, float(nSigRegs)+0.5);
+  h_statunc->SetDirectory(rootdir);
+  h_systunc->SetDirectory(rootdir);
 
   float yield_total = 0;
   float yield_vtx = 0;
@@ -393,6 +398,14 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	}
   }
 
+  // Set up the histograms for the combine machinery
+  for( int i=1; i<=nSigRegs; i++ ) {
+	if( h_sigRegion->GetBinContent(i) > 0. ) h_statunc->SetBinContent( i, h_sigRegion->GetBinError(i) / h_sigRegion->GetBinContent(i) );
+
+	if( sampleName == "tt1l" ) h_systunc->SetBinContent( i, 1.0 );
+	else h_systunc->SetBinContent( i, 0.3 );
+  }
+
   // Store histograms and clean them up
   TFile* plotfile = new TFile( myAnalysis->GetFileName() , "UPDATE");
   plotfile->cd();
@@ -417,6 +430,13 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 
   plotfile->Close();
 
+  TFile* combFile = new TFile( "uncertainties.root" , "UPDATE");
+  combFile->cd();
+  h_statunc->Write();
+  h_systunc->Write();
+  h_sigRegion->Write();
+  combFile->Close();
+
   for( int j=0; j<nSigRegs; j++ ) {
 	delete h_bgtype[j];
 	delete h_mt[j];
@@ -434,6 +454,8 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	delete h_nbtags[j];
   }
   delete h_sigRegion;
+  delete h_statunc;
+  delete h_systunc;
 
   // return
   bmark->Stop("benchmark");
