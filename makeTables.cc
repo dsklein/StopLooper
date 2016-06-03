@@ -24,7 +24,7 @@ void makeTables( analysis* myAnalysis ) {
   TString dummyRegionName = myAnalysis->GetSigRegionsAll().at(0);
 
   // Keep a histogram for the total yields
-  TH1D* h_totals_sregion = (TH1D*)infile->Get("sregion_" + dummySampleName)->Clone("signal_region_totals");
+  TH1D* h_totalBkgYields = (TH1D*)infile->Get("srYields_" + dummySampleName)->Clone("total_bkg_yields");
 
   uint binOffset = 0;
 
@@ -35,7 +35,7 @@ void makeTables( analysis* myAnalysis ) {
   for( vector<TString> regNameList : myAnalysis->GetSigRegions() ) {
 
 	double yield, error;
-	h_totals_sregion->Reset();
+	h_totalBkgYields->Reset();
 
 	// Prep histograms that will store the total bkg yields by decay type
 	uint nRegions = regNameList.size();
@@ -62,7 +62,7 @@ void makeTables( analysis* myAnalysis ) {
 
 	  sample* data = myAnalysis->GetData();
 	  printf( "%28s  ", data->GetTableName().Data() );       // Print start of row
-	  TH1D* h_yields = (TH1D*)infile->Get( "sregion_" + data->GetLabel() ); // Retrieve yield histo for this sample
+	  TH1D* h_yields = (TH1D*)infile->Get( "srYields_" + data->GetLabel() ); // Retrieve yield histo for this sample
 
 	  // Read in yields and errors, and print out another cell in the table row
 	  for( uint i=1; i<=nRegions; i++ ) {
@@ -79,7 +79,7 @@ void makeTables( analysis* myAnalysis ) {
 	for( sample* thisSample : myAnalysis->GetSignals() ) {
 
 	  printf( "%28s  ", thisSample->GetTableName().Data() );       // Print start of row
-	  TH1D* h_yields = (TH1D*)infile->Get( "sregion_" + thisSample->GetLabel() ); // Retrieve yield histo for this sample
+	  TH1D* h_yields = (TH1D*)infile->Get( "srYields_" + thisSample->GetLabel() ); // Retrieve yield histo for this sample
 
 	  // Read in yields and errors, and print out another cell in the table row
 	  for( uint i=1; i<=nRegions; i++ ) {
@@ -98,8 +98,8 @@ void makeTables( analysis* myAnalysis ) {
 	for( sample* thisSample : myAnalysis->GetBkgs() ) {
 
 	  printf( "%28s  ", thisSample->GetTableName().Data() );       // Print start of row
-	  TH1D* h_yields = (TH1D*)infile->Get( "sregion_" + thisSample->GetLabel() ); // Retrieve yield histo for this sample
-	  h_totals_sregion->Add( h_yields );
+	  TH1D* h_yields = (TH1D*)infile->Get( "srYields_" + thisSample->GetLabel() ); // Retrieve yield histo for this sample
+	  h_totalBkgYields->Add( h_yields );
 
 	  // Read in yields and errors, and print out another cell in the table row
 	  // Also add yields by background type to running tally
@@ -123,8 +123,8 @@ void makeTables( analysis* myAnalysis ) {
 
 	cout << "            Total Background  ";
 	for( uint i=1; i<=nRegions; i++ ) {
-	  yield = h_totals_sregion->GetBinContent(i + binOffset);
-	  error = h_totals_sregion->GetBinError(i + binOffset);
+	  yield = h_totalBkgYields->GetBinContent(i + binOffset);
+	  error = h_totalBkgYields->GetBinError(i + binOffset);
 	  printf( "  &   %8.3f $\\pm$ %6.3f", yield, error);
 	}
 	cout << "  \\\\" << endl;

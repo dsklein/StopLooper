@@ -119,8 +119,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
   }
 
-  TH1D *h_sigRegion = new TH1D( Form("sregion_%s", sampleName.Data()), "Yield by signal region", nSigRegs, 0.5, float(nSigRegs)+0.5);
-  h_sigRegion->SetDirectory(rootdir);
+  TH1D *h_yields = new TH1D( Form("srYields_%s", sampleName.Data()), "Yield by signal region", nSigRegs, 0.5, float(nSigRegs)+0.5);
+  h_yields->SetDirectory(rootdir);
 
 
   float yield_total = 0;
@@ -385,7 +385,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		h_njets[i]->Fill(   ngoodjets(),                evtWeight );
 		h_nbtags[i]->Fill(  ngoodbtags(),               evtWeight );
 
-		h_sigRegion->Fill( float(i+1),                  evtWeight );
+		h_yields->Fill(     float(i+1),                 evtWeight );
 	  }
 
 	  // ---------------------------------------------------------------------------------------------------//
@@ -437,8 +437,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	if( negsFound ) {
 	  double newYield, newErr;
 	  newYield = h_bgtype[j]->IntegralAndError( 0, -1, newErr );
-	  h_sigRegion->SetBinContent(j+1, newYield);
-	  h_sigRegion->SetBinError(j+1, newErr);
+	  h_yields->SetBinContent(j+1, newYield);
+	  h_yields->SetBinError(j+1, newErr);
 	}
   }
 
@@ -462,7 +462,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	h_njets[j]->Write();
 	h_nbtags[j]->Write();
   }
-  h_sigRegion->Write();
+  h_yields->Write();
 
   plotfile->Close();
 
@@ -482,7 +482,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	delete h_njets[j];
 	delete h_nbtags[j];
   }
-  delete h_sigRegion;
+  delete h_yields;
 
   // return
   bmark->Stop("benchmark");

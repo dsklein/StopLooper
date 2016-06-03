@@ -119,8 +119,8 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 
   }
 
-  TH1D *h_sigRegion = new TH1D( Form("sregion_%s", sampleName.Data()), "Yield by signal region", nSigRegs, 0.5, float(nSigRegs)+0.5);
-  h_sigRegion->SetDirectory(rootdir);
+  TH1D *h_yields = new TH1D( Form("srYields_%s", sampleName.Data()), "Yield by signal region", nSigRegs, 0.5, float(nSigRegs)+0.5);
+  h_yields->SetDirectory(rootdir);
 
   // For combine machinery
   TH1D *h_statunc = new TH1D( Form( "StatUnc_%s", sampleName.Data()), "Stat Uncertainty",       nSigRegs, 0.5, float(nSigRegs)+0.5);
@@ -344,7 +344,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 		h_njets[i]->Fill(   ngoodjets(),                evtWeight );
 		h_nbtags[i]->Fill(  ngoodbtags(),               evtWeight );
 
-		h_sigRegion->Fill( float(i+1),                  evtWeight );
+		h_yields->Fill(     float(i+1),                 evtWeight );
 	  }
 
 	  // ---------------------------------------------------------------------------------------------------//
@@ -393,14 +393,14 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	if( negsFound ) {
 	  double newYield, newErr;
 	  newYield = h_bgtype[j]->IntegralAndError( 0, -1, newErr );
-	  h_sigRegion->SetBinContent(j+1, newYield);
-	  h_sigRegion->SetBinError(j+1, newErr);
+	  h_yields->SetBinContent(j+1, newYield);
+	  h_yields->SetBinError(j+1, newErr);
 	}
   }
 
   // Set up the histograms for the combine machinery
   for( int i=1; i<=nSigRegs; i++ ) {
-	if( h_sigRegion->GetBinContent(i) > 0. ) h_statunc->SetBinContent( i, h_sigRegion->GetBinError(i) / h_sigRegion->GetBinContent(i) );
+	if( h_yields->GetBinContent(i) > 0. ) h_statunc->SetBinContent( i, h_yields->GetBinError(i) / h_yields->GetBinContent(i) );
 
 	if( sampleName == "tt1l" ) h_systunc->SetBinContent( i, 1.0 );
 	else h_systunc->SetBinContent( i, 0.3 );
@@ -426,7 +426,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	h_njets[j]->Write();
 	h_nbtags[j]->Write();
   }
-  h_sigRegion->Write();
+  h_yields->Write();
 
   plotfile->Close();
 
@@ -434,7 +434,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
   combFile->cd();
   h_statunc->Write();
   h_systunc->Write();
-  h_sigRegion->Write();
+  h_yields->Write();
   combFile->Close();
 
   for( int j=0; j<nSigRegs; j++ ) {
@@ -453,7 +453,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	delete h_njets[j];
 	delete h_nbtags[j];
   }
-  delete h_sigRegion;
+  delete h_yields;
   delete h_statunc;
   delete h_systunc;
 

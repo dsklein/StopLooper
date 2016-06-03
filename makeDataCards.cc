@@ -100,7 +100,7 @@ void makeDataCards( analysis* myAnalysis ) {
 	double yield;
 
 	for( TString sample : samples ) {
-	  h_yield = (TH1D*)histfile->Get( Form("sregion_%s", sample.Data()) );
+	  h_yield = (TH1D*)histfile->Get( Form("srYields_%s", sample.Data()) );
 	  yield   = h_yield->GetBinContent(bin);
 	  fprintf( outfile,  " %10f", yield );
 	}
