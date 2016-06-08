@@ -120,6 +120,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   }
 
   TH1D *h_yields = new TH1D( Form("srYields_%s", sampleName.Data()), "Yield by signal region", nSigRegs, 0.5, float(nSigRegs)+0.5);
+  for( int i=0; i<nSigRegs; i++ ) h_yields->GetXaxis()->SetBinLabel( i+1, regNames[i].c_str() );
   h_yields->SetDirectory(rootdir);
 
 

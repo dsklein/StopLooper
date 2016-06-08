@@ -1,5 +1,8 @@
 // Class sfManager - a class to load scale factor histograms, and provide functions to calculate SFs for me
 
+#ifndef SFMANAGER_H
+#define SFMANAGER_H
+
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -47,3 +50,5 @@ private:
   BTagCalibrationReader* reader_fastsim;
 
 };
+
+#endif
