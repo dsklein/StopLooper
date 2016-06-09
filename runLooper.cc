@@ -26,6 +26,7 @@ int main( int argc, char* argv[] ) {
 
 
   TString bkgPath = "/hadoop/cms/store/user/jgwood/condor/stop_1l_babies/stop_babies__CMS3_V070411__BabyMaker_V0704X_v9__20160127/merged_files/Skims_SR__20160202/";
+  TString llepPath = "/hadoop/cms/store/user/jgwood/condor/stop_1l_babies/stop_babies__CMS3_V070411__BabyMaker_V0704X_v9__20160127/merged_files/Skims_CR_2lep__20160202/";
 
   TString sigPath = "/nfs-7/userdata/stopRun2/signalbabies/";
 
@@ -42,6 +43,7 @@ int main( int argc, char* argv[] ) {
   bool runstacks = false;
   bool runtables = false;
   bool runcards  = false;
+  bool runlostlep= false;
 
 
   for( TString arg : arguments ) {
@@ -50,6 +52,7 @@ int main( int argc, char* argv[] ) {
 	else if( arg=="plot"  || arg=="plots" || arg=="stack" || arg=="stacks" ) runstacks = true;
 	else if( arg=="table" || arg=="tables" ) runtables = true;
 	else if( arg=="cards" || arg=="card"  || arg=="datacards" || arg=="datacard" ) runcards = true;
+	else if( arg=="lostlep" || arg=="lost" || arg=="ll" ) runlostlep = true;
 	else if( arg=="out"   || arg=="output" ) {
 	  runstacks = true;
 	  runtables = true;
@@ -60,6 +63,7 @@ int main( int argc, char* argv[] ) {
 	  runstacks = true;
 	  runtables = true;
 	  runcards  = true;
+	  runlostlep = true;
 	}
 	else {
 	  std::cout << "Unrecognized option: " << arg << std::endl;
@@ -75,34 +79,52 @@ int main( int argc, char* argv[] ) {
 
 
   ////////////////////////////////////////////////////////////////////////////////////////
-  // Make "analysis" object out of "samples"
+  // Make "analysis" objects out of "samples"
 
-  analysis* ThisAnalysis = new analysis( 2.26, "plots.root" ); // Luminosity
+  analysis* srAnalysis = new analysis( 2.26, "plots.root" );
+  analysis* crLostLep  = new analysis( 2.26, "plotsLL.root" );
 
   //                             new sample( "Label",  "Display name",    TColor,    sampleType )
 
-  sample* stop700 = ThisAnalysis->AddSample( "stop700", "T2tt (700,50)",  kBlue+3,   sample::kSignal );
-  sample* stop600 = ThisAnalysis->AddSample( "stop600", "T2tt (600,250)", kGreen+3,  sample::kSignal );
-  sample* stop300 = ThisAnalysis->AddSample( "stop300", "T2tt (300,200)", kMagenta+3,sample::kSignal );
-  sample* stop275 = ThisAnalysis->AddSample( "stop275", "T2tt (275,100)", kOrange+7, sample::kSignal );
+  sample* stop700 = srAnalysis->AddSample( "stop700", "T2tt (700,50)",  kBlue+3,   sample::kSignal );
+  sample* stop600 = srAnalysis->AddSample( "stop600", "T2tt (600,250)", kGreen+3,  sample::kSignal );
+  sample* stop300 = srAnalysis->AddSample( "stop300", "T2tt (300,200)", kMagenta+3,sample::kSignal );
+  sample* stop275 = srAnalysis->AddSample( "stop275", "T2tt (275,100)", kOrange+7, sample::kSignal );
 
-  sample* tt2l    = ThisAnalysis->AddSample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
-  sample* tt1l    = ThisAnalysis->AddSample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
-  sample* singtop = ThisAnalysis->AddSample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
-  sample* wjets   = ThisAnalysis->AddSample( "wjets",   "W+Jets",         kOrange-2, sample::kBackground );
-  sample* dy      = ThisAnalysis->AddSample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
-  sample* rare    = ThisAnalysis->AddSample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
+  sample* tt2l    = srAnalysis->AddSample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
+  sample* tt1l    = srAnalysis->AddSample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
+  sample* singtop = srAnalysis->AddSample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
+  sample* wjets   = srAnalysis->AddSample( "wjets",   "W+Jets",         kOrange-2, sample::kBackground );
+  sample* dy      = srAnalysis->AddSample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
+  sample* rare    = srAnalysis->AddSample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
+
+  sample* CRttbar   = crLostLep->AddSample( "ttbar", "$t\\bar{t}$", "t#bar{t}", kCyan-3,   sample::kBackground );
+  sample* CRsingtop = crLostLep->AddSample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
+  sample* CRwjets   = crLostLep->AddSample( "wjets",   "W+Jets",         kOrange-2, sample::kBackground );
+  sample* CRdy      = crLostLep->AddSample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
+  sample* CRrare    = crLostLep->AddSample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
 
   std::vector<TString> compressed  = {"compr250",  "compr350"};
   std::vector<TString> boosted     = {"boost250",  "boost350"};
   std::vector<TString> lowDMreg    = {"low250",  "low325"};
   std::vector<TString> highDMreg = {"high250", "high350", "high450"};
   std::vector<TString> inclusive = {"inclusive"};
-  ThisAnalysis->AddSigRegs( compressed );
-  ThisAnalysis->AddSigRegs( boosted );
-  ThisAnalysis->AddSigRegs( lowDMreg );
-  ThisAnalysis->AddSigRegs( highDMreg );
-  ThisAnalysis->AddSigRegs( inclusive );
+  srAnalysis->AddSigRegs( compressed );
+  srAnalysis->AddSigRegs( boosted );
+  srAnalysis->AddSigRegs( lowDMreg );
+  srAnalysis->AddSigRegs( highDMreg );
+  srAnalysis->AddSigRegs( inclusive );
+
+  std::vector<TString> compressedCR  = {"compr250CR",  "compr350CR"};
+  std::vector<TString> boostedCR     = {"boost250CR",  "boost350CR"};
+  std::vector<TString> lowDMregCR    = {"low250CR",  "low325CR"};
+  std::vector<TString> highDMregCR = {"high250CR", "high350CR", "high450CR"};
+  std::vector<TString> inclusiveCR = {"inclusiveCR"};
+  crLostLep->AddSigRegs( compressedCR );
+  crLostLep->AddSigRegs( boostedCR );
+  crLostLep->AddSigRegs( lowDMregCR );
+  crLostLep->AddSigRegs( highDMregCR );
+  crLostLep->AddSigRegs( inclusiveCR );
 
 
 
@@ -156,32 +178,79 @@ int main( int argc, char* argv[] ) {
 	rare->AddFile( bkgPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns_skimmed.root" );
 
 
+
 	// Reset output files
-	TFile* outfile = new TFile( ThisAnalysis->GetFileName(), "RECREATE");
+	TFile* outfile = new TFile( srAnalysis->GetFileName(), "RECREATE");
 	outfile->Close();
 	TFile* uncertFile = new TFile( "uncertainties.root", "RECREATE");
 	uncertFile->Close();
 
 	// Run ScanChain on all samples
-	ScanChain( ThisAnalysis, stop700 );
-	ScanChain( ThisAnalysis, stop600 );
-	ScanChain( ThisAnalysis, stop300 );
-	ScanChain( ThisAnalysis, stop275 );
-	ScanChain( ThisAnalysis, tt2l    );
-	ScanChain( ThisAnalysis, tt1l    );
-	ScanChain( ThisAnalysis, singtop );
-	ScanChain( ThisAnalysis, wjets   );
-	ScanChain( ThisAnalysis, dy      );
-	ScanChain( ThisAnalysis, rare    );
+	ScanChain( srAnalysis, stop700 );
+	ScanChain( srAnalysis, stop600 );
+	ScanChain( srAnalysis, stop300 );
+	ScanChain( srAnalysis, stop275 );
+	ScanChain( srAnalysis, tt2l    );
+	ScanChain( srAnalysis, tt1l    );
+	ScanChain( srAnalysis, singtop );
+	ScanChain( srAnalysis, wjets   );
+	ScanChain( srAnalysis, dy      );
+	ScanChain( srAnalysis, rare    );
+
+  }
+
+  //////////////////////////////////////////////
+  // Run lost lepton background estimate
+
+  if( runlostlep ) {
+
+	CRttbar->AddFile( llepPath + "ttbar_powheg_pythia8_25ns_skimmed.root" );
+	CRwjets->AddFile( llepPath + "WJetsToLNu_HT100To200_madgraph_pythia8_25ns_skimmed.root" );
+	CRwjets->AddFile( llepPath + "WJetsToLNu_HT200To400_madgraph_pythia8_25ns_skimmed.root" );
+	CRwjets->AddFile( llepPath + "WJetsToLNu_HT400To600_madgraph_pythia8_25ns_skimmed.root" );
+	CRwjets->AddFile( llepPath + "WJetsToLNu_HT600ToInf_madgraph_pythia8_25ns_skimmed.root" );
+	CRdy->AddFile( llepPath + "DYJetsToLL_m10To50_amcnlo_pythia8_25ns_skimmed.root" );
+	CRdy->AddFile( llepPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns_skimmed.root" );
+	CRsingtop->AddFile( llepPath + "t_sch_4f_amcnlo_pythia8_25ns_skimmed.root" );
+	CRsingtop->AddFile( llepPath + "t_tch_4f_powheg_pythia8_25ns_skimmed.root" );
+	CRsingtop->AddFile( llepPath + "tbar_tch_4f_powheg_pythia8_25ns_skimmed.root" );
+	CRsingtop->AddFile( llepPath + "t_tW_5f_powheg_pythia8_25ns_skimmed.root" );
+	CRsingtop->AddFile( llepPath + "t_tbarW_5f_powheg_pythia8_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "TTWJetsToLNu_amcnlo_pythia8_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "TTWJetsToQQ_amcnlo_pythia8_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "TTZToQQ_amcnlo_pythia8_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "tZq_ll_4f_amcnlo_pythia8_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "tZq_nunu_4f_amcnlo_pythia8_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "WWTo2l2Nu_powheg_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "WWToLNuQQ_powheg_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "WZTo3LNu_powheg_pythia8_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "WZTo2L2Q_amcnlo_pythia8_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "WZTo1LNu2Q_amcnlo_pythia8_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "ZZTo4L_powheg_pythia8_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "ZZTo2L2Q_amcnlo_pythia8_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "ZZTo2L2Nu_powheg_pythia8_25ns_skimmed.root" );
+	CRrare->AddFile( llepPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns_skimmed.root" );
+
+	TFile* outfile = new TFile( crLostLep->GetFileName(), "RECREATE");
+	outfile->Close();
+
+	looperCR2lep( crLostLep, CRttbar );
+	looperCR2lep( crLostLep, CRsingtop );
+	looperCR2lep( crLostLep, CRwjets );
+	looperCR2lep( crLostLep, CRdy );
+	looperCR2lep( crLostLep, CRrare );
+
   }
 
 
   /////////////////////////////////////////////////////
   // Make stacked histograms and/or yield tables
 
-  if( runtables ) makeTables(    ThisAnalysis );
-  if( runstacks ) makeStack(     ThisAnalysis );
-  if( runcards  ) makeDataCards( ThisAnalysis );
+  if( runtables ) makeTables(    srAnalysis );
+  if( runlostlep) makeTables(    crLostLep  );
+  if( runstacks ) makeStack(     srAnalysis );
+  if( runcards  ) makeDataCards( srAnalysis );
 
   return 0;
 }
