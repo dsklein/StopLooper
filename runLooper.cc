@@ -250,6 +250,7 @@ int main( int argc, char* argv[] ) {
   if( runtables ) makeTables(    srAnalysis );
   if( runlostlep) makeTables(    crLostLep  );
   if( runstacks ) makeStack(     srAnalysis );
+  if( runlostlep) makeLostLepEstimate( srAnalysis, crLostLep );
   if( runcards  ) makeDataCards( srAnalysis );
 
   return 0;
