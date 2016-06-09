@@ -80,7 +80,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 
   for( int i=0; i<nSigRegs; i++ ) {
 
-	h_bgtype[i]   = new TH1D( Form( "bkgtype_%s_%s" , sampleName.Data(), regNames[i].c_str()), "Yield by background type",  4, 0.5, 4.5);
+	h_bgtype[i]   = new TH1D( Form( "bkgtype_%s_%s" , sampleName.Data(), regNames[i].c_str()), "Yield by background type",  5, 0.5, 5.5);
 	h_mt[i]       = new TH1D( Form( "mt_%s_%s"      , sampleName.Data(), regNames[i].c_str()), "Transverse mass",			80, 0, 800);
 	h_met[i]      = new TH1D( Form( "met_%s_%s"     , sampleName.Data(), regNames[i].c_str()), "MET",						40, 0, 1000);
 	h_mt2w[i]     = new TH1D( Form( "mt2w_%s_%s"    , sampleName.Data(), regNames[i].c_str()), "MT2W",						50, 0, 500);
@@ -112,10 +112,11 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	h_nbtags[i]->SetDirectory(rootdir);
 
 	TAxis* axis = h_bgtype[i]->GetXaxis();
-	axis->SetBinLabel( 1, "1lep" );
+	axis->SetBinLabel( 1, "ZtoNuNu" );
 	axis->SetBinLabel( 2, "2+lep" );
-	axis->SetBinLabel( 3, "ZtoNuNu" );
-	axis->SetBinLabel( 4, "Other" );
+	axis->SetBinLabel( 3, "1lepTop" );
+	axis->SetBinLabel( 4, "1lepW" );
+	axis->SetBinLabel( 5, "Other" );
 
   }
 
@@ -314,10 +315,11 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	  // Classify event based on number of leptons / neutrinos
 
 	  int category = -99;
-	  if(   isZtoNuNu() ) category = 3;   // Z to nu nu
-	  else if( is2lep() ) category = 2;   // 2 or more leptons
-	  else if( is1lep() ) category = 1;   // 1 lepton
-	  else                category = 4;   // Other
+	  if(   isZtoNuNu() )        category = 1;   // Z to nu nu
+	  else if( is2lep() )        category = 2;   // 2 or more leptons
+	  else if( is1lepFromTop() ) category = 3;   // 1 lepton from top quark
+	  else if( is1lepFromW() )   category = 4;   // 1 lepton from a W not from top
+	  else                       category = 5;   // Other
 
 	  ///////////////////////////////////////////
 	  // MET/MT2W cuts and histo filling

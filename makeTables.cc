@@ -15,9 +15,10 @@ void makeTables( analysis* myAnalysis ) {
   TFile* infile = new TFile( myAnalysis->GetFileName(), "READ" );
 
   vector<TString> decayNames;
-  decayNames.push_back("1 lepton");
-  decayNames.push_back("$\\geq$2 leptons");
   decayNames.push_back("Z $\\rightarrow \\nu\\nu$");
+  decayNames.push_back("$\\geq$2 leptons");
+  decayNames.push_back("1 lepton from top");
+  decayNames.push_back("1 lepton from W");
   decayNames.push_back("Other");
 
   TString dummySampleName = myAnalysis->GetBkgLabels().at(0);
