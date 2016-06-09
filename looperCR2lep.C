@@ -41,7 +41,6 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   // Setup
   TChain *chain = mySample->GetChain();
   TString sampleName = mySample->GetLabel();
-  const double myLumi = myAnalysis->GetLumi();
   const int nSigRegs = myAnalysis->GetSigRegionsAll().size();
   bool isFastsim = mySample->IsSignal();
   cout << "\nSample: " << sampleName.Data() << endl;
@@ -54,6 +53,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 
   TH1D* h_bgtype[nSigRegs];
+  TH1D* h_evttype[nSigRegs];
 
   TH1D *h_mt[nSigRegs];
   TH1D *h_met[nSigRegs];
@@ -81,6 +81,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   for( int i=0; i<nSigRegs; i++ ) {
 
 	h_bgtype[i]   = new TH1D( Form( "bkgtype_%s_%s" , sampleName.Data(), regNames[i].c_str()), "Yield by background type",  5, 0.5, 5.5);
+	h_evttype[i]= new TH1D( Form( "evttype_%s"      , regNames[i].c_str()),                    "Yield by event type",       6, 0.5, 6.5);
 	h_mt[i]       = new TH1D( Form( "mt_%s_%s"      , sampleName.Data(), regNames[i].c_str()), "Transverse mass",			80, 0, 800);
 	h_met[i]      = new TH1D( Form( "met_%s_%s"     , sampleName.Data(), regNames[i].c_str()), "MET",						40, 0, 1000);
 	h_mt2w[i]     = new TH1D( Form( "mt2w_%s_%s"    , sampleName.Data(), regNames[i].c_str()), "MT2W",						50, 0, 500);
@@ -96,6 +97,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	h_nbtags[i]   = new TH1D( Form( "nbtags_%s_%s"  , sampleName.Data(), regNames[i].c_str()), "Number of b-tags",          7, -0.5, 6.5);
 
 	h_bgtype[i]->SetDirectory(rootdir);
+	h_evttype[i]->SetDirectory(rootdir);
 
 	h_mt[i]->SetDirectory(rootdir);
 	h_met[i]->SetDirectory(rootdir);
@@ -117,6 +119,14 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	axis->SetBinLabel( 3, "1lepTop" );
 	axis->SetBinLabel( 4, "1lepW" );
 	axis->SetBinLabel( 5, "Other" );
+
+	axis = h_evttype[i]->GetXaxis();
+	axis->SetBinLabel( 1, "Data" );
+	axis->SetBinLabel( 2, "Signals" );
+	axis->SetBinLabel( 3, "ZtoNuNu" );
+	axis->SetBinLabel( 4, "2+lep" );
+	axis->SetBinLabel( 5, "1lepTop" );
+	axis->SetBinLabel( 6, "1lepW" );
 
   }
 
@@ -218,9 +228,9 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		int biny = hCounter->GetYaxis()->FindBin( mass_lsp()  );
 		double bTagSumWeights = hCounter->GetBinContent( binx, biny, 14 );
 		mySFs.SetBtagNorm( nEvtsSample / bTagSumWeights );
-		evtWeight = myLumi * 1000. * xsec() / nEvtsSample;
+		evtWeight = myAnalysis->GetLumi() * 1000. * xsec() / nEvtsSample;
 	  }
-	  else evtWeight = myLumi * scale1fb();
+	  else evtWeight = myAnalysis->GetLumi() * scale1fb();
 
 
 	  // Count the number of events processed
@@ -362,6 +372,11 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  else if( is1lepFromW() )   category = 4;   // 1 lepton from a W not from top
 	  else                       category = 5;   // Other
 
+	  int evtType = -99;
+	  if(      mySample->IsData()   ) evtType = 1;
+	  else if( mySample->IsSignal() ) evtType = 2;
+	  else                            evtType = 2+category;
+
 	  ///////////////////////////////////////////
 	  // MET/MT2W cuts and histo filling
 
@@ -373,6 +388,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		if( (regNames[i] == "compr250" || regNames[i] == "compr350") && topnessMod() <= 6.4 ) continue;
 
 		h_bgtype[i]->Fill( category,                    evtWeight );
+		h_evttype[i]->Fill( evtType,                    evtWeight );
 
 		h_mt[i]->Fill(      mt_met_lep(), 				evtWeight );
 		h_met[i]->Fill(     pfmet(),					evtWeight );
@@ -435,6 +451,10 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		h_bgtype[j]->SetBinError(k, 0.);
 		negsFound = true;
 	  }
+	  if( h_evttype[j]->GetBinContent(k+2) < 0.0 ) {
+		h_evttype[j]->SetBinContent(k+2, 0.);
+		h_evttype[j]->SetBinError(k+2, 0.);
+	  }
 	}
 	// If any negative yields were found in any decay mode, recalculate the total yield
 	if( negsFound ) {
@@ -469,8 +489,18 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
   plotfile->Close();
 
+  TFile* combFile = new TFile( "uncertainties.root" , "UPDATE");
+  combFile->cd();
+  for( int j=0; j<nSigRegs; j++ ) {
+	TH1D* hTemp = (TH1D*)combFile->Get( h_evttype[j]->GetName() );
+	if( hTemp != 0 ) h_evttype[j]->Add( hTemp );
+	h_evttype[j]->Write( "", TObject::kOverwrite );
+  }
+  combFile->Close();
+
   for( int j=0; j<nSigRegs; j++ ) {
 	delete h_bgtype[j];
+	delete h_evttype[j];
 	delete h_mt[j];
 	delete h_met[j];
 	delete h_mt2w[j];
