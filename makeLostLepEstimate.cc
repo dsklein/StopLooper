@@ -48,7 +48,7 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
   }
 
   // Now do the division, M^SR / M^CR
-  TH1D* h_mcRatio = (TH1D*)h_srMC->Clone("mcRatio");
+  TH1D* h_mcRatio = (TH1D*)h_srMC->Clone("mcRatioLostLep");
   h_mcRatio->SetTitle( "SR/CR ratio by signal region" );
   for( uint i=0; i<nSRegions; i++ ) h_crMC->GetXaxis()->SetBinLabel( i+1, srnames.at(i) ); // equalize bin names
   h_mcRatio->Divide( h_crMC );
@@ -67,7 +67,7 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
   }
   h_crData->SetTitle( "Control region yields from data" );
 
-  h_bkgEstimate = (TH1D*)h_crMC->Clone( "bkgEstimate" );
+  h_bkgEstimate = (TH1D*)h_crMC->Clone( "lostLepBkg" );
   h_bkgEstimate->SetTitle( "Lost lepton background estimate" );
   h_bkgEstimate->Multiply( h_mcRatio );
 

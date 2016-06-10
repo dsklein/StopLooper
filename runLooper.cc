@@ -182,7 +182,7 @@ int main( int argc, char* argv[] ) {
 	// Reset output files
 	TFile* outfile = new TFile( srAnalysis->GetFileName(), "RECREATE");
 	outfile->Close();
-	TFile* uncertFile = new TFile( "uncertainties.root", "RECREATE");
+	TFile* uncertFile = new TFile( "uncertSR.root", "RECREATE");
 	uncertFile->Close();
 
 	// Run ScanChain on all samples
@@ -234,6 +234,8 @@ int main( int argc, char* argv[] ) {
 
 	TFile* outfile = new TFile( crLostLep->GetFileName(), "RECREATE");
 	outfile->Close();
+	TFile* uncertFile = new TFile( "uncertCR.root", "RECREATE");
+	uncertFile->Close();
 
 	looperCR2lep( crLostLep, CRttbar );
 	looperCR2lep( crLostLep, CRsingtop );

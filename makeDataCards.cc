@@ -15,15 +15,18 @@ void makeDataCards( analysis* myAnalysis ) {
 
   // Do the basic setup stuff
 
-  vector<TString> bkgs = myAnalysis->GetBkgLabels();
+  vector<TString> bkgs = { "zNuNu", "2l", "1ltop", "1lW" }; // Eventually pull this from the analysis object
   const int nBkgs = bkgs.size();
 
   vector<TString> signals = myAnalysis->GetSignalLabels();
   const int nSigs = signals.size();
-  if ( nSigs != 1 ) {
+  if( nSigs > 1 ) {
 	cout << "\nWarning in makeDataCards.cc! There are " << nSigs << " signals, when there should be just one!" << endl;
 	cout << "  Using only the last signal (" << signals.at(signals.size()-1) << ").\n" << endl;
-	// return;
+  }
+  else if( nSigs < 1 ) {
+	cout << "\nError in makeDataCards.cc: Need at least one signal sample!" << endl;
+	return;
   }
 
   vector<TString> samples = bkgs;
@@ -33,6 +36,10 @@ void makeDataCards( analysis* myAnalysis ) {
   vector<TString> sigRegions = myAnalysis->GetSigRegionsAll();
   const int nSigRegs = sigRegions.size();
 
+  // Open files containing background yields and uncertainties
+  TFile* uncertFile = new TFile( "uncertSR.root", "READ" );
+  TFile* lostlepFile = new TFile( "bkgEstimates.root", "READ" );
+  TH1D* h_lostLep = (TH1D*)lostlepFile->Get("lostLepBkg");
   
   //////////////////////////////////////////////////////////
   // Loop over signal regions, making a datacard for each...
@@ -40,23 +47,15 @@ void makeDataCards( analysis* myAnalysis ) {
 
   for( int bin=1; bin<=nSigRegs; bin++ ) {
 
-	// Do some fancy trickery to send the output to a file...
+	TH1D* h_yield = (TH1D*)uncertFile->Get( "evttype_"+sigRegions.at(bin-1) );
+
+	// Do some acrobatics to send the output to a file...
 	TString fileName = "datacards/datacard_"+sigRegions.at(bin-1)+".txt";
 	cout << "Writing data card " << fileName << endl;
 
 	FILE * outfile;
 	outfile = fopen( fileName.Data(), "w" );
 
-	// freopen( fileName.Data(), "w", stdout );
-
-	// ofstream outfile;
-	// streambuf* restore;
-	// outfile.open( Form("combine_files/datacard_%s.txt", sigRegions.at(bin-1).Data()) );
-	// restore = cout.rdbuf();
-	// cout.rdbuf(outfile.rdbuf());
-
-	// Open file containing uncertainty histograms
-	TFile* histfile = new TFile( "uncertainties.root", "READ" );
 
 	////////////////////////////
 	// Now print the data card
@@ -66,15 +65,16 @@ void makeDataCards( analysis* myAnalysis ) {
 	fprintf( outfile,  "imax 1  number of channels\n" );
 
 	fprintf( outfile,  "jmax %d  number of backgrounds (", nBkgs );
-	for (TString bkgName : bkgs ) fprintf( outfile, "%s, ",  bkgName.Data() );   // Eventually this will change to 4 (1l, 2l, wjets, znunu)
+	for (TString bkgName : bkgs ) fprintf( outfile, "%s, ",  bkgName.Data() );   // Will usually be 4 (znunu, 2l, 1ltop, 1lw)
 	fprintf( outfile,  ")\n" );
 
-	fprintf( outfile,  "kmax %d  number of uncertainties\n", 2*nSamples-1 ); // For now, we've got statistical and systematic for each sample
+	fprintf( outfile,  "kmax %d  number of uncertainties\n", 2*nSamples-1 ); // For now, we've got statistical and systematic for each bkg, and stat for signal
 	fprintf( outfile,  "---\n" );
 
-	fprintf( outfile,  "# Now list the number of events observed (namely, zero)\n" ); // Eventually change this once I'm running over data
+	fprintf( outfile,  "# Now list the number of events observed (or zero if no data)\n" );
 	fprintf( outfile,  "bin %d\n", bin );
-	fprintf( outfile,  "observation 0\n" );
+	if( myAnalysis->HasData() ) fprintf( outfile,  "observation %d\n", int(h_yield->GetBinContent(1)) );
+	else                        fprintf( outfile,  "observation 0\n" );
 	fprintf( outfile,  "---\n" );
 
 	fprintf( outfile,  "# Now list the expected events (i.e. Monte Carlo yield) for signal and all backgrounds in our particular bin\n" );
@@ -94,79 +94,64 @@ void makeDataCards( analysis* myAnalysis ) {
 
 
 
-	//Now the tricky part: getting the expectation from each of the histograms!
+	// Print row with the yields for each process (signal, bkgs)
 	fprintf( outfile,  "rate     ");
-	TH1D* h_yield;
 	double yield;
 
-	for( TString sample : samples ) {
-	  h_yield = (TH1D*)histfile->Get( Form("srYields_%s", sample.Data()) );
-	  yield   = h_yield->GetBinContent(bin);
+	for( int i=1; i<=nSamples; i++ ) {
+	  if( i==3 ) yield = h_lostLep->GetBinContent(bin); // Pull 2l yield from lostLepton estimate histogram
+	  else       yield = h_yield->GetBinContent(i+1);
 	  fprintf( outfile,  " %10f", yield );
 	}
 	fprintf( outfile, "\n" );
 
 	fprintf( outfile,  "---\n" );
-	fprintf( outfile,  "# Now we list the independent sources of uncertainty (syst. error), and which samples they affect\n" ); // Can also use this bit to do stat errors
+	fprintf( outfile,  "# Now we list the independent sources of uncertainty (syst. and stat. error), and which samples they affect\n" );
 	fprintf( outfile,  "---\n" );
 
 
 
-	// Make the table of statistical and systematic errors on each process
-	for( int sampleIdx = 0; sampleIdx<nSamples; sampleIdx++ ) {
+	// Print out rows for statistical uncertainties
+	for( int sampleIdx=0; sampleIdx<nSamples; sampleIdx++ ) {
 
-	  // Get the stat/syst errors from the appropriate histograms
-	  TH1D* h_stat = (TH1D*)histfile->Get("StatUnc_"+samples.at(sampleIdx));
-	  TH1D* h_syst = (TH1D*)histfile->Get("SystUnc_"+samples.at(sampleIdx));
-	  double statErr = 1.0 + h_stat->GetBinContent(bin);
-	  double systErr = 1.0 + h_syst->GetBinContent(bin);
-
-	  // Generate strings for the names of these uncertainties
-	  char systname[25];
 	  char statname[25];
-	  sprintf( systname, "%sSyst", samples.at(sampleIdx).Data() );
-	  sprintf( statname, "%sStat", samples.at(sampleIdx).Data() );
-
-
-	  // Print out the row for the systematic uncertainty
-	  if( !(samples.at(sampleIdx).Contains("stop")
-			|| samples.at(sampleIdx).Contains("signal")
-			|| samples.at(sampleIdx).Contains("2tt")
-			) ) {
-		fprintf( outfile,   "%-18s  lnN ", systname );
-		for( int j=0; j<nSamples; j++ ) {
-		  if( j == sampleIdx )  fprintf( outfile, "  %4.2f  ", systErr);
-		  else fprintf( outfile,  "   -    " ); // May need to adjust the padding here to match the length of the number printed above^
-		}
-		fprintf( outfile, "\n" );
-	  }
-
-	  // Print out the row for the statistical uncertainty
+	  sprintf( statname, "%sStat", samples.at(sampleIdx).Data() );	  
 	  fprintf( outfile,   "%-18s  lnN ", statname );
+
+	  double statErr = 1.0 + (h_yield->GetBinError(sampleIdx+2) / h_yield->GetBinContent(sampleIdx+2) );
+	  if( sampleIdx==3 ) statErr = 1.0 + ( h_lostLep->GetBinError(bin) / h_lostLep->GetBinContent(bin) );  // Pull 2l stat error from lostLepton estimate histogram
+
 	  for( int j=0; j<nSamples; j++ ) {
 		if( j == sampleIdx )  fprintf( outfile, "  %4.2f  ", statErr);
-		else fprintf( outfile,  "   -    " ); // May need to adjust the padding here to match the length of the number printed above^
+		else fprintf( outfile,  "   -    " );
 	  }
 	  fprintf( outfile, "\n" );
+	}
 
 
-	} // End loop over processes (table rows)
+	// Print out rows for systematic uncertainties
+	for( int sampleIdx = 1; sampleIdx<nSamples; sampleIdx++ ) { // For now, skip the signal sample (don't give it a systematic uncertainty)
 
-	histfile->Close();
-	delete histfile;
+	  char systname[25];
+	  sprintf( systname, "%sSyst", samples.at(sampleIdx).Data() );	  
+	  fprintf( outfile,   "%-18s  lnN ", systname );
+
+	  double systErr = 1.3; // Flat 30% systematic for now
+	  // if( sampleIdx = 4 ) systErr = 2.0; // 100% systematic on 1-lepton from top
+
+	  for( int j=0; j<nSamples; j++ ) {
+		if( j == sampleIdx )  fprintf( outfile, "  %4.2f  ", systErr);
+		else fprintf( outfile,  "   -    " );
+	  }
+	  fprintf( outfile, "\n" );
+	}
+
 
 	fprintf( outfile,  "---\n" );
-
-	///////////////////
-	// Now restore the output to the terminal
-	
-	// cout.rdbuf( restore );
-	// outfile.close();
-
 	fclose(outfile);
-
-
 
   } // End loop over signal regions
 
+  uncertFile->Close();
+  delete uncertFile;
 }
