@@ -461,8 +461,10 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
   for( int j=0; j<nSigRegs; j++ ) {
 	TH1D* hTemp = (TH1D*)combFile->Get( h_evttype[j]->GetName() );
 	if( hTemp != 0 ) {
-	  hTemp->SetBinContent( 2, 0. );
-	  hTemp->SetBinError( 2, 0. );
+	  if( mySample->IsSignal() ) {
+		hTemp->SetBinContent( 2, 0. );
+		hTemp->SetBinError( 2, 0. );
+	  }
 	  h_evttype[j]->Add( hTemp );
 	}
 	h_evttype[j]->Write( "", TObject::kOverwrite );

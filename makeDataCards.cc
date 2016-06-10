@@ -119,11 +119,11 @@ void makeDataCards( analysis* myAnalysis ) {
 	  fprintf( outfile,   "%-18s  lnN ", statname );
 
 	  double statErr = 1.0 + (h_yield->GetBinError(sampleIdx+2) / h_yield->GetBinContent(sampleIdx+2) );
-	  if( sampleIdx==3 ) statErr = 1.0 + ( h_lostLep->GetBinError(bin) / h_lostLep->GetBinContent(bin) );  // Pull 2l stat error from lostLepton estimate histogram
+	  if( sampleIdx==2 ) statErr = 1.0 + ( h_lostLep->GetBinError(bin) / h_lostLep->GetBinContent(bin) );  // Pull 2l stat error from lostLepton estimate histogram
 
 	  for( int j=0; j<nSamples; j++ ) {
-		if( j == sampleIdx )  fprintf( outfile, "  %4.2f  ", statErr);
-		else fprintf( outfile,  "   -    " );
+		if( j == sampleIdx )  fprintf( outfile, "  %8.6f  ", statErr);
+		else fprintf( outfile,  "     -      " );
 	  }
 	  fprintf( outfile, "\n" );
 	}
@@ -140,8 +140,8 @@ void makeDataCards( analysis* myAnalysis ) {
 	  // if( sampleIdx = 4 ) systErr = 2.0; // 100% systematic on 1-lepton from top
 
 	  for( int j=0; j<nSamples; j++ ) {
-		if( j == sampleIdx )  fprintf( outfile, "  %4.2f  ", systErr);
-		else fprintf( outfile,  "   -    " );
+		if( j == sampleIdx )  fprintf( outfile, "  %8.6f  ", systErr);
+		else fprintf( outfile,  "     -      " );
 	  }
 	  fprintf( outfile, "\n" );
 	}
