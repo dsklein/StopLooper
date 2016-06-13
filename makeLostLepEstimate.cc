@@ -70,7 +70,7 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
   }
   h_crData->SetTitle( "Control region yields from data" );
 
-  h_bkgEstimate = (TH1D*)h_crMC->Clone( "lostLepBkg" );
+  h_bkgEstimate = (TH1D*)h_crData->Clone( "lostLepBkg" );
   h_bkgEstimate->SetTitle( "Lost lepton background estimate" );
   h_bkgEstimate->Multiply( h_mcRatio );
 
@@ -78,6 +78,7 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
   // Write everything to a file
   h_mcRatio->Write();
   h_bkgEstimate->Write();
+  cout << "Lost lepton background estimate saved in " << outFile->GetName() << "." << endl;
 
   // Clean up
   outFile->Close();

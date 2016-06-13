@@ -86,6 +86,7 @@ int main( int argc, char* argv[] ) {
 
   //                             new sample( "Label",  "Display name",    TColor,    sampleType )
 
+  sample* data    = srAnalysis->AddSample( "data",    "Data",           kBlack,    sample::kData );
   sample* stop700 = srAnalysis->AddSample( "stop700", "T2tt (700,50)",  kBlue+3,   sample::kSignal );
   sample* stop600 = srAnalysis->AddSample( "stop600", "T2tt (600,250)", kGreen+3,  sample::kSignal );
   sample* stop300 = srAnalysis->AddSample( "stop300", "T2tt (300,200)", kMagenta+3,sample::kSignal );
@@ -97,6 +98,8 @@ int main( int argc, char* argv[] ) {
   sample* wjets   = srAnalysis->AddSample( "wjets",   "W+Jets",         kOrange-2, sample::kBackground );
   sample* dy      = srAnalysis->AddSample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
   sample* rare    = srAnalysis->AddSample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
+
+  sample* CRdata    = crLostLep->AddSample( "data", "Data",              kBlack,    sample::kData );
 
   sample* CRttbar   = crLostLep->AddSample( "ttbar", "$t\\bar{t}$", "t#bar{t}", kCyan-3,   sample::kBackground );
   sample* CRsingtop = crLostLep->AddSample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
@@ -132,6 +135,18 @@ int main( int argc, char* argv[] ) {
   // Make chains and run ScanChain
 
   if( runlooper ) {
+
+	// Data samples
+
+	data->AddFile( bkgPath + "data_met_2015C_25ns_skimmed.root" );
+	data->AddFile( bkgPath + "data_met_2015D_05Oct2015_v1_25ns_skimmed.root" );
+	data->AddFile( bkgPath + "data_met_2015D_promptRecoV4_25ns_skimmed.root" );
+	data->AddFile( bkgPath + "data_single_electron_2015C_25ns_skimmed.root" );
+	data->AddFile( bkgPath + "data_single_electron_2015D_05Oct2015_v1_25ns_skimmed.root" );
+	data->AddFile( bkgPath + "data_single_electron_2015D_promptRecoV4_25ns_skimmed.root" );
+	data->AddFile( bkgPath + "data_single_muon_2015C_25ns_skimmed.root" );
+	data->AddFile( bkgPath + "data_single_muon_2015D_05Oct2015_v1_25ns_skimmed.root" );
+	data->AddFile( bkgPath + "data_single_muon_2015D_promptRecoV4_25ns_skimmed.root" );
 
 	// Signal samples
 
@@ -186,6 +201,7 @@ int main( int argc, char* argv[] ) {
 	uncertFile->Close();
 
 	// Run ScanChain on all samples
+	ScanChain( srAnalysis, data    );
 	ScanChain( srAnalysis, stop700 );
 	ScanChain( srAnalysis, stop600 );
 	ScanChain( srAnalysis, stop300 );
@@ -204,6 +220,15 @@ int main( int argc, char* argv[] ) {
 
   if( runlostlep ) {
 
+	CRdata->AddFile( llepPath + "data_met_2015C_25ns_skimmed.root" );
+	CRdata->AddFile( llepPath + "data_met_2015D_05Oct2015_v1_25ns_skimmed.root" );
+	CRdata->AddFile( llepPath + "data_met_2015D_promptRecoV4_25ns_skimmed.root" );
+	CRdata->AddFile( llepPath + "data_single_electron_2015C_25ns_skimmed.root" );
+	CRdata->AddFile( llepPath + "data_single_electron_2015D_05Oct2015_v1_25ns_skimmed.root" );
+	CRdata->AddFile( llepPath + "data_single_electron_2015D_promptRecoV4_25ns_skimmed.root" );
+	CRdata->AddFile( llepPath + "data_single_muon_2015C_25ns_skimmed.root" );
+	CRdata->AddFile( llepPath + "data_single_muon_2015D_05Oct2015_v1_25ns_skimmed.root" );
+	CRdata->AddFile( llepPath + "data_single_muon_2015D_promptRecoV4_25ns_skimmed.root" );
 	CRttbar->AddFile( llepPath + "ttbar_powheg_pythia8_25ns_skimmed.root" );
 	CRwjets->AddFile( llepPath + "WJetsToLNu_HT100To200_madgraph_pythia8_25ns_skimmed.root" );
 	CRwjets->AddFile( llepPath + "WJetsToLNu_HT200To400_madgraph_pythia8_25ns_skimmed.root" );
@@ -237,6 +262,7 @@ int main( int argc, char* argv[] ) {
 	TFile* uncertFile = new TFile( "uncertCR.root", "RECREATE");
 	uncertFile->Close();
 
+	looperCR2lep( crLostLep, CRdata );
 	looperCR2lep( crLostLep, CRttbar );
 	looperCR2lep( crLostLep, CRsingtop );
 	looperCR2lep( crLostLep, CRwjets );

@@ -18,8 +18,10 @@
 #include "TVector3.h"
 #include "Math/VectorUtil.h"
 
-// CMS3
+// CMS3 and CORE
 #include "CMS3.h"
+#include "../StopAnalysis_74x/CORE/Tools/badEventFilter.h"
+#include "../StopAnalysis_74x/CORE/Tools/dorky/dorky.h"
 
 // Custom
 #include "analysis.h"
@@ -136,6 +138,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 
   float yield_total = 0;
+  float yield_unique = 0;
+  float yield_filter = 0;
   float yield_vtx = 0;
   float yield_1goodlep = 0;
   // float yield_lepSel = 0;
@@ -151,6 +155,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   float yield_chi2 = 0;
 
   int yGen_total = 0;
+  int yGen_unique = 0;
+  int yGen_filter = 0;
   int yGen_vtx = 0;
   int yGen_1goodlep = 0;
   // int yGen_lepSel = 0;
@@ -164,6 +170,47 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   int yGen_MTcut = 0;
   int yGen_dPhi = 0;
   int yGen_chi2 = 0;
+
+  ////////////////////////////////////////////////////////////////////
+  // Bad event filters and such for data
+
+  eventFilter badEventFilter;
+  if( mySample->IsData() ) {
+	cout << "Loading bad event files..." << endl;
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_DoubleEG_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_DoubleMuon_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_HTMHT_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_JetHT_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_MET_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_MuonEG_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_SingleElectron_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_SingleMuon_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_SinglePhoton_csc2015.txt");
+    // new lists: supposed to include above but do not always
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/DoubleEG_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/DoubleMuon_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/HTMHT_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/JetHT_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/MET_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/MuonEG_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/SingleElectron_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/SingleMuon_csc2015.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/SinglePhoton_csc2015.txt");
+    // not all samples have events which failed the ecal SC filter
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/DoubleEG_ecalscn1043093.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/HTMHT_ecalscn1043093.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/JetHT_ecalscn1043093.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/MET_ecalscn1043093.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/SinglePhoton_ecalscn1043093.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/SingleElectron_ecalscn1043093.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/SingleMuon_ecalscn1043093.txt");
+    // Some new filters pointed out by HJ on Feb-2
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/csc2015_Dec01.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/ecalscn1043093_Dec01.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/badResolutionTrack_Jan13.txt");
+    badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/muonBadTrack_Jan13.txt");
+    cout << " ... finished!" << endl;
+  }
 
 
   /////////////////////////////////////////////////////////////////////
@@ -236,6 +283,25 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  // Count the number of events processed
 	  yield_total += evtWeight;
 	  yGen_total++;
+
+	  // Remove duplicate events in data
+	  if( is_data() ) {
+		duplicate_removal::DorkyEventIdentifier id( run(), evt(), ls() );
+        if( is_duplicate(id) ) continue;
+		yield_unique += evtWeight;
+		yGen_unique++;
+      }
+
+	  // MET filters and bad event filters for data
+	  if( is_data() ) {
+		if( badEventFilter.eventFails( run(), ls(), evt() ) ) continue;
+		if( !filt_cscbeamhalo() ) continue;
+		if( !filt_eebadsc() ) continue;
+		if( !filt_goodvtx() ) continue;
+		if( !filt_hbhenoise() ) continue;
+		yield_filter += evtWeight;
+		yGen_filter++;
+	  }
 
 	  // First vertex must be good
 	  if( firstGoodVtxIdx() != 0 ) continue;
@@ -419,6 +485,10 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   cout << "Cutflow yields:                        (yield)  (gen evts)" << endl;
 
   printf("Total number of events:             %10.2f %9i\n", yield_total	, yGen_total		);
+  if( mySample->IsData() ) {
+	printf("Events passing duplicate removal:   %10.2f %9i\n", yield_unique   , yGen_unique       );
+	printf("Events passing event filters:       %10.2f %9i\n", yield_filter   , yGen_filter       );
+  }
   printf("Events with 1st vertex good:        %10.2f %9i\n", yield_vtx		, yGen_vtx			);
   printf("Events with at least 1 good lepton: %10.2f %9i\n", yield_1goodlep	, yGen_1goodlep		);
   // printf("Events passing lepton selection:    %10.2f %9i\n", yield_lepSel	, yGen_lepSel		);
