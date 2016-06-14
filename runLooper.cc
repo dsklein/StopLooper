@@ -86,7 +86,7 @@ int main( int argc, char* argv[] ) {
 
   //                             new sample( "Label",  "Display name",    TColor,    sampleType )
 
-  sample* data    = srAnalysis->AddSample( "data",    "Data",           kBlack,    sample::kData );
+  // sample* data    = srAnalysis->AddSample( "data",    "Data",           kBlack,    sample::kData );
   sample* stop700 = srAnalysis->AddSample( "stop700", "T2tt (700,50)",  kBlue+3,   sample::kSignal );
   sample* stop600 = srAnalysis->AddSample( "stop600", "T2tt (600,250)", kGreen+3,  sample::kSignal );
   sample* stop300 = srAnalysis->AddSample( "stop300", "T2tt (300,200)", kMagenta+3,sample::kSignal );
@@ -138,15 +138,15 @@ int main( int argc, char* argv[] ) {
 
 	// Data samples
 
-	data->AddFile( bkgPath + "data_met_2015C_25ns_skimmed.root" );
-	data->AddFile( bkgPath + "data_met_2015D_05Oct2015_v1_25ns_skimmed.root" );
-	data->AddFile( bkgPath + "data_met_2015D_promptRecoV4_25ns_skimmed.root" );
-	data->AddFile( bkgPath + "data_single_electron_2015C_25ns_skimmed.root" );
-	data->AddFile( bkgPath + "data_single_electron_2015D_05Oct2015_v1_25ns_skimmed.root" );
-	data->AddFile( bkgPath + "data_single_electron_2015D_promptRecoV4_25ns_skimmed.root" );
-	data->AddFile( bkgPath + "data_single_muon_2015C_25ns_skimmed.root" );
-	data->AddFile( bkgPath + "data_single_muon_2015D_05Oct2015_v1_25ns_skimmed.root" );
-	data->AddFile( bkgPath + "data_single_muon_2015D_promptRecoV4_25ns_skimmed.root" );
+	// data->AddFile( bkgPath + "data_met_2015C_25ns_skimmed.root" );
+	// data->AddFile( bkgPath + "data_met_2015D_05Oct2015_v1_25ns_skimmed.root" );
+	// data->AddFile( bkgPath + "data_met_2015D_promptRecoV4_25ns_skimmed.root" );
+	// data->AddFile( bkgPath + "data_single_electron_2015C_25ns_skimmed.root" );
+	// data->AddFile( bkgPath + "data_single_electron_2015D_05Oct2015_v1_25ns_skimmed.root" );
+	// data->AddFile( bkgPath + "data_single_electron_2015D_promptRecoV4_25ns_skimmed.root" );
+	// data->AddFile( bkgPath + "data_single_muon_2015C_25ns_skimmed.root" );
+	// data->AddFile( bkgPath + "data_single_muon_2015D_05Oct2015_v1_25ns_skimmed.root" );
+	// data->AddFile( bkgPath + "data_single_muon_2015D_promptRecoV4_25ns_skimmed.root" );
 
 	// Signal samples
 
@@ -201,7 +201,7 @@ int main( int argc, char* argv[] ) {
 	uncertFile->Close();
 
 	// Run ScanChain on all samples
-	ScanChain( srAnalysis, data    );
+	// ScanChain( srAnalysis, data    );
 	ScanChain( srAnalysis, stop700 );
 	ScanChain( srAnalysis, stop600 );
 	ScanChain( srAnalysis, stop300 );

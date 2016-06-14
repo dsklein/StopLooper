@@ -15,7 +15,7 @@ void makeDataCards( analysis* myAnalysis ) {
 
   // Do the basic setup stuff
 
-  vector<TString> bkgs = { "zNuNu", "2l", "1ltop", "1lW" }; // Eventually pull this from the analysis object
+  vector<TString> bkgs = { "zNuNu", "dilep", "top1l", "W1l" }; // Eventually pull this from the analysis object
   const int nBkgs = bkgs.size();
 
   vector<TString> signals = myAnalysis->GetSignalLabels();
@@ -115,7 +115,7 @@ void makeDataCards( analysis* myAnalysis ) {
 	for( int sampleIdx=0; sampleIdx<nSamples; sampleIdx++ ) {
 
 	  char statname[25];
-	  sprintf( statname, "%sStat", samples.at(sampleIdx).Data() );	  
+	  sprintf( statname, "%sStat%d", samples.at(sampleIdx).Data(), bin );	  
 	  fprintf( outfile,   "%-18s  lnN ", statname );
 
 	  double statErr = 1.0 + (h_yield->GetBinError(sampleIdx+2) / h_yield->GetBinContent(sampleIdx+2) );
