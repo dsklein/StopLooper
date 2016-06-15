@@ -25,10 +25,11 @@ void printHelp() {
 int main( int argc, char* argv[] ) {
 
 
-  TString bkgPath = "/hadoop/cms/store/user/jgwood/condor/stop_1l_babies/stop_babies__CMS3_V070411__BabyMaker_V0704X_v9__20160127/merged_files/Skims_SR__20160202/";
-  TString llepPath = "/hadoop/cms/store/user/jgwood/condor/stop_1l_babies/stop_babies__CMS3_V070411__BabyMaker_V0704X_v9__20160127/merged_files/Skims_CR_2lep__20160202/";
+  TString bkgPath = "/nfs-6/userdata/mliu/onelepbabies/V08-00-01/";
+  TString llepPath = "/nfs-6/userdata/mliu/onelepbabies/V08-00-01/";
+  TString dataPath = "/hadoop/cms/store/user/jgwood/condor/stop_1l_babies/stop_babies__CMS3_V080005__BabyMaker_V0800X_v1__20160612/merged_files/";
 
-  TString sigPath = "/nfs-7/userdata/stopRun2/signalbabies/";
+  // TString sigPath = "/nfs-7/userdata/stopRun2/signalbabies/";
 
 
   ////////////////////////////////////////////////////////////////
@@ -81,16 +82,16 @@ int main( int argc, char* argv[] ) {
   ////////////////////////////////////////////////////////////////////////////////////////
   // Make "analysis" objects out of "samples"
 
-  analysis* srAnalysis = new analysis( 2.26, "plots.root" );
-  analysis* crLostLep  = new analysis( 2.26, "plotsLL.root" );
+  analysis* srAnalysis = new analysis( 2.07, "plots.root" );
+  analysis* crLostLep  = new analysis( 2.07, "plotsLL.root" );
 
   //                             new sample( "Label",  "Display name",    TColor,    sampleType )
 
   // sample* data    = srAnalysis->AddSample( "data",    "Data",           kBlack,    sample::kData );
-  sample* stop700 = srAnalysis->AddSample( "stop700", "T2tt (700,50)",  kBlue+3,   sample::kSignal );
-  sample* stop600 = srAnalysis->AddSample( "stop600", "T2tt (600,250)", kGreen+3,  sample::kSignal );
-  sample* stop300 = srAnalysis->AddSample( "stop300", "T2tt (300,200)", kMagenta+3,sample::kSignal );
-  sample* stop275 = srAnalysis->AddSample( "stop275", "T2tt (275,100)", kOrange+7, sample::kSignal );
+  // sample* stop700 = srAnalysis->AddSample( "stop700", "T2tt (700,50)",  kBlue+3,   sample::kSignal );
+  // sample* stop600 = srAnalysis->AddSample( "stop600", "T2tt (600,250)", kGreen+3,  sample::kSignal );
+  // sample* stop300 = srAnalysis->AddSample( "stop300", "T2tt (300,200)", kMagenta+3,sample::kSignal );
+  // sample* stop275 = srAnalysis->AddSample( "stop275", "T2tt (275,100)", kOrange+7, sample::kSignal );
 
   sample* tt2l    = srAnalysis->AddSample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
   sample* tt1l    = srAnalysis->AddSample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
@@ -101,7 +102,9 @@ int main( int argc, char* argv[] ) {
 
   sample* CRdata    = crLostLep->AddSample( "data", "Data",              kBlack,    sample::kData );
 
-  sample* CRttbar   = crLostLep->AddSample( "ttbar", "$t\\bar{t}$", "t#bar{t}", kCyan-3,   sample::kBackground );
+  // sample* CRttbar   = crLostLep->AddSample( "ttbar", "$t\\bar{t}$", "t#bar{t}", kCyan-3,   sample::kBackground );
+  sample* CRtt2l    = crLostLep->AddSample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
+  sample* CRtt1l    = crLostLep->AddSample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
   sample* CRsingtop = crLostLep->AddSample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
   sample* CRwjets   = crLostLep->AddSample( "wjets",   "W+Jets",         kOrange-2, sample::kBackground );
   sample* CRdy      = crLostLep->AddSample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
@@ -150,47 +153,45 @@ int main( int argc, char* argv[] ) {
 
 	// Signal samples
 
-	stop700->AddFile( sigPath + "Signal_T2tt_700_50.root");
-	stop600->AddFile( sigPath + "Signal_T2tt_600_250.root");
-	stop300->AddFile( sigPath + "Signal_T2tt_300_200.root");
-	stop275->AddFile( sigPath + "Signal_T2tt_275_100.root");
+	// stop700->AddFile( sigPath + "Signal_T2tt_700_50.root");
+	// stop600->AddFile( sigPath + "Signal_T2tt_600_250.root");
+	// stop300->AddFile( sigPath + "Signal_T2tt_300_200.root");
+	// stop275->AddFile( sigPath + "Signal_T2tt_275_100.root");
 
 
 	// Background samples
 
-	tt2l->AddFile( bkgPath + "ttbar_powheg_pythia8_25ns_skimmed.root" );
+	tt2l->AddFile( bkgPath + "ttbar_diLept_madgraph_pythia8_ext1*25ns*.root" );
 
-	tt1l->AddFile( bkgPath + "ttbar_powheg_pythia8_25ns_skimmed.root" );
+	tt1l->AddFile( bkgPath + "ttbar_singleLeptFromT_madgraph_pythia8_*.root" );
+	tt1l->AddFile( bkgPath + "ttbar_singleLeptFromTbar_madgraph_pythia8_ext1*.root" );
 
-	wjets->AddFile( bkgPath + "WJetsToLNu_HT100To200_madgraph_pythia8_25ns_skimmed.root" );
-	wjets->AddFile( bkgPath + "WJetsToLNu_HT200To400_madgraph_pythia8_25ns_skimmed.root" );
-	wjets->AddFile( bkgPath + "WJetsToLNu_HT400To600_madgraph_pythia8_25ns_skimmed.root" );
-	wjets->AddFile( bkgPath + "WJetsToLNu_HT600ToInf_madgraph_pythia8_25ns_skimmed.root" );
+	wjets->AddFile( bkgPath + "WJetsToLNu_HT*.root" );
 
-	dy->AddFile( bkgPath + "DYJetsToLL_m10To50_amcnlo_pythia8_25ns_skimmed.root" );
-	dy->AddFile( bkgPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns_skimmed.root" );
+	dy->AddFile( bkgPath + "DYJetsToLL_m10To50_amcnlo_pythia8_25ns.root" );
+	dy->AddFile( bkgPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns.root" );
 
-	singtop->AddFile( bkgPath + "t_sch_4f_amcnlo_pythia8_25ns_skimmed.root" );
-	singtop->AddFile( bkgPath + "t_tch_4f_powheg_pythia8_25ns_skimmed.root" );
-	singtop->AddFile( bkgPath + "tbar_tch_4f_powheg_pythia8_25ns_skimmed.root" );
-	singtop->AddFile( bkgPath + "t_tW_5f_powheg_pythia8_25ns_skimmed.root" );
-	singtop->AddFile( bkgPath + "t_tbarW_5f_powheg_pythia8_25ns_skimmed.root" );
+	singtop->AddFile( bkgPath + "t_sch_4f_amcnlo_pythia8_25ns.root" );
+	// singtop->AddFile( bkgPath + "t_tch_4f_powheg_pythia8_25ns.root" );
+	// singtop->AddFile( bkgPath + "tbar_tch_4f_powheg_pythia8_25ns.root" );
+	singtop->AddFile( bkgPath + "t_tW_5f_powheg_pythia8_25ns.root" );
+	singtop->AddFile( bkgPath + "t_tbarW_5f_powheg_pythia8_25ns.root" );
 
-	rare->AddFile( bkgPath + "TTWJetsToLNu_amcnlo_pythia8_25ns_skimmed.root" );
-	rare->AddFile( bkgPath + "TTWJetsToQQ_amcnlo_pythia8_25ns_skimmed.root" );
-	rare->AddFile( bkgPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns_skimmed.root" );
-	rare->AddFile( bkgPath + "TTZToQQ_amcnlo_pythia8_25ns_skimmed.root" );
-	rare->AddFile( bkgPath + "tZq_ll_4f_amcnlo_pythia8_25ns_skimmed.root" );
-	rare->AddFile( bkgPath + "tZq_nunu_4f_amcnlo_pythia8_25ns_skimmed.root" );
-	rare->AddFile( bkgPath + "WWTo2l2Nu_powheg_25ns_skimmed.root" );
-	rare->AddFile( bkgPath + "WWToLNuQQ_powheg_25ns_skimmed.root" );
-	rare->AddFile( bkgPath + "WZTo3LNu_powheg_pythia8_25ns_skimmed.root" );
-	rare->AddFile( bkgPath + "WZTo2L2Q_amcnlo_pythia8_25ns_skimmed.root" );
-	rare->AddFile( bkgPath + "WZTo1LNu2Q_amcnlo_pythia8_25ns_skimmed.root" );
-	rare->AddFile( bkgPath + "ZZTo4L_powheg_pythia8_25ns_skimmed.root" );
-	rare->AddFile( bkgPath + "ZZTo2L2Q_amcnlo_pythia8_25ns_skimmed.root" );
-	rare->AddFile( bkgPath + "ZZTo2L2Nu_powheg_pythia8_25ns_skimmed.root" );
-	rare->AddFile( bkgPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns_skimmed.root" );
+	rare->AddFile( bkgPath + "TTWJetsToLNu_amcnlo_pythia8_25ns.root" );
+	rare->AddFile( bkgPath + "TTWJetsToQQ_amcnlo_pythia8_25ns.root" );
+	rare->AddFile( bkgPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns.root" );
+	rare->AddFile( bkgPath + "TTZToQQ_amcnlo_pythia8_25ns.root" );
+	// rare->AddFile( bkgPath + "tZq_ll_4f_amcnlo_pythia8_25ns.root" );
+	// rare->AddFile( bkgPath + "tZq_nunu_4f_amcnlo_pythia8_25ns.root" );
+	rare->AddFile( bkgPath + "WWTo2l2Nu_powheg_25ns.root" );
+	rare->AddFile( bkgPath + "WWToLNuQQ_powheg_25ns.root" );
+	rare->AddFile( bkgPath + "WZTo3LNu_powheg_pythia8_25ns.root" );
+	rare->AddFile( bkgPath + "WZTo2L2Q_amcnlo_pythia8_25ns.root" );
+	rare->AddFile( bkgPath + "WZTo1LNu2Q_amcnlo_pythia8_25ns.root" );
+	// rare->AddFile( bkgPath + "ZZTo4L_powheg_pythia8_25ns.root" );
+	rare->AddFile( bkgPath + "ZZTo2L2Q_amcnlo_pythia8_25ns.root" );
+	rare->AddFile( bkgPath + "ZZTo2L2Nu_powheg_pythia8_25ns.root" );
+	rare->AddFile( bkgPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns.root" );
 
 
 
@@ -202,10 +203,10 @@ int main( int argc, char* argv[] ) {
 
 	// Run ScanChain on all samples
 	// ScanChain( srAnalysis, data    );
-	ScanChain( srAnalysis, stop700 );
-	ScanChain( srAnalysis, stop600 );
-	ScanChain( srAnalysis, stop300 );
-	ScanChain( srAnalysis, stop275 );
+	// ScanChain( srAnalysis, stop700 );
+	// ScanChain( srAnalysis, stop600 );
+	// ScanChain( srAnalysis, stop300 );
+	// ScanChain( srAnalysis, stop275 );
 	ScanChain( srAnalysis, tt2l    );
 	ScanChain( srAnalysis, tt1l    );
 	ScanChain( srAnalysis, singtop );
@@ -220,42 +221,35 @@ int main( int argc, char* argv[] ) {
 
   if( runlostlep ) {
 
-	CRdata->AddFile( llepPath + "data_met_2015C_25ns_skimmed.root" );
-	CRdata->AddFile( llepPath + "data_met_2015D_05Oct2015_v1_25ns_skimmed.root" );
-	CRdata->AddFile( llepPath + "data_met_2015D_promptRecoV4_25ns_skimmed.root" );
-	CRdata->AddFile( llepPath + "data_single_electron_2015C_25ns_skimmed.root" );
-	CRdata->AddFile( llepPath + "data_single_electron_2015D_05Oct2015_v1_25ns_skimmed.root" );
-	CRdata->AddFile( llepPath + "data_single_electron_2015D_promptRecoV4_25ns_skimmed.root" );
-	CRdata->AddFile( llepPath + "data_single_muon_2015C_25ns_skimmed.root" );
-	CRdata->AddFile( llepPath + "data_single_muon_2015D_05Oct2015_v1_25ns_skimmed.root" );
-	CRdata->AddFile( llepPath + "data_single_muon_2015D_promptRecoV4_25ns_skimmed.root" );
-	CRttbar->AddFile( llepPath + "ttbar_powheg_pythia8_25ns_skimmed.root" );
-	CRwjets->AddFile( llepPath + "WJetsToLNu_HT100To200_madgraph_pythia8_25ns_skimmed.root" );
-	CRwjets->AddFile( llepPath + "WJetsToLNu_HT200To400_madgraph_pythia8_25ns_skimmed.root" );
-	CRwjets->AddFile( llepPath + "WJetsToLNu_HT400To600_madgraph_pythia8_25ns_skimmed.root" );
-	CRwjets->AddFile( llepPath + "WJetsToLNu_HT600ToInf_madgraph_pythia8_25ns_skimmed.root" );
-	CRdy->AddFile( llepPath + "DYJetsToLL_m10To50_amcnlo_pythia8_25ns_skimmed.root" );
-	CRdy->AddFile( llepPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns_skimmed.root" );
-	CRsingtop->AddFile( llepPath + "t_sch_4f_amcnlo_pythia8_25ns_skimmed.root" );
-	CRsingtop->AddFile( llepPath + "t_tch_4f_powheg_pythia8_25ns_skimmed.root" );
-	CRsingtop->AddFile( llepPath + "tbar_tch_4f_powheg_pythia8_25ns_skimmed.root" );
-	CRsingtop->AddFile( llepPath + "t_tW_5f_powheg_pythia8_25ns_skimmed.root" );
-	CRsingtop->AddFile( llepPath + "t_tbarW_5f_powheg_pythia8_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "TTWJetsToLNu_amcnlo_pythia8_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "TTWJetsToQQ_amcnlo_pythia8_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "TTZToQQ_amcnlo_pythia8_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "tZq_ll_4f_amcnlo_pythia8_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "tZq_nunu_4f_amcnlo_pythia8_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "WWTo2l2Nu_powheg_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "WWToLNuQQ_powheg_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "WZTo3LNu_powheg_pythia8_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "WZTo2L2Q_amcnlo_pythia8_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "WZTo1LNu2Q_amcnlo_pythia8_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "ZZTo4L_powheg_pythia8_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "ZZTo2L2Q_amcnlo_pythia8_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "ZZTo2L2Nu_powheg_pythia8_25ns_skimmed.root" );
-	CRrare->AddFile( llepPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns_skimmed.root" );
+	CRdata->AddFile( dataPath + "data_met_Run2016B_MINIAOD_PromptReco-v2.root" );
+	CRdata->AddFile( dataPath + "data_single_electron_Run2016B_MINIAOD_PromptReco-v2.root" );
+	CRdata->AddFile( dataPath + "data_single_muon_Run2016B_MINIAOD_PromptReco-v2.root" );
+	CRtt2l->AddFile( llepPath + "ttbar_diLept_madgraph_pythia8_ext1*25ns*.root" );
+	CRtt1l->AddFile( llepPath + "ttbar_singleLeptFromT_madgraph_pythia8_*.root" );
+	CRtt1l->AddFile( llepPath + "ttbar_singleLeptFromTbar_madgraph_pythia8_ext1*.root" );
+	CRwjets->AddFile( llepPath + "WJetsToLNu_HT*.root" );
+	CRdy->AddFile( llepPath + "DYJetsToLL_m10To50_amcnlo_pythia8_25ns.root" );
+	CRdy->AddFile( llepPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns.root" );
+	CRsingtop->AddFile( llepPath + "t_sch_4f_amcnlo_pythia8_25ns.root" );
+	// CRsingtop->AddFile( llepPath + "t_tch_4f_powheg_pythia8_25ns.root" );
+	// CRsingtop->AddFile( llepPath + "tbar_tch_4f_powheg_pythia8_25ns.root" );
+	CRsingtop->AddFile( llepPath + "t_tW_5f_powheg_pythia8_25ns.root" );
+	CRsingtop->AddFile( llepPath + "t_tbarW_5f_powheg_pythia8_25ns.root" );
+	CRrare->AddFile( llepPath + "TTWJetsToLNu_amcnlo_pythia8_25ns.root" );
+	CRrare->AddFile( llepPath + "TTWJetsToQQ_amcnlo_pythia8_25ns.root" );
+	CRrare->AddFile( llepPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns.root" );
+	CRrare->AddFile( llepPath + "TTZToQQ_amcnlo_pythia8_25ns.root" );
+	// CRrare->AddFile( llepPath + "tZq_ll_4f_amcnlo_pythia8_25ns.root" );
+	// CRrare->AddFile( llepPath + "tZq_nunu_4f_amcnlo_pythia8_25ns.root" );
+	CRrare->AddFile( llepPath + "WWTo2l2Nu_powheg_25ns.root" );
+	CRrare->AddFile( llepPath + "WWToLNuQQ_powheg_25ns.root" );
+	CRrare->AddFile( llepPath + "WZTo3LNu_powheg_pythia8_25ns.root" );
+	CRrare->AddFile( llepPath + "WZTo2L2Q_amcnlo_pythia8_25ns.root" );
+	CRrare->AddFile( llepPath + "WZTo1LNu2Q_amcnlo_pythia8_25ns.root" );
+	// CRrare->AddFile( llepPath + "ZZTo4L_powheg_pythia8_25ns.root" );
+	CRrare->AddFile( llepPath + "ZZTo2L2Q_amcnlo_pythia8_25ns.root" );
+	CRrare->AddFile( llepPath + "ZZTo2L2Nu_powheg_pythia8_25ns.root" );
+	CRrare->AddFile( llepPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns.root" );
 
 	TFile* outfile = new TFile( crLostLep->GetFileName(), "RECREATE");
 	outfile->Close();
@@ -263,7 +257,8 @@ int main( int argc, char* argv[] ) {
 	uncertFile->Close();
 
 	looperCR2lep( crLostLep, CRdata );
-	looperCR2lep( crLostLep, CRttbar );
+	looperCR2lep( crLostLep, CRtt2l );
+	looperCR2lep( crLostLep, CRtt1l );
 	looperCR2lep( crLostLep, CRsingtop );
 	looperCR2lep( crLostLep, CRwjets );
 	looperCR2lep( crLostLep, CRdy );

@@ -142,7 +142,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   float yield_filter = 0;
   float yield_vtx = 0;
   float yield_1goodlep = 0;
-  // float yield_lepSel = 0;
+  float yield_lepSel = 0;
   float yield_2lepveto = 0;
   float yield_trkVeto = 0;
   float yield_2lepCR = 0;
@@ -159,7 +159,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   int yGen_filter = 0;
   int yGen_vtx = 0;
   int yGen_1goodlep = 0;
-  // int yGen_lepSel = 0;
+  int yGen_lepSel = 0;
   int yGen_2lepveto = 0;
   int yGen_trkVeto = 0;
   int yGen_tauVeto = 0;
@@ -234,7 +234,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
     cms3.Init(tree);
 
 	// Initialize scale factor manager
-	sfManager mySFs( isFastsim, ".", (TH1D*)file.Get( "h_counter" ) );
+	// sfManager mySFs( isFastsim, ".", (TH1D*)file.Get( "h_counter" ) );
     
     // Loop over Events in current file
     if( nEventsTotal >= nEventsChain ) continue;
@@ -257,6 +257,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 	  ///////////////////////////////////////////////////////////////
 	  // Special filters to more finely categorize background events
+	  // Unnecessary right now with the 80x madgraph pythia8 samples
 	  // if(      sampleName == "tt2l"  && genlepsfromtop() != 2 ) continue;  //Require 2 leps from top in "tt2l" events
 	  // else if( sampleName == "tt1l"  && genlepsfromtop() != 1 ) continue;  //Require 1 lep from top in "tt1l" events
 
@@ -273,8 +274,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		double nEvtsSample = hNEvts->GetBinContent( hNEvts->FindBin( mass_stop(), mass_lsp() ) );
 		int binx = hCounter->GetXaxis()->FindBin( mass_stop() );
 		int biny = hCounter->GetYaxis()->FindBin( mass_lsp()  );
-		double bTagSumWeights = hCounter->GetBinContent( binx, biny, 14 );
-		mySFs.SetBtagNorm( nEvtsSample / bTagSumWeights );
+		// double bTagSumWeights = hCounter->GetBinContent( binx, biny, 14 );
+		// mySFs.SetBtagNorm( nEvtsSample / bTagSumWeights );
 		evtWeight = myAnalysis->GetLumi() * 1000. * xsec() / nEvtsSample;
 	  }
 	  else evtWeight = myAnalysis->GetLumi() * scale1fb();
@@ -295,40 +296,37 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  // MET filters and bad event filters for data
 	  if( is_data() ) {
 		if( badEventFilter.eventFails( run(), ls(), evt() ) ) continue;
-		if( !filt_cscbeamhalo() ) continue;
-		if( !filt_eebadsc() ) continue;
-		if( !filt_goodvtx() ) continue;
-		if( !filt_hbhenoise() ) continue;
+		if( !filt_met() ) continue;
 		yield_filter += evtWeight;
 		yGen_filter++;
 	  }
 
 	  // First vertex must be good
-	  if( firstGoodVtxIdx() != 0 ) continue;
+	  // if( firstGoodVtxIdx() != 0 ) continue;
 	  yield_vtx += evtWeight;
 	  yGen_vtx++;
 
 	  // Must have at least 1 good lepton
 	  if( ngoodleps() < 1 ) continue;
-	  if(      !is_data() && lep1_is_el() ) evtWeight *= mySFs.GetSF_el( lep1_pt(), lep1_eta() );
-	  else if( !is_data() && lep1_is_mu() ) evtWeight *= mySFs.GetSF_mu( lep1_pt(), lep1_eta() );
+	  // if(      !is_data() && abs(lep1_pdgid())==11 ) evtWeight *= mySFs.GetSF_el( lep1_p4().pt(), lep1_p4().eta() );
+	  // else if( !is_data() && abs(lep1_pdgid())==13 ) evtWeight *= mySFs.GetSF_mu( lep1_p4().pt(), lep1_p4().eta() );
 	  yield_1goodlep += evtWeight;
 	  yGen_1goodlep++;
 
 	  // Lep 1 must pass lepton selections
 	  // These aren't necessary unless syncing with John
-	  // if( lep1_is_el() ) {
-	  // 	if( lep1_pt() < 20. ) continue;
-	  // 	if( fabs(lep1_eta()) > 1.442 ) continue;  // It's 1.4442 in the babymaker, but John uses 1.442
-	  // 	if( !lep1_is_eleid_medium() ) continue;
-	  // }
-	  // else if( lep1_is_mu() ) {
-	  // 	if( lep1_pt() < 20. ) continue;
-	  // 	if( fabs(lep1_eta()) > 2.4 ) continue;
-	  // 	if( !lep1_is_muoid_tight() ) continue;
-	  // }
-	  // yield_lepSel += evtWeight;
-	  // yGen_lepSel++;
+	  if( abs(lep1_pdgid())==11 ) {
+	  	if( lep1_p4().pt() < 20. ) continue;
+	  	if( fabs(lep1_p4().eta()) > 1.4442 ) continue;  // It's 1.4442 in the babymaker, but John uses 1.442
+	  	if( !lep1_passMediumID() ) continue;
+	  }
+	  else if( abs(lep1_pdgid())==13 ) {
+	  	if( lep1_p4().pt() < 20. ) continue;
+	  	if( fabs(lep1_p4().eta()) > 2.4 ) continue;
+	  	if( !lep1_passTightID() ) continue;
+	  }
+	  yield_lepSel += evtWeight;
+	  yGen_lepSel++;
 
 
 	  ///////////////////
@@ -345,12 +343,12 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  countGoodLeps += nvetoleps();
 
 	  if( nvetoleps() == 2 && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) < 0.01 ) countGoodLeps--;
-	  else if( nvetoleps() >= 2 && lep2_pt() < 10. ) countGoodLeps = 1;
+	  else if( nvetoleps() >= 2 && lep2_p4().pt() < 10. ) countGoodLeps = 1;
 
-	  if( !is_data() && nvetoleps() >= 2 && lep2_pt() >= 10. ) {
-		if(      lep2_is_el() ) evtWeight *= mySFs.GetSF_elVeto( lep2_pt(), lep2_eta() );
-		else if( lep2_is_mu() ) evtWeight *= mySFs.GetSF_muVeto( lep2_pt(), lep2_eta() );
-	  }
+	  // if( !is_data() && nvetoleps() >= 2 && lep2_p4().pt() >= 10. ) {
+	  // 	if(      abs(lep2_pdgid())==11 ) evtWeight *= mySFs.GetSF_elVeto( lep2_p4().pt(), lep2_p4().eta() );
+	  // 	else if( abs(lep2_pdgid())==13 ) evtWeight *= mySFs.GetSF_muVeto( lep2_p4().pt(), lep2_p4().eta() );
+	  // }
 
 	  if( countGoodLeps > 1 ) {
 		  yield_2lepveto += evtWeight;
@@ -358,12 +356,12 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  }
 
 	  // Track veto
-	  // if( !PassTrackVeto_v3() ) continue;
+	  // if( !PassTrackVeto() ) continue;
 	  // yield_trkVeto += evtWeight;
 	  // yGen_trkVeto++;
 
 	  // If we fail the track veto, count another good lepton
-	  if( !PassTrackVeto_v3() ) {
+	  if( !PassTrackVeto() ) {
 		countGoodLeps++;
 		yield_trkVeto += evtWeight;
 		yGen_trkVeto++;
@@ -391,14 +389,14 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 	  // N-jet requirement
 	  if( ngoodjets() < 2 ) continue;
-	  if( !is_data() ) {
-		for( uint i=0; i<ak4pfjets_p4().size(); i++ ) {
-		  evtWeight *= mySFs.GetSF_btag( ak4pfjets_pt().at(i),
-										 ak4pfjets_eta().at(i),
-										 ak4pfjets_hadron_flavor().at(i),
-										 ak4pfjets_CSV().at(i) );
-		}
-	  }
+	  // if( !is_data() ) {
+	  // 	for( uint i=0; i<ak4pfjets_p4().size(); i++ ) {
+	  // 	  evtWeight *= mySFs.GetSF_btag( ak4pfjets_p4().at(i).pt(),
+	  // 									 ak4pfjets_p4().at(i).eta(),
+	  // 									 ak4pfjets_hadron_flavor().at(i),
+	  // 									 ak4pfjets_CSV().at(i) );
+	  // 	}
+	  // }
 	  yield_njets += evtWeight;
 	  yGen_njets++;
 
@@ -443,8 +441,18 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  else if( mySample->IsSignal() ) evtType = 2;
 	  else                            evtType = 2+category;
 
+	  // Quickly calculate some variables
+	  double metSqHT = pfmet() / sqrt( ak4_HT() );
+
+	  const TVector3 lepVec( lep1_p4().x(), lep1_p4().y(), lep1_p4().z() );
+	  const TVector3 metVec( pfmet()*cos(pfmet_phi()), pfmet()*sin(pfmet_phi()), 0 );
+	  const TVector3 wVec = lepVec + metVec;
+	  double dPhiLepW = fabs( wVec.DeltaPhi(lepVec) );
+
+	  double drLepLeadb = ROOT::Math::VectorUtil::DeltaR( lep1_p4(), ak4pfjets_leadMEDbjet_p4() );
+
 	  ///////////////////////////////////////////
-	  // MET/MT2W cuts and histo filling
+	  // Signal region cuts and histo filling
 
 	  // If the event passes the SR cuts, store which background type this event is, and fill histograms
 	  for( int i=0; i<nSigRegs; i++ ) {
@@ -462,11 +470,11 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		h_chi2[i]->Fill(	hadronic_top_chi2(),		evtWeight );
 		h_htratio[i]->Fill( ak4_htratiom(),				evtWeight );
 		h_mindphi[i]->Fill( mindphi_met_j1_j2() ,		evtWeight );
-		h_ptb1[i]->Fill(	ak4pfjets_leadMEDbjet_pt(),	evtWeight );
-		h_drlb1[i]->Fill(   dR_lep_leadb(),				evtWeight );
-		h_ptlep[i]->Fill(   lep1_pt(),					evtWeight );
-		h_metht[i]->Fill(   MET_over_sqrtHT(),			evtWeight );
-		h_dphilw[i]->Fill(  dphi_Wlep(),				evtWeight );
+		h_ptb1[i]->Fill(	ak4pfjets_leadMEDbjet_p4().pt(),	evtWeight );
+		h_drlb1[i]->Fill(   drLepLeadb,					evtWeight );
+		h_ptlep[i]->Fill(   lep1_p4().pt(),				evtWeight );
+		h_metht[i]->Fill(   metSqHT,					evtWeight );
+		h_dphilw[i]->Fill(  dPhiLepW,					evtWeight );
 		h_njets[i]->Fill(   ngoodjets(),                evtWeight );
 		h_nbtags[i]->Fill(  ngoodbtags(),               evtWeight );
 
@@ -491,7 +499,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   }
   printf("Events with 1st vertex good:        %10.2f %9i\n", yield_vtx		, yGen_vtx			);
   printf("Events with at least 1 good lepton: %10.2f %9i\n", yield_1goodlep	, yGen_1goodlep		);
-  // printf("Events passing lepton selection:    %10.2f %9i\n", yield_lepSel	, yGen_lepSel		);
+  printf("Events passing lepton selection:    %10.2f %9i\n", yield_lepSel	, yGen_lepSel		);
 
   printf("\nEvents passing 2-lep requirement:   %10.2f %9i\n", yield_2lepCR   , yGen_2lepCR       );
   printf("   Events with veto lepton:         %10.2f %9i\n", yield_2lepveto	, yGen_2lepveto		);
