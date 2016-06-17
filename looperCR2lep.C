@@ -11,6 +11,7 @@
 #include "TChain.h"
 #include "TDirectory.h"
 #include "TFile.h"
+#include "TH2D.h"
 #include "TH2F.h"
 #include "TH3D.h"
 #include "TROOT.h"
@@ -56,6 +57,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
   TH1D* h_bgtype[nSigRegs];
   TH1D* h_evttype[nSigRegs];
+  TH2D* h_sigyields[nSigRegs];
 
   TH1D *h_mt[nSigRegs];
   TH1D *h_met[nSigRegs];
@@ -84,6 +86,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 	h_bgtype[i]   = new TH1D( Form( "bkgtype_%s_%s" , sampleName.Data(), regNames[i].c_str()), "Yield by background type",  5, 0.5, 5.5);
 	h_evttype[i]= new TH1D( Form( "evttype_%s"      , regNames[i].c_str()),                    "Yield by event type",       6, 0.5, 6.5);
+	h_sigyields[i] = new TH2D( Form( "sigyields_%s", regNames[i].c_str()), "Signal yields by mass point", 37, 87.5, 1012.5, 21, -12.5, 512.5 );
 	h_mt[i]       = new TH1D( Form( "mt_%s_%s"      , sampleName.Data(), regNames[i].c_str()), "Transverse mass",			80, 0, 800);
 	h_met[i]      = new TH1D( Form( "met_%s_%s"     , sampleName.Data(), regNames[i].c_str()), "MET",						40, 0, 1000);
 	h_mt2w[i]     = new TH1D( Form( "mt2w_%s_%s"    , sampleName.Data(), regNames[i].c_str()), "MT2W",						50, 0, 500);
@@ -100,6 +103,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 	h_bgtype[i]->SetDirectory(rootdir);
 	h_evttype[i]->SetDirectory(rootdir);
+	h_sigyields[i]->SetDirectory(rootdir);
 
 	h_mt[i]->SetDirectory(rootdir);
 	h_met[i]->SetDirectory(rootdir);
@@ -471,6 +475,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		h_nbtags[i]->Fill(  ngoodbtags(),               evtWeight );
 
 		h_yields->Fill(     float(i+1),                 evtWeight );
+
+		if( mySample->IsSignal() ) h_sigyields[i]->Fill( mass_stop(), mass_lsp(), evtWeight );
 	  }
 
 	  // ---------------------------------------------------------------------------------------------------//
@@ -554,6 +560,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	h_dphilw[j]->Write();
 	h_njets[j]->Write();
 	h_nbtags[j]->Write();
+	if( mySample->IsSignal() && myAnalysis->GetNsignals() == 1 ) h_sigyields[j]->Write();
   }
   h_yields->Write();
 
@@ -577,6 +584,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   for( int j=0; j<nSigRegs; j++ ) {
 	delete h_bgtype[j];
 	delete h_evttype[j];
+	delete h_sigyields[j];
 	delete h_mt[j];
 	delete h_met[j];
 	delete h_mt2w[j];
