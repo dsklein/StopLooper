@@ -36,15 +36,11 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 
 
   // Get lost lepton background yields from MC in signal regions
-  TFile* uncFile = new TFile("uncertSR.root", "READ");
   for( uint i=0; i<srnames.size(); i++ ) {
-	TH1D* histo = (TH1D*)uncFile->Get("evttype_"+srnames.at(i));
+	TH1D* histo = (TH1D*)srHistFile->Get("evttype_"+srnames.at(i));
 	h_srMC->SetBinContent(i+1, histo->GetBinContent(4));
 	h_srMC->SetBinError(i+1, histo->GetBinError(4));
   }
-  uncFile->Close();
-  delete uncFile;
-  outFile->cd();
 
   // Get total yields from MC in 2-lep control regions
   for( TString sampleName : crAnalysis->GetBkgLabels() ) {

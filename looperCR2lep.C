@@ -560,26 +560,22 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	h_dphilw[j]->Write();
 	h_njets[j]->Write();
 	h_nbtags[j]->Write();
-	if( mySample->IsSignal() && myAnalysis->GetNsignals() == 1 ) h_sigyields[j]->Write();
+
+	// Build up histo of signal yields
+	if( mySample->IsSignal() ) {
+	  TH2D* hTemp2 = (TH2D*)plotfile->Get( h_sigyields[j]->GetName() );
+	  if( hTemp2 != 0 ) h_sigyields[j]->Add( hTemp2 );
+	  h_sigyields[j]->Write( "", TObject::kOverwrite );
+	}
+
+	// Build up histo of yields by bkg type
+	TH1D* hTemp = (TH1D*)plotfile->Get( h_evttype[j]->GetName() );
+	if( hTemp != 0 ) h_evttype[j]->Add( hTemp );
+	h_evttype[j]->Write( "", TObject::kOverwrite );
   }
   h_yields->Write();
 
   plotfile->Close();
-
-  TFile* combFile = new TFile( "uncertCR.root" , "UPDATE");
-  combFile->cd();
-  for( int j=0; j<nSigRegs; j++ ) {
-	TH1D* hTemp = (TH1D*)combFile->Get( h_evttype[j]->GetName() );
-	if( hTemp != 0 ) {
-	  if( mySample->IsSignal() ) {
-		hTemp->SetBinContent( 2, 0. );
-		hTemp->SetBinError( 2, 0. );
-	  }
-	  h_evttype[j]->Add( hTemp );
-	}
-	h_evttype[j]->Write( "", TObject::kOverwrite );
-  }
-  combFile->Close();
 
   for( int j=0; j<nSigRegs; j++ ) {
 	delete h_bgtype[j];

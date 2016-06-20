@@ -37,7 +37,7 @@ void makeDataCards( analysis* myAnalysis ) {
   const int nSigRegs = sigRegions.size();
 
   // Open files containing background yields and uncertainties
-  TFile* uncertFile = new TFile( "uncertSR.root", "READ" );
+  TFile* yieldFile   = new TFile( myAnalysis->GetFileName(), "READ" );
   TFile* lostlepFile = new TFile( "bkgEstimates.root", "READ" );
   TH1D* h_lostLep = (TH1D*)lostlepFile->Get("lostLepBkg");
   
@@ -47,7 +47,7 @@ void makeDataCards( analysis* myAnalysis ) {
 
   for( int bin=1; bin<=nSigRegs; bin++ ) {
 
-	TH1D* h_yield = (TH1D*)uncertFile->Get( "evttype_"+sigRegions.at(bin-1) );
+	TH1D* h_yield = (TH1D*)yieldFile->Get( "evttype_"+sigRegions.at(bin-1) );
 
 	// Do some acrobatics to send the output to a file...
 	TString fileName = "datacards/datacard_"+sigRegions.at(bin-1)+".txt";
@@ -152,6 +152,8 @@ void makeDataCards( analysis* myAnalysis ) {
 
   } // End loop over signal regions
 
-  uncertFile->Close();
-  delete uncertFile;
+  lostlepFile->Close();
+  yieldFile->Close();
+  delete lostlepFile;
+  delete yieldFile;
 }
