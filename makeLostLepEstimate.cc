@@ -5,6 +5,7 @@
 
 #include "TFile.h"
 #include "TH1.h"
+#include "TH2D.h"
 
 using namespace std;
 
@@ -55,26 +56,57 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
   h_mcRatio->Divide( h_crMC );
 
 
-  // Multiply M/M by N^CR
+  // Get data yields in CRs, and multiply by M/M
   TH1D* h_crData;
   TH1D* h_bkgEstimate;
 
-  if( crAnalysis->HasData() ) h_crData = (TH1D*)crHistFile->Get("srYields_"+crAnalysis->GetData()->GetLabel());
+  if( crAnalysis->HasData() ) h_crData = (TH1D*)crHistFile->Get("srYields_"+crAnalysis->GetData()->GetLabel())->Clone("crData");
   else {
 	h_crData = (TH1D*)h_crMC->Clone("crData");
-	cout << "Warning in makeLostLepEstimate.cc: No data sample found in control region. Using MC as a dummy instead." << endl;
+	cout << "\nWarning in makeLostLepEstimate.cc: No data sample found in control region. Using MC as a dummy instead." << endl;
   }
   h_crData->SetTitle( "Control region yields from data" );
+  h_crData->Write();
+  for( uint i=0; i<nSRegions; i++ ) h_crData->GetXaxis()->SetBinLabel( i+1, srnames.at(i) ); // equalize bin names
 
   h_bkgEstimate = (TH1D*)h_crData->Clone( "lostLepBkg" );
   h_bkgEstimate->SetTitle( "Lost lepton background estimate" );
   h_bkgEstimate->Multiply( h_mcRatio );
 
-
   // Write everything to a file
   h_mcRatio->Write();
   h_bkgEstimate->Write();
   cout << "Lost lepton background estimate saved in " << outFile->GetName() << "." << endl;
+
+
+  ////////////////////////////////////////////////////////////////
+  // Now do some calculations for the systematics...
+
+  // Calculate the signal contamination in the CRs
+  if( crAnalysis->GetNsignals() >= 1 ) {
+	for( uint i=0; i<nCRegions; i++ ) {
+	  TH2D* h_contam = (TH2D*)crHistFile->Get("sigyields_"+crnames.at(i))->Clone("sigContam_"+srnames.at(i));
+	  h_contam->Scale( h_mcRatio->GetBinContent( i+1 ) );
+	  h_contam->Write();
+	}
+	cout << "Signal contamination estimate saved in " << outFile->GetName() << "." << endl;
+  }
+
+  // Isolate the uncertainties due to signal stats and MC stats
+  TH1D* h_datastats = (TH1D*)h_mcRatio->Clone("estimate_datastats");
+  TH1D* h_mcstats   = (TH1D*)h_crData->Clone("estimate_mcstats");
+  h_datastats->SetTitle( "Background estimate with uncertainty from data stats only" );
+  h_mcstats->SetTitle( "Background estimate with uncertainty from MC stats only" );
+  for( uint i=1; i<=nSRegions; i++ ) {
+  	h_datastats->SetBinError(i, 0.);
+  	h_mcstats->SetBinError(i, 0.);
+  }
+  h_datastats->Multiply( h_crData );
+  h_mcstats->Multiply( h_mcRatio );
+  h_datastats->Write();
+  h_mcstats->Write();
+
+
 
   // Clean up
   outFile->Close();
