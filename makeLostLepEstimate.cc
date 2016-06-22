@@ -85,8 +85,16 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
   // Calculate the signal contamination in the CRs
   if( crAnalysis->GetNsignals() >= 1 ) {
 	for( uint i=0; i<nCRegions; i++ ) {
+	  double ratio = h_mcRatio->GetBinContent( i+1 );
+	  double ratio_err = h_mcRatio->GetBinError( i+1 );
 	  TH2D* h_contam = (TH2D*)crHistFile->Get("sigyields_"+crnames.at(i))->Clone("sigContam_"+srnames.at(i));
-	  h_contam->Scale( h_mcRatio->GetBinContent( i+1 ) );
+	  for( int bin=0; bin<h_contam->GetNcells(); bin++ ) {
+		double yield = h_contam->GetBinContent(bin);
+		double error = h_contam->GetBinError(bin);
+		if( yield < 0.000001 ) continue;
+		h_contam->SetBinContent( bin, yield*ratio );
+		h_contam->SetBinError( bin, sqrt( yield*yield*ratio_err*ratio_err + ratio*ratio*error*error ) ); // Gaussian error propagation
+	  }
 	  h_contam->Write();
 	}
 	cout << "Signal contamination estimate saved in " << outFile->GetName() << "." << endl;

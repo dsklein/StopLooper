@@ -18,6 +18,7 @@ void printHelp() {
   std::cout << "plots       run makeStack only" << std::endl;
   std::cout << "tables      run makeTables only" << std::endl;
   std::cout << "cards       run makeDataCards only" << std::endl;
+  std::cout << "estimate    run makeLostLepEstimate only" << std::endl;
   std::cout << "output      run makeStack, makeTables, and makeDataCards only" << std::endl;
 }
 
@@ -38,12 +39,13 @@ int main( int argc, char* argv[] ) {
   if( argc==1 )                       arguments.push_back( "all" );
   else  for( int i=1; i<argc; i++ )  arguments.push_back( TString(argv[i]) );
 
-  bool needshelp = false;
-  bool runlooper = false;
-  bool runstacks = false;
-  bool runtables = false;
-  bool runcards  = false;
-  bool runlostlep= false;
+  bool needshelp   = false;
+  bool runlooper   = false;
+  bool runstacks   = false;
+  bool runtables   = false;
+  bool runcards    = false;
+  bool runlostlep  = false;
+  bool runestimate = false;
 
 
   for( TString arg : arguments ) {
@@ -53,6 +55,7 @@ int main( int argc, char* argv[] ) {
 	else if( arg=="table" || arg=="tables" ) runtables = true;
 	else if( arg=="cards" || arg=="card"  || arg=="datacards" || arg=="datacard" ) runcards = true;
 	else if( arg=="lostlep" || arg=="lost" || arg=="ll" ) runlostlep = true;
+	else if( arg=="estimate" || arg=="est" || arg=="bkg" ) runestimate = true;
 	else if( arg=="out"   || arg=="output" ) {
 	  runstacks = true;
 	  runtables = true;
@@ -64,6 +67,7 @@ int main( int argc, char* argv[] ) {
 	  runtables = true;
 	  runcards  = true;
 	  runlostlep = true;
+	  runestimate = true;
 	}
 	else {
 	  std::cout << "Unrecognized option: " << arg << std::endl;
@@ -264,11 +268,11 @@ int main( int argc, char* argv[] ) {
   /////////////////////////////////////////////////////
   // Make stacked histograms and/or yield tables
 
-  if( runtables ) makeTables(    srAnalysis );
-  if( runlostlep) makeTables(    crLostLep  );
-  if( runstacks ) makeStack(     srAnalysis );
-  if( runlostlep) makeLostLepEstimate( srAnalysis, crLostLep );
-  if( runcards  ) makeDataCards( srAnalysis );
+  if( runtables   ) makeTables( srAnalysis );
+  if( runlostlep  ) makeTables( crLostLep  );
+  if( runstacks   ) makeStack( srAnalysis );
+  if( runestimate ) makeLostLepEstimate( srAnalysis, crLostLep );
+  if( runcards    ) makeDataCards( srAnalysis );
 
   return 0;
 }
