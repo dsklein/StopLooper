@@ -14,7 +14,9 @@
 class sfManager{
 
 public:
-  sfManager( bool isFastsim, TString path, TH1D* counterHisto );
+  enum variation { kNominal, kLepUp, kLepDown, kBtagUp, kBtagDown }; // Haven't implemented btag variations yet
+
+  sfManager( bool isFastsim, TString path, TH1D* counterHisto, variation var=kNominal );
   ~sfManager();
 
   double GetSF_el( double pt, double eta );
@@ -42,6 +44,8 @@ private:
   TH2D* h_btagEff_b;
   TH2D* h_btagEff_c;
   TH2D* h_btagEff_udsg;
+
+  variation varType;
 
   BTagCalibration* calib;
   BTagCalibration* calib_fastsim;

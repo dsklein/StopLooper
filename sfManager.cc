@@ -6,9 +6,10 @@
 
 // Constructor ///////////////////////////////
 
-sfManager::sfManager( bool isFastsim, TString path, TH1D* counterHisto )
+sfManager::sfManager( bool isFastsim, TString path, TH1D* counterHisto, variation var )
   : fastsim( isFastsim ),
-	h_counter( counterHisto )
+	h_counter( counterHisto ),
+	varType( var )
 {
 
   bTagNormFactor = -999.99;
@@ -105,14 +106,22 @@ void sfManager::SetBtagNorm( double factor ) { bTagNormFactor = factor; }
 double sfManager::GetSF_el( double pt, double eta ) {
   double pt_bounded = std::max( 10., std::min( 99.9, pt ));
   double eta_bounded = std::min( 2.399, fabs(eta) );
-  return h_medEl_sf->GetBinContent( h_medEl_sf->FindBin( pt_bounded, eta_bounded ) );
+  int bin = h_medEl_sf->FindBin( pt_bounded, eta_bounded );
+  double sf = h_medEl_sf->GetBinContent( bin );
+  if(      varType==kLepUp   ) return sf + h_medEl_sf->GetBinError( bin );
+  else if( varType==kLepDown ) return sf - h_medEl_sf->GetBinError( bin );
+  else return sf;
 }
 
 // Veto electron SF
 double sfManager::GetSF_elVeto( double pt, double eta ) {
-    double pt_bounded = std::max( 10., std::min( 99.9, pt ));
+  double pt_bounded = std::max( 10., std::min( 99.9, pt ));
   double eta_bounded = std::min( 2.399, fabs(eta) );
-  return h_vetoEl_sf->GetBinContent( h_vetoEl_sf->FindBin( pt_bounded, eta_bounded ) );
+  int bin = h_vetoEl_sf->FindBin( pt_bounded, eta_bounded );
+  double sf = h_vetoEl_sf->GetBinContent( bin );
+  if(      varType==kLepUp   ) return sf + h_vetoEl_sf->GetBinError( bin );
+  else if( varType==kLepDown ) return sf - h_vetoEl_sf->GetBinError( bin );
+  else return sf;
 }
 
 // Lost electron SF
@@ -128,14 +137,22 @@ double sfManager::GetSF_elLost( double pt, double eta ) {
 double sfManager::GetSF_mu( double pt, double eta ) {
   double pt_bounded = std::max( 10., std::min( 99.9, pt ));
   double eta_bounded = std::min( 2.399, fabs(eta) );
-  return h_tightMu_sf->GetBinContent( h_tightMu_sf->FindBin( pt_bounded, eta_bounded ) );
+  int bin = h_tightMu_sf->FindBin( pt_bounded, eta_bounded );
+  double sf = h_tightMu_sf->GetBinContent( bin );
+  if(      varType==kLepUp   ) return sf + h_tightMu_sf->GetBinError( bin );
+  else if( varType==kLepDown ) return sf - h_tightMu_sf->GetBinError( bin );
+  else return sf;
 }
 
 // Veto muon SF
 double sfManager::GetSF_muVeto( double pt, double eta ) {
   double pt_bounded = std::max( 10., std::min( 99.9, pt ));
   double eta_bounded = std::min( 2.399, fabs(eta) );
-  return h_vetoMu_sf->GetBinContent( h_vetoMu_sf->FindBin( pt_bounded, eta_bounded ) );
+  int bin = h_vetoMu_sf->FindBin( pt_bounded, eta_bounded );
+  double sf = h_vetoMu_sf->GetBinContent( bin );
+  if(      varType==kLepUp   ) return sf + h_vetoMu_sf->GetBinError( bin );
+  else if( varType==kLepDown ) return sf - h_vetoMu_sf->GetBinError( bin );
+  else return sf;
 }
 
 // Lost muon SF
