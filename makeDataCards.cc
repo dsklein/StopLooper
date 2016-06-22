@@ -40,12 +40,17 @@ void makeDataCards( analysis* myAnalysis ) {
   // Loop over signal regions, making a datacard for each SR and each mass point
   //////////////////////////////////////////////////////////////////////////////
 
-  for( int bin=1; bin<=nSigRegs; bin++ ) {
+  for( int reg=1; reg<=nSigRegs; reg++ ) {
 
-	TH1D* h_bkgYield = (TH1D*)yieldFile->Get( "evttype_"+sigRegions.at(bin-1) );
+	TH1D* h_bkgYield  = (TH1D*)yieldFile->Get( "evttype_"+sigRegions.at(reg-1) );
+	TH2D* h_sigYield  = (TH2D*)yieldFile->Get( "sigyields_"+sigRegions.at(reg-1) );
+	TH2D* h_sigContam = (TH2D*)lostlepFile->Get( "sigContam_"+sigRegions.at(reg-1) );
+
+	// Subtract signal contamination from signal MC prediction
+	// Had a LONG discussion with John and FKW about why this is the appropriate way to do it
+	h_sigYield->Add( h_sigContam, -1. );
 
 	// Loop over signal mass points
-	TH2D* h_sigYield = (TH2D*)yieldFile->Get( "sigyields_"+sigRegions.at(bin-1) );
 	for( int xbin=1; xbin<=h_sigYield->GetNbinsX(); xbin++ ) {
 	  for( int ybin=1; ybin<=h_sigYield->GetNbinsY(); ybin++ ) {
 
@@ -58,7 +63,7 @@ void makeDataCards( analysis* myAnalysis ) {
 
 
 		// Do some acrobatics to send the output to a file...
-		TString fileName = Form( "datacards/datacard_%s_T2tt_%d_%d.txt", sigRegions.at(bin-1).Data(), stopmass, lspmass );
+		TString fileName = Form( "datacards/datacard_%s_T2tt_%d_%d.txt", sigRegions.at(reg-1).Data(), stopmass, lspmass );
 		cout << "Writing data card " << fileName << endl;
 
 		FILE * outfile;
@@ -68,7 +73,7 @@ void makeDataCards( analysis* myAnalysis ) {
 		////////////////////////////
 		// Now print the data card
 
-		fprintf( outfile,  "# Data card for signal region %d (%s)\n", bin, sigRegions.at(bin-1).Data() );
+		fprintf( outfile,  "# Data card for signal region %d (%s)\n", reg, sigRegions.at(reg-1).Data() );
 		fprintf( outfile,  "# Stop mass = %d, LSP mass = %d\n", stopmass, lspmass );
 		fprintf( outfile,  "---\n" );
 		fprintf( outfile,  "imax 1  number of channels\n" );
@@ -81,7 +86,7 @@ void makeDataCards( analysis* myAnalysis ) {
 		fprintf( outfile,  "---\n" );
 
 		fprintf( outfile,  "# Now list the number of events observed (or zero if no data)\n" );
-		fprintf( outfile,  "bin %d\n", bin );
+		fprintf( outfile,  "bin %d\n", reg );
 		if( myAnalysis->HasData() ) fprintf( outfile,  "observation %d\n", int(h_bkgYield->GetBinContent(1)) );
 		else                        fprintf( outfile,  "observation 0\n" );
 		fprintf( outfile,  "---\n" );
@@ -90,7 +95,7 @@ void makeDataCards( analysis* myAnalysis ) {
 		fprintf( outfile,  "# Second 'process' line should be zero for signal, and a positive integer for each background\n" );
 
 		fprintf( outfile,  "bin      ");
-		for( TString sample : samples ) fprintf( outfile,  " %10i", bin );  // Print the signal region number once for each sample (signal and bkg)
+		for( TString sample : samples ) fprintf( outfile,  " %10i", reg );  // Print the signal region number once for each sample (signal and bkg)
 		fprintf( outfile, "\n" );
 
 		fprintf( outfile,  "process  ");
@@ -109,7 +114,7 @@ void makeDataCards( analysis* myAnalysis ) {
 
 		for( int i=1; i<=nSamples; i++ ) {
 		  if(      i==1 ) yield = sigYield;
-		  else if( i==3 ) yield = h_lostLep->GetBinContent(bin); // Pull 2l yield from lostLepton estimate histogram
+		  else if( i==3 ) yield = h_lostLep->GetBinContent(reg); // Pull 2l yield from lostLepton estimate histogram
 		  else            yield = h_bkgYield->GetBinContent(i+1);
 		  fprintf( outfile,  " %10f", yield );
 		}
@@ -125,12 +130,12 @@ void makeDataCards( analysis* myAnalysis ) {
 		for( int sampleIdx=0; sampleIdx<nSamples; sampleIdx++ ) {
 
 		  char statname[25];
-		  sprintf( statname, "%sStat%d", samples.at(sampleIdx).Data(), bin );	  
+		  sprintf( statname, "%sStat%d", samples.at(sampleIdx).Data(), reg );	  
 		  fprintf( outfile,   "%-18s  lnN ", statname );
 
 		  double statErr = 1.0 + (h_bkgYield->GetBinError(sampleIdx+2) / h_bkgYield->GetBinContent(sampleIdx+2) );
 		  if( sampleIdx==0 ) statErr = 1.0 + ( sigError / sigYield ); // Pull stat error on signal from special signal yield histogram
-		  if( sampleIdx==2 ) statErr = 1.0 + ( h_lostLep->GetBinError(bin) / h_lostLep->GetBinContent(bin) );  // Pull 2l stat error from lostLepton estimate histogram
+		  if( sampleIdx==2 ) statErr = 1.0 + ( h_lostLep->GetBinError(reg) / h_lostLep->GetBinContent(reg) );  // Pull 2l stat error from lostLepton estimate histogram
 
 		  for( int j=0; j<nSamples; j++ ) {
 			if( j == sampleIdx )  fprintf( outfile, "  %8.6f  ", statErr);
