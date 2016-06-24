@@ -18,6 +18,7 @@ void printHelp() {
   std::cout << "plots       run makeStack only" << std::endl;
   std::cout << "tables      run makeTables only" << std::endl;
   std::cout << "cards       run makeDataCards only" << std::endl;
+  std::cout << "estimate    run makeLostLepEstimate only" << std::endl;
   std::cout << "output      run makeStack, makeTables, and makeDataCards only" << std::endl;
 }
 
@@ -39,12 +40,13 @@ int main( int argc, char* argv[] ) {
   if( argc==1 )                       arguments.push_back( "all" );
   else  for( int i=1; i<argc; i++ )  arguments.push_back( TString(argv[i]) );
 
-  bool needshelp = false;
-  bool runlooper = false;
-  bool runstacks = false;
-  bool runtables = false;
-  bool runcards  = false;
-  bool runlostlep= false;
+  bool needshelp   = false;
+  bool runlooper   = false;
+  bool runstacks   = false;
+  bool runtables   = false;
+  bool runcards    = false;
+  bool runlostlep  = false;
+  bool runestimate = false;
 
 
   for( TString arg : arguments ) {
@@ -54,6 +56,7 @@ int main( int argc, char* argv[] ) {
 	else if( arg=="table" || arg=="tables" ) runtables = true;
 	else if( arg=="cards" || arg=="card"  || arg=="datacards" || arg=="datacard" ) runcards = true;
 	else if( arg=="lostlep" || arg=="lost" || arg=="ll" ) runlostlep = true;
+	else if( arg=="estimate" || arg=="est" || arg=="bkg" ) runestimate = true;
 	else if( arg=="out"   || arg=="output" ) {
 	  runstacks = true;
 	  runtables = true;
@@ -65,6 +68,7 @@ int main( int argc, char* argv[] ) {
 	  runtables = true;
 	  runcards  = true;
 	  runlostlep = true;
+	  runestimate = true;
 	}
 	else {
 	  std::cout << "Unrecognized option: " << arg << std::endl;
@@ -88,10 +92,9 @@ int main( int argc, char* argv[] ) {
   //                             new sample( "Label",  "Display name",    TColor,    sampleType )
 
   // sample* data    = srAnalysis->AddSample( "data",    "Data",           kBlack,    sample::kData );
-  // sample* stop700 = srAnalysis->AddSample( "stop700", "T2tt (700,50)",  kBlue+3,   sample::kSignal );
-  // sample* stop600 = srAnalysis->AddSample( "stop600", "T2tt (600,250)", kGreen+3,  sample::kSignal );
-  // sample* stop300 = srAnalysis->AddSample( "stop300", "T2tt (300,200)", kMagenta+3,sample::kSignal );
-  // sample* stop275 = srAnalysis->AddSample( "stop275", "T2tt (275,100)", kOrange+7, sample::kSignal );
+  // sample* signal  = srAnalysis->AddSample( "signal", "T2tt",            kBlue+3,   sample::kSignal );
+  // signal->AddFile( sigPath + "Signal_T2tt.root" );
+  // crLostLep->AddSample( signal );
 
   sample* tt2l    = srAnalysis->AddSample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
   sample* tt1l    = srAnalysis->AddSample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
@@ -152,11 +155,7 @@ int main( int argc, char* argv[] ) {
 	// data->AddFile( bkgPath + "data_single_muon_2015D_promptRecoV4_25ns_skimmed.root" );
 
 	// Signal samples
-
-	// stop700->AddFile( sigPath + "Signal_T2tt_700_50.root");
-	// stop600->AddFile( sigPath + "Signal_T2tt_600_250.root");
-	// stop300->AddFile( sigPath + "Signal_T2tt_300_200.root");
-	// stop275->AddFile( sigPath + "Signal_T2tt_275_100.root");
+	// See above^
 
 
 	// Background samples
@@ -198,15 +197,10 @@ int main( int argc, char* argv[] ) {
 	// Reset output files
 	TFile* outfile = new TFile( srAnalysis->GetFileName(), "RECREATE");
 	outfile->Close();
-	TFile* uncertFile = new TFile( "uncertSR.root", "RECREATE");
-	uncertFile->Close();
 
 	// Run ScanChain on all samples
 	// ScanChain( srAnalysis, data    );
-	// ScanChain( srAnalysis, stop700 );
-	// ScanChain( srAnalysis, stop600 );
-	// ScanChain( srAnalysis, stop300 );
-	// ScanChain( srAnalysis, stop275 );
+	// ScanChain( srAnalysis, signal  );
 	ScanChain( srAnalysis, tt2l    );
 	ScanChain( srAnalysis, tt1l    );
 	ScanChain( srAnalysis, singtop );
@@ -253,8 +247,6 @@ int main( int argc, char* argv[] ) {
 
 	TFile* outfile = new TFile( crLostLep->GetFileName(), "RECREATE");
 	outfile->Close();
-	TFile* uncertFile = new TFile( "uncertCR.root", "RECREATE");
-	uncertFile->Close();
 
 	looperCR2lep( crLostLep, CRdata );
 	looperCR2lep( crLostLep, CRtt2l );
@@ -270,11 +262,11 @@ int main( int argc, char* argv[] ) {
   /////////////////////////////////////////////////////
   // Make stacked histograms and/or yield tables
 
-  if( runtables ) makeTables(    srAnalysis );
-  if( runlostlep) makeTables(    crLostLep  );
-  if( runstacks ) makeStack(     srAnalysis );
-  if( runlostlep) makeLostLepEstimate( srAnalysis, crLostLep );
-  if( runcards  ) makeDataCards( srAnalysis );
+  if( runtables   ) makeTables( srAnalysis );
+  if( runlostlep  ) makeTables( crLostLep  );
+  if( runstacks   ) makeStack( srAnalysis );
+  if( runestimate ) makeLostLepEstimate( srAnalysis, crLostLep );
+  if( runcards    ) makeDataCards( srAnalysis );
 
   return 0;
 }

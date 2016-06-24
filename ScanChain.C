@@ -11,6 +11,7 @@
 #include "TChain.h"
 #include "TDirectory.h"
 #include "TFile.h"
+#include "TH2D.h"
 #include "TH2F.h"
 #include "TH3D.h"
 #include "TROOT.h"
@@ -56,6 +57,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 
   TH1D* h_bgtype[nSigRegs];
   TH1D* h_evttype[nSigRegs];
+  TH2D* h_sigyields[nSigRegs];
 
   TH1D *h_mt[nSigRegs];
   TH1D *h_met[nSigRegs];
@@ -84,6 +86,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 
 	h_bgtype[i]   = new TH1D( Form( "bkgtype_%s_%s" , sampleName.Data(), regNames[i].c_str()), "Yield by background type",  5, 0.5, 5.5);
 	h_evttype[i]= new TH1D( Form( "evttype_%s"      , regNames[i].c_str()),                    "Yield by event type",       6, 0.5, 6.5);
+	h_sigyields[i] = new TH2D( Form( "sigyields_%s", regNames[i].c_str()), "Signal yields by mass point", 37, 87.5, 1012.5, 21, -12.5, 512.5 );
 	h_mt[i]       = new TH1D( Form( "mt_%s_%s"      , sampleName.Data(), regNames[i].c_str()), "Transverse mass",			80, 0, 800);
 	h_met[i]      = new TH1D( Form( "met_%s_%s"     , sampleName.Data(), regNames[i].c_str()), "MET",						40, 0, 1000);
 	h_mt2w[i]     = new TH1D( Form( "mt2w_%s_%s"    , sampleName.Data(), regNames[i].c_str()), "MT2W",						50, 0, 500);
@@ -100,6 +103,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 
 	h_bgtype[i]->SetDirectory(rootdir);
 	h_evttype[i]->SetDirectory(rootdir);
+	h_sigyields[i]->SetDirectory(rootdir);
 
 	h_mt[i]->SetDirectory(rootdir);
 	h_met[i]->SetDirectory(rootdir);
@@ -136,11 +140,6 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
   for( int i=0; i<nSigRegs; i++ ) h_yields->GetXaxis()->SetBinLabel( i+1, regNames[i].c_str() );
   h_yields->SetDirectory(rootdir);
 
-  // For combine machinery
-  TH1D *h_statunc = new TH1D( Form( "StatUnc_%s", sampleName.Data()), "Stat Uncertainty",       nSigRegs, 0.5, float(nSigRegs)+0.5);
-  TH1D *h_systunc = new TH1D( Form( "SystUnc_%s", sampleName.Data()), "Systematic Uncertainty", nSigRegs, 0.5, float(nSigRegs)+0.5);
-  h_statunc->SetDirectory(rootdir);
-  h_systunc->SetDirectory(rootdir);
 
   float yield_total = 0;
   float yield_unique = 0;
@@ -438,6 +437,8 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 		h_nbtags[i]->Fill(  ngoodbtags(),               evtWeight );
 
 		h_yields->Fill(     float(i+1),                 evtWeight );
+
+		if( mySample->IsSignal() ) h_sigyields[i]->Fill( mass_stop(), mass_lsp(), evtWeight );
 	  }
 
 	  // ---------------------------------------------------------------------------------------------------//
@@ -499,14 +500,6 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	}
   }
 
-  // Set up the histograms for the combine machinery
-  for( int i=1; i<=nSigRegs; i++ ) {
-	if( h_yields->GetBinContent(i) > 0. ) h_statunc->SetBinContent( i, h_yields->GetBinError(i) / h_yields->GetBinContent(i) );
-
-	if( sampleName == "tt1l" ) h_systunc->SetBinContent( i, 1.0 );
-	else h_systunc->SetBinContent( i, 0.3 );
-  }
-
   // Store histograms and clean them up
   TFile* plotfile = new TFile( myAnalysis->GetFileName() , "UPDATE");
   plotfile->cd();
@@ -526,32 +519,27 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	h_dphilw[j]->Write();
 	h_njets[j]->Write();
 	h_nbtags[j]->Write();
+
+	// Build up histo of signal yields
+	if( mySample->IsSignal() ) {
+	  TH2D* hTemp2 = (TH2D*)plotfile->Get( h_sigyields[j]->GetName() );
+	  if( hTemp2 != 0 ) h_sigyields[j]->Add( hTemp2 );
+	  h_sigyields[j]->Write( "", TObject::kOverwrite );
+	}
+
+	// Build up histo of yields by bkg type
+	TH1D* hTemp = (TH1D*)plotfile->Get( h_evttype[j]->GetName() );
+	if( hTemp != 0 ) h_evttype[j]->Add( hTemp );
+	h_evttype[j]->Write( "", TObject::kOverwrite );
   }
   h_yields->Write();
 
   plotfile->Close();
 
-  TFile* combFile = new TFile( "uncertSR.root" , "UPDATE");
-  combFile->cd();
-  h_statunc->Write();
-  h_systunc->Write();
-  h_yields->Write();
-  for( int j=0; j<nSigRegs; j++ ) {
-	TH1D* hTemp = (TH1D*)combFile->Get( h_evttype[j]->GetName() );
-	if( hTemp != 0 ) {
-	  if( mySample->IsSignal() ) {
-		hTemp->SetBinContent( 2, 0. );
-		hTemp->SetBinError( 2, 0. );
-	  }
-	  h_evttype[j]->Add( hTemp );
-	}
-	h_evttype[j]->Write( "", TObject::kOverwrite );
-  }
-  combFile->Close();
-
   for( int j=0; j<nSigRegs; j++ ) {
 	delete h_bgtype[j];
 	delete h_evttype[j];
+	delete h_sigyields[j];
 	delete h_mt[j];
 	delete h_met[j];
 	delete h_mt2w[j];
@@ -567,8 +555,6 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	delete h_nbtags[j];
   }
   delete h_yields;
-  delete h_statunc;
-  delete h_systunc;
 
   // return
   bmark->Stop("benchmark");
