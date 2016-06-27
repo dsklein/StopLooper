@@ -38,11 +38,14 @@ public:
   std::vector<std::vector<TString> > GetSigRegions();
   std::vector<TString> GetSigRegionsAll();
   sample* GetSample( std::string name );
+  std::vector<sample*> GetAllSamples();
   const int GetNsignals();
   const int GetNbkgs();
   bool HasData();
   const float GetLumi();
   const TString GetFileName();
+  void SetFileName( TString fname );
+  void ResetSigRegions();
 
 private:
   sample* data;

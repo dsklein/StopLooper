@@ -115,6 +115,14 @@ sample* analysis::GetSample( std::string name ) {
   throw(5);
 }
 
+std::vector<sample*> analysis::GetAllSamples() {
+  std::vector<sample*> mySamples;
+  if( data ) mySamples.push_back( data );
+  mySamples.insert( mySamples.end(), signals.begin(), signals.end() );
+  mySamples.insert( mySamples.end(), backgrounds.begin(), backgrounds.end() );
+  return mySamples;
+}
+
 const int analysis::GetNsignals() { return static_cast<int>(signals.size()); }
 const int analysis::GetNbkgs() { return static_cast<int>(backgrounds.size()); }
 
@@ -134,3 +142,7 @@ std::vector<TString> analysis::GetSigRegionsAll() {
 const float analysis::GetLumi() { return luminosity; }
 
 const TString analysis::GetFileName() { return plotfilename; }
+
+void analysis::SetFileName( TString fname ) { plotfilename = fname; }
+
+void analysis::ResetSigRegions() { sigRegions.clear(); }
