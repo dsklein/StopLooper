@@ -73,15 +73,22 @@ void makeStack( analysis* myAnalysis) {
 	  }
 	  else data = new TH1F("", "", 1, 0, 1);
 
-	  // Get the title and subtitle for the plot
-	  TString plotTitle = bkgs.at(0)->GetTitle();
+	  // Get the title and subtitle for the plot, and do a little sanity check
+	  TString plotTitle;
 	  TString plotSubTitle = "Region: " + regNames.at(j);
+
+	  if(   myAnalysis->GetNsignals() > 0 ) plotTitle = sigs.at(0)->GetTitle();
+	  else if( myAnalysis->GetNbkgs() > 0 ) plotTitle = bkgs.at(0)->GetTitle();
+	  else if( myAnalysis->HasData()      ) plotTitle = data->GetTitle();
+	  else {
+		cout << "Error in makeStack.cc: The analysis object has no samples!" << endl;
+		throw(5);
+	  }
 	  
 
 
 	  // Option string for the stack maker
 	  TString optString = "--energy 13 --lumi " + lumi + " --xAxisLabel "+axisLabels.at(i)+" --xAxisUnit --outputName plots/stack_" + varNames.at(i) + "_" + regNames.at(j); // + " --png";
-	  // (try also --isLinear);  --legendTextSize 0.022
 
 	  // Run the big tamale...
 	  dataMCplotMaker( data,

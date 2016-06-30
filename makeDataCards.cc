@@ -42,6 +42,8 @@ void makeDataCards( analysis* myAnalysis ) {
 
   for( int reg=1; reg<=nSigRegs; reg++ ) {
 
+	cout << "Writing data cards for signal region " << sigRegions.at(reg-1) << endl;
+
 	TH1D* h_bkgYield  = (TH1D*)yieldFile->Get( "evttype_"+sigRegions.at(reg-1) );
 	TH2D* h_sigYield  = (TH2D*)yieldFile->Get( "sigyields_"+sigRegions.at(reg-1) );
 	TH2D* h_sigContam = (TH2D*)lostlepFile->Get( "sigContam_"+sigRegions.at(reg-1) );
@@ -59,12 +61,17 @@ void makeDataCards( analysis* myAnalysis ) {
 
 		double sigYield = h_sigYield->GetBinContent( xbin, ybin );
 		double sigError = h_sigYield->GetBinError( xbin, ybin );
-		if( sigYield < 0.000001 ) continue;
+		if( fabs(sigYield) < 0.000001 ) continue;
+		if( sigYield < 0. ) {
+		  // cout << "Warning in makeDataCards: Mass point (" << stopmass << "," << lspmass
+		  // 	   << ") has negative signal yield after subtracting contamination. Setting yield to zero." << endl;
+		  sigYield = 0.00000001;
+		  sigError = 0.00000000000001;
+		}
 
 
 		// Do some acrobatics to send the output to a file...
 		TString fileName = Form( "datacards/datacard_%s_T2tt_%d_%d.txt", sigRegions.at(reg-1).Data(), stopmass, lspmass );
-		cout << "Writing data card " << fileName << endl;
 
 		FILE * outfile;
 		outfile = fopen( fileName.Data(), "w" );

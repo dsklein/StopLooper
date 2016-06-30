@@ -198,14 +198,7 @@ int main( int argc, char* argv[] ) {
 	outfile->Close();
 
 	// Run ScanChain on all samples
-	// ScanChain( srAnalysis, data    );
-	ScanChain( srAnalysis, signal  );
-	ScanChain( srAnalysis, tt2l    );
-	ScanChain( srAnalysis, tt1l    );
-	ScanChain( srAnalysis, singtop );
-	ScanChain( srAnalysis, wjets   );
-	ScanChain( srAnalysis, dy      );
-	ScanChain( srAnalysis, rare    );
+	for( sample* mySample : srAnalysis->GetAllSamples() ) ScanChain( srAnalysis, mySample );
 
   }
 
@@ -254,13 +247,8 @@ int main( int argc, char* argv[] ) {
 	TFile* outfile = new TFile( crLostLep->GetFileName(), "RECREATE");
 	outfile->Close();
 
-	looperCR2lep( crLostLep, CRdata );
-	looperCR2lep( crLostLep, signal );
-	looperCR2lep( crLostLep, CRttbar );
-	looperCR2lep( crLostLep, CRsingtop );
-	looperCR2lep( crLostLep, CRwjets );
-	looperCR2lep( crLostLep, CRdy );
-	looperCR2lep( crLostLep, CRrare );
+	// Run lost lepton CR looper on all samples
+	for( sample* mySample : crLostLep->GetAllSamples() ) looperCR2lep( crLostLep, mySample );
 
   }
 

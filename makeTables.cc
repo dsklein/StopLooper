@@ -21,11 +21,8 @@ void makeTables( analysis* myAnalysis ) {
   decayNames.push_back("1 lepton from W");
   decayNames.push_back("Other");
 
-  TString dummySampleName = myAnalysis->GetBkgLabels().at(0);
+  TString dummySampleName = myAnalysis->GetAllSamples().at(0)->GetLabel();
   TString dummyRegionName = myAnalysis->GetSigRegionsAll().at(0);
-
-  // Keep a histogram for the total yields
-  TH1D* h_totalBkgYields = (TH1D*)infile->Get("srYields_" + dummySampleName)->Clone("total_bkg_yields");
 
   uint binOffset = 0;
 
@@ -36,15 +33,11 @@ void makeTables( analysis* myAnalysis ) {
   for( vector<TString> regNameList : myAnalysis->GetSigRegions() ) {
 
 	double yield, error;
-	h_totalBkgYields->Reset();
 
-	// Prep histograms that will store the total bkg yields by decay type
+	// Retrieve histograms for the total bkg yields by decay type
 	uint nRegions = regNameList.size();
-	TH1D* yieldsByDecayType[nRegions];
-	for( uint i=0; i<nRegions; i++ ) {
-	  yieldsByDecayType[i] = (TH1D*)infile->Get("bkgtype_" + dummySampleName + "_" + dummyRegionName)->Clone( "decayType_" + regNameList.at(i) );
-	  yieldsByDecayType[i]->Reset();
-	}
+	vector<TH1D*> yieldsByDecayType;
+	for( uint i=0; i<nRegions; i++ ) yieldsByDecayType.push_back( (TH1D*)infile->Get("evttype_" + regNameList.at(i)) );
 
 	// Begin LaTeX table
 	cout << "\\begin{tabular}{ l | ";
@@ -100,57 +93,55 @@ void makeTables( analysis* myAnalysis ) {
 
 	  printf( "%28s  ", thisSample->GetTableName().Data() );       // Print start of row
 	  TH1D* h_yields = (TH1D*)infile->Get( "srYields_" + thisSample->GetLabel() ); // Retrieve yield histo for this sample
-	  h_totalBkgYields->Add( h_yields );
 
 	  // Read in yields and errors, and print out another cell in the table row
-	  // Also add yields by background type to running tally
 	  for( uint i=1; i<=nRegions; i++ ) {
 		yield = h_yields->GetBinContent( i + binOffset );
 		error = h_yields->GetBinError( i + binOffset );
 		printf( "  &   %8.3f $\\pm$ %6.3f", yield, error );
-		
-		TH1D* h_decayType = (TH1D*)infile->Get( "bkgtype_" + thisSample->GetLabel() + "_" + regNameList.at(i-1) );
-		yieldsByDecayType[i-1]->Add(h_decayType);
 	  }
 	  cout << "  \\\\" << endl;
 	} // End loop over background samples
 
-
-
-	cout << "\\hline" << endl;
-
-	////////////////////////////////////////
-	// Print row for total background yield
-
-	cout << "            Total Background  ";
-	for( uint i=1; i<=nRegions; i++ ) {
-	  yield = h_totalBkgYields->GetBinContent(i + binOffset);
-	  error = h_totalBkgYields->GetBinError(i + binOffset);
-	  printf( "  &   %8.3f $\\pm$ %6.3f", yield, error);
-	}
-	cout << "  \\\\" << endl;
-	cout << "\\hline \\hline" << endl;
-
 	binOffset += nRegions;
 
-	/////////////////////////////////////////////////////////////////////////////////
-	// Make the lower half of the table, with the rows = final states
 
-	for( uint i=0; i<decayNames.size()-1; i++ ) {
 
-	  printf( "%28s  ", decayNames.at(i).Data() );
+	/////////////////////////////////////////////////////////////////////////////////////
+	// If we have background samples, then print a row for the total background yield...
 
-	  for( uint j=0; j<nRegions; j++ ) {
-		yield = yieldsByDecayType[j]->GetBinContent(i+1);
-		error = yieldsByDecayType[j]->GetBinError(i+1);
-		printf( "  &   %8.3f $\\pm$ %6.3f", yield, error );
+	if( myAnalysis->GetNbkgs() > 0 ) {
+	  cout << "\\hline" << endl;
+
+	  cout << "            Total Background  ";
+	  for( uint i=1; i<=nRegions; i++ ) {
+		yield = yieldsByDecayType.at(i-1)->IntegralAndError( 3, 6, error );
+		printf( "  &   %8.3f $\\pm$ %6.3f", yield, error);
 	  }
 	  cout << "  \\\\" << endl;
+	  cout << "\\hline \\hline" << endl;
 
-	} // end loop over signal regions
+	  /////////////////////////////////////////////////////////////////////////////////
+	  // ...and make the lower half of the table, with the background yields by type
 
+	  for( uint i=0; i<decayNames.size()-1; i++ ) {
+
+		printf( "%28s  ", decayNames.at(i).Data() );
+
+		for( uint j=0; j<nRegions; j++ ) {
+		  yield = yieldsByDecayType.at(j)->GetBinContent(i+3);
+		  error = yieldsByDecayType.at(j)->GetBinError(i+3);
+		  printf( "  &   %8.3f $\\pm$ %6.3f", yield, error );
+		}
+		cout << "  \\\\" << endl;
+
+	  } // end loop over signal regions
+	} // end "if we have background samples"
+
+
+	///////////////////////////////////////////////
+	// End LaTeX table
 	cout << "\\end{tabular}\n\n" << endl;
-
 
   } // end loop over lists of signal regions
  
