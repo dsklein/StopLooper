@@ -28,7 +28,7 @@ void makeDataCards( analysis* myAnalysis ) {
   samples.insert( samples.begin(), "signal" );
   const int nSamples = samples.size();
 
-  vector<TString> sigRegions = myAnalysis->GetSigRegionsAll();
+  vector<TString> sigRegions = myAnalysis->GetSigRegionLabelsAll();
   const int nSigRegs = sigRegions.size();
 
   // Open files containing background yields and uncertainties

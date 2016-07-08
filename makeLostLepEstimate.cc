@@ -13,8 +13,8 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 
   TH1::SetDefaultSumw2();
 
-  vector<TString> srnames = srAnalysis->GetSigRegionsAll();
-  vector<TString> crnames = crAnalysis->GetSigRegionsAll();
+  vector<TString> srnames = srAnalysis->GetSigRegionLabelsAll();
+  vector<TString> crnames = crAnalysis->GetSigRegionLabelsAll();
   uint nSRegions = srnames.size();
   uint nCRegions = crnames.size();
   if( nSRegions != nCRegions ) {

@@ -1,10 +1,14 @@
 #include "analysis.h"
 #include "sample.h"
 #include "runLooper.h"
+#include "sigRegion.h"
+#include "sigRegion.cc"
 
 #include "TChain.h"
 #include "TFile.h"
 #include "TString.h"
+
+#include "CMS3.h"
 
 // Help with program options
 void printHelp() {
@@ -110,27 +114,91 @@ int main( int argc, char* argv[] ) {
   sample* CRdy      = crLostLep->AddSample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
   sample* CRrare    = crLostLep->AddSample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
 
-  std::vector<TString> compressed  = {"compr250",  "compr350"};
-  std::vector<TString> boosted     = {"boost250",  "boost350"};
-  std::vector<TString> lowDMreg    = {"low250",  "low325"};
-  std::vector<TString> highDMreg = {"high250", "high350", "high450"};
-  std::vector<TString> inclusive = {"inclusive"};
+
+  //////////////////////////////////////////////
+  // Make selection and signal region objects
+  selection<float> MET_250_350( (*tas::pfmet), 250., 350. );
+  selection<float> MET_350_450( (*tas::pfmet), 350., 450. );
+  selection<float> MET_450_inf( (*tas::pfmet), 450., 9999999. );
+  selection<float> MET_250_325( (*tas::pfmet), 250., 325. );
+  selection<float> MET_325_inf( (*tas::pfmet), 325., 9999999. );
+  selection<float> MET_350_inf( (*tas::pfmet), 350., 9999999. );
+
+  selection<int> nJetsEq2( (*tas::ngoodjets), 2 );
+  selection<int> nJetsEq3( (*tas::ngoodjets), 3 );
+  selection<int> nJetsGe4( (*tas::ngoodjets), 4, 9999999 );
+
+  selection<float>  lowMT2W( (*tas::MT2W),   0., 200.     );
+  selection<float> highMT2W( (*tas::MT2W), 200., 9999999. );
+
+  selection<float> modTop( (*tas::topnessMod), 6.4, 999999. );
+
+
+  sigRegion compr250( "compr250", "Compressed, low MET" );
+  compr250.addSelection( &MET_250_350 );
+  compr250.addSelection( &nJetsEq2 );
+  compr250.addSelection( &modTop );
+
+  sigRegion compr350( "compr350", "Compressed, high MET" );
+  compr350.addSelection( &MET_350_inf );
+  compr350.addSelection( &nJetsEq2 );
+  compr350.addSelection( &modTop );
+
+  sigRegion boost250( "boost250", "Boosted, high MT2W, low MET" );
+  boost250.addSelection( &MET_250_350 );
+  boost250.addSelection( &nJetsEq3 );
+  boost250.addSelection( &highMT2W );
+
+  sigRegion boost350( "boost350", "Boosted, high MT2W, high MET" );
+  boost350.addSelection( &MET_350_inf );
+  boost350.addSelection( &nJetsEq3 );
+  boost350.addSelection( &highMT2W );
+
+  sigRegion low250( "low250", "Low dM, low MET" );
+  low250.addSelection( &lowMT2W );
+  low250.addSelection( &MET_250_325 );
+  low250.addSelection( &nJetsGe4 );
+
+  sigRegion low325( "low325", "Low dM, high MET" );
+  low325.addSelection( &lowMT2W );
+  low325.addSelection( &MET_325_inf );
+  low325.addSelection( &nJetsGe4 );
+
+  sigRegion high250( "high250", "High dM, low MET" );
+  high250.addSelection( &highMT2W );
+  high250.addSelection( &MET_250_350 );
+  high250.addSelection( &nJetsGe4 );
+
+  sigRegion high350( "high350", "High dM, mid MET" );
+  high350.addSelection( &highMT2W );
+  high350.addSelection( &MET_350_450 );
+  high350.addSelection( &nJetsGe4 );
+
+  sigRegion high450( "high450", "High dM, high MET" );
+  high450.addSelection( &highMT2W );
+  high450.addSelection( &MET_450_inf );
+  high450.addSelection( &nJetsGe4 );
+
+  sigRegion inclusive( "inclusive", "Inclusive" );
+
+  std::vector<sigRegion> compressed  = {compr250,  compr350};
+  std::vector<sigRegion> boosted     = {boost250,  boost350};
+  std::vector<sigRegion> lowDMreg    = {low250,  low325};
+  std::vector<sigRegion> highDMreg = {high250, high350, high450};
+  std::vector<sigRegion> inclReg = {inclusive};
   srAnalysis->AddSigRegs( compressed );
   srAnalysis->AddSigRegs( boosted );
   srAnalysis->AddSigRegs( lowDMreg );
   srAnalysis->AddSigRegs( highDMreg );
-  srAnalysis->AddSigRegs( inclusive );
+  srAnalysis->AddSigRegs( inclReg );
 
-  std::vector<TString> compressedCR  = {"compr250CR",  "compr350CR"};
-  std::vector<TString> boostedCR     = {"boost250CR",  "boost350CR"};
-  std::vector<TString> lowDMregCR    = {"low250CR",  "low325CR"};
-  std::vector<TString> highDMregCR = {"high250CR", "high350CR", "high450CR"};
-  std::vector<TString> inclusiveCR = {"inclusiveCR"};
-  crLostLep->AddSigRegs( compressedCR );
-  crLostLep->AddSigRegs( boostedCR );
-  crLostLep->AddSigRegs( lowDMregCR );
-  crLostLep->AddSigRegs( highDMregCR );
-  crLostLep->AddSigRegs( inclusiveCR );
+  crLostLep->AddSigRegs( compressed );
+  crLostLep->AddSigRegs( boosted );
+  crLostLep->AddSigRegs( lowDMreg );
+  crLostLep->AddSigRegs( highDMreg );
+  crLostLep->AddSigRegs( inclReg );
+
+
 
 
 

@@ -30,7 +30,8 @@ void makeStack( analysis* myAnalysis) {
   varNames.push_back("nbtags" );  axisLabels.push_back("Number of b-tags");
 
   // Get the signal region names
-  vector<TString> regNames = myAnalysis->GetSigRegionsAll();
+  vector<TString>  regNames = myAnalysis->GetSigRegionLabelsAll();
+  vector<sigRegion> regions = myAnalysis->GetSigRegionsAll();
 
   // Get sample titles and colors from the "analysis" object
   vector<string> bkg_titles = myAnalysis->GetBkgNamesLegend();
@@ -75,7 +76,7 @@ void makeStack( analysis* myAnalysis) {
 
 	  // Get the title and subtitle for the plot, and do a little sanity check
 	  TString plotTitle;
-	  TString plotSubTitle = "Region: " + regNames.at(j);
+	  TString plotSubTitle = "Region: " + regions.at(j).GetRootName();
 
 	  if(   myAnalysis->GetNsignals() > 0 ) plotTitle = sigs.at(0)->GetTitle();
 	  else if( myAnalysis->GetNbkgs() > 0 ) plotTitle = bkgs.at(0)->GetTitle();

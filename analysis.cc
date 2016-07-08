@@ -40,7 +40,7 @@ sample* analysis::AddSample(std::string myLabel, std::string tabName, std::strin
   return myPointer;
 }
 
-void analysis::AddSigRegs( std::vector<TString> regions ) { sigRegions.push_back(regions); }
+void analysis::AddSigRegs( std::vector<sigRegion> regions ) { sigRegions.push_back(regions); }
 
 std::vector<short int> analysis::GetBkgColors() {
   std::vector<short int> colors;
@@ -131,11 +131,30 @@ bool analysis::HasData() {
   else return false;
 }
 
-std::vector<std::vector<TString> > analysis::GetSigRegions() { return sigRegions; }
+std::vector<std::vector<sigRegion> > analysis::GetSigRegions() { return sigRegions; }
 
-std::vector<TString> analysis::GetSigRegionsAll() {
+std::vector<sigRegion> analysis::GetSigRegionsAll() {
+  std::vector<sigRegion> output;
+  for( std::vector<sigRegion> SRset : sigRegions ) output.insert( output.end(), SRset.begin(), SRset.end() );
+  return output;
+}
+
+std::vector<std::vector<TString> > analysis::GetSigRegionLabels() {
+  std::vector<std::vector<TString> > output;
+
+  for( std::vector<sigRegion> regList : sigRegions ) {
+	std::vector<TString> labels;
+	for( sigRegion myReg : regList ) labels.push_back( myReg.GetLabel() );
+	output.push_back( labels );
+  }
+  return output;
+}
+
+std::vector<TString> analysis::GetSigRegionLabelsAll() {
   std::vector<TString> output;
-  for( std::vector<TString> SRset : sigRegions ) output.insert( output.end(), SRset.begin(), SRset.end() );
+  for( std::vector<sigRegion> regList : sigRegions ) {
+	for( sigRegion myReg : regList ) output.push_back( myReg.GetLabel() );
+  }
   return output;
 }
 

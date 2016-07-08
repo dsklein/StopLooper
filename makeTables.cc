@@ -22,7 +22,7 @@ void makeTables( analysis* myAnalysis ) {
   decayNames.push_back("Other");
 
   TString dummySampleName = myAnalysis->GetAllSamples().at(0)->GetLabel();
-  TString dummyRegionName = myAnalysis->GetSigRegionsAll().at(0);
+  TString dummyRegionName = myAnalysis->GetSigRegionLabelsAll().at(0);
 
   uint binOffset = 0;
 
@@ -30,23 +30,23 @@ void makeTables( analysis* myAnalysis ) {
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  for( vector<TString> regNameList : myAnalysis->GetSigRegions() ) {
+  for( vector<sigRegion> regList : myAnalysis->GetSigRegions() ) {
 
 	double yield, error;
 
 	// Retrieve histograms for the total bkg yields by decay type
-	uint nRegions = regNameList.size();
+	uint nRegions = regList.size();
 	vector<TH1D*> yieldsByDecayType;
-	for( uint i=0; i<nRegions; i++ ) yieldsByDecayType.push_back( (TH1D*)infile->Get("evttype_" + regNameList.at(i)) );
+	for( uint i=0; i<nRegions; i++ ) yieldsByDecayType.push_back( (TH1D*)infile->Get("evttype_" + regList.at(i).GetLabel()) );
 
 	// Begin LaTeX table
 	cout << "\\begin{tabular}{ l | ";
-	for( TString srName : regNameList ) cout << "c ";
+	for( sigRegion sReg : regList ) cout << "c ";
 	cout << "}" << endl;
 
 	// Print column headers
 	cout << " Sample  ";
-	for( TString srName : regNameList ) cout << "  &  " << srName;
+	for( sigRegion sReg : regList ) cout << "  &  " << sReg.GetTableName();
 	cout << " \\\\ \\hline" << endl;
 
 

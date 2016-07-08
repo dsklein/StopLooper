@@ -73,33 +73,27 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   TH1D *h_njets[nSigRegs];
   TH1D *h_nbtags[nSigRegs];
 
-  double met_min[nSigRegs]   = {250., 350., 250., 350.,   250., 325., 250., 350., 450., 250.};
-  double met_max[nSigRegs]   = {350., 99999., 350., 99999., 325., 99999., 350., 450., 99999., 99999.};
-  double mt2w_min[nSigRegs]  = {  0.,   0., 200., 200.,     0.,   0., 200., 200., 200., 0.};
-  double mt2w_max[nSigRegs]  = {99999., 99999., 99999., 99999., 200., 200., 99999., 99999., 99999., 99999,};
-  double njets_min[nSigRegs] = {   2,    2,    3,    3,      4,    4,    4,    4,    4, 2};
-  double njets_max[nSigRegs] = {   2,    2,    3,    3,    999,  999,  999,  999,  999, 999};
-  string regNames[nSigRegs] = {"compr250CR", "compr350CR", "boost250CR", "boost350CR", "low250CR", "low325CR", "high250CR", "high350CR", "high450CR", "inclusiveCR"};
-
+  vector<TString> regNames = myAnalysis->GetSigRegionLabelsAll();
+  vector<sigRegion> sigRegions = myAnalysis->GetSigRegionsAll();
 
   for( int i=0; i<nSigRegs; i++ ) {
 
-	h_bgtype[i]   = new TH1D( Form( "bkgtype_%s_%s" , sampleName.Data(), regNames[i].c_str()), "Yield by background type",  5, 0.5, 5.5);
-	h_evttype[i]= new TH1D( Form( "evttype_%s"      , regNames[i].c_str()),                    "Yield by event type",       6, 0.5, 6.5);
-	h_sigyields[i] = new TH2D( Form( "sigyields_%s", regNames[i].c_str()), "Signal yields by mass point", 37, 87.5, 1012.5, 21, -12.5, 512.5 );
-	h_mt[i]       = new TH1D( Form( "mt_%s_%s"      , sampleName.Data(), regNames[i].c_str()), "Transverse mass",			80, 0, 800);
-	h_met[i]      = new TH1D( Form( "met_%s_%s"     , sampleName.Data(), regNames[i].c_str()), "MET",						40, 0, 1000);
-	h_mt2w[i]     = new TH1D( Form( "mt2w_%s_%s"    , sampleName.Data(), regNames[i].c_str()), "MT2W",						50, 0, 500);
-	h_chi2[i]     = new TH1D( Form( "chi2_%s_%s"    , sampleName.Data(), regNames[i].c_str()), "Hadronic #chi^{2}", 		50, 0, 15);
-	h_htratio[i]  = new TH1D( Form( "htratio_%s_%s" , sampleName.Data(), regNames[i].c_str()), "H_{T} ratio",				50, 0, 1);
-	h_mindphi[i]  = new TH1D( Form( "mindphi_%s_%s" , sampleName.Data(), regNames[i].c_str()), "min #Delta#phi(j12,MET)",	50, 0, 4);
-	h_ptb1[i]     = new TH1D( Form( "ptb1_%s_%s"    , sampleName.Data(), regNames[i].c_str()), "p_{T} (b1)",				100, 0, 500);
-	h_drlb1[i]    = new TH1D( Form( "drlb1_%s_%s"   , sampleName.Data(), regNames[i].c_str()), "#DeltaR (lep, b1)", 		50, 0, 5);
-	h_ptlep[i]    = new TH1D( Form( "ptlep_%s_%s"   , sampleName.Data(), regNames[i].c_str()), "p_{T} (lep)",				100, 0, 500);
-	h_metht[i]    = new TH1D( Form( "metht_%s_%s"   , sampleName.Data(), regNames[i].c_str()), "MET/sqrt(HT)",				50, 0, 100);
-	h_dphilw[i]   = new TH1D( Form( "dphilw_%s_%s"  , sampleName.Data(), regNames[i].c_str()), "#Delta#phi (lep,W)",		50, 0, 3.5);
-	h_njets[i]    = new TH1D( Form( "njets_%s_%s"   , sampleName.Data(), regNames[i].c_str()), "Number of jets",            16, -0.5, 15.5);
-	h_nbtags[i]   = new TH1D( Form( "nbtags_%s_%s"  , sampleName.Data(), regNames[i].c_str()), "Number of b-tags",          7, -0.5, 6.5);
+	h_bgtype[i]   = new TH1D( Form( "bkgtype_%s_%s" , sampleName.Data(), regNames.at(i).Data()), "Yield by background type",  5, 0.5, 5.5);
+	h_evttype[i]= new TH1D( Form( "evttype_%s"      , regNames.at(i).Data()),                    "Yield by event type",       6, 0.5, 6.5);
+	h_sigyields[i] = new TH2D( Form( "sigyields_%s", regNames.at(i).Data()), "Signal yields by mass point", 37, 87.5, 1012.5, 21, -12.5, 512.5 );
+	h_mt[i]       = new TH1D( Form( "mt_%s_%s"      , sampleName.Data(), regNames.at(i).Data()), "Transverse mass",			80, 0, 800);
+	h_met[i]      = new TH1D( Form( "met_%s_%s"     , sampleName.Data(), regNames.at(i).Data()), "MET",						40, 0, 1000);
+	h_mt2w[i]     = new TH1D( Form( "mt2w_%s_%s"    , sampleName.Data(), regNames.at(i).Data()), "MT2W",						50, 0, 500);
+	h_chi2[i]     = new TH1D( Form( "chi2_%s_%s"    , sampleName.Data(), regNames.at(i).Data()), "Hadronic #chi^{2}", 		50, 0, 15);
+	h_htratio[i]  = new TH1D( Form( "htratio_%s_%s" , sampleName.Data(), regNames.at(i).Data()), "H_{T} ratio",				50, 0, 1);
+	h_mindphi[i]  = new TH1D( Form( "mindphi_%s_%s" , sampleName.Data(), regNames.at(i).Data()), "min #Delta#phi(j12,MET)",	50, 0, 4);
+	h_ptb1[i]     = new TH1D( Form( "ptb1_%s_%s"    , sampleName.Data(), regNames.at(i).Data()), "p_{T} (b1)",				100, 0, 500);
+	h_drlb1[i]    = new TH1D( Form( "drlb1_%s_%s"   , sampleName.Data(), regNames.at(i).Data()), "#DeltaR (lep, b1)", 		50, 0, 5);
+	h_ptlep[i]    = new TH1D( Form( "ptlep_%s_%s"   , sampleName.Data(), regNames.at(i).Data()), "p_{T} (lep)",				100, 0, 500);
+	h_metht[i]    = new TH1D( Form( "metht_%s_%s"   , sampleName.Data(), regNames.at(i).Data()), "MET/sqrt(HT)",				50, 0, 100);
+	h_dphilw[i]   = new TH1D( Form( "dphilw_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "#Delta#phi (lep,W)",		50, 0, 3.5);
+	h_njets[i]    = new TH1D( Form( "njets_%s_%s"   , sampleName.Data(), regNames.at(i).Data()), "Number of jets",            16, -0.5, 15.5);
+	h_nbtags[i]   = new TH1D( Form( "nbtags_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "Number of b-tags",          7, -0.5, 6.5);
 
 	h_bgtype[i]->SetDirectory(rootdir);
 	h_evttype[i]->SetDirectory(rootdir);
@@ -137,7 +131,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   }
 
   TH1D *h_yields = new TH1D( Form("srYields_%s", sampleName.Data()), "Yield by signal region", nSigRegs, 0.5, float(nSigRegs)+0.5);
-  for( int i=0; i<nSigRegs; i++ ) h_yields->GetXaxis()->SetBinLabel( i+1, regNames[i].c_str() );
+  for( int i=0; i<nSigRegs; i++ ) h_yields->GetXaxis()->SetBinLabel( i+1, regNames.at(i) );
   h_yields->SetDirectory(rootdir);
 
 
@@ -261,8 +255,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 	  ///////////////////////////////////////////////////////////////
 	  // Special filters to more finely categorize background events
-	  // if(      sampleName == "tt2l"  && genlepsfromtop() != 2 ) continue;  //Require 2 leps from top in "tt2l" events
-	  // else if( sampleName == "tt1l"  && genlepsfromtop() != 1 ) continue;  //Require 1 lep from top in "tt1l" events
+	  if(      sampleName == "tt2l"  && genlepsfromtop() != 2 ) continue;  //Require 2 leps from top in "tt2l" events
+	  else if( sampleName == "tt1l"  && genlepsfromtop() != 1 ) continue;  //Require 1 lep from top in "tt1l" events
 
 
 	  /////////////////////////////////
@@ -448,14 +442,12 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  else                            evtType = 2+category;
 
 	  ///////////////////////////////////////////
-	  // MET/MT2W cuts and histo filling
+	  // Signal region cuts and histo filling
 
 	  // If the event passes the SR cuts, store which background type this event is, and fill histograms
 	  for( int i=0; i<nSigRegs; i++ ) {
-		if( pfmet() < met_min[i] || pfmet() >= met_max[i] ) continue;
-		if( MT2W() < mt2w_min[i] || MT2W() >= mt2w_max[i] ) continue;
-		if( ngoodjets() < njets_min[i] || ngoodjets() > njets_max[i] ) continue;
-		if( (regNames[i] == "compr250" || regNames[i] == "compr350") && topnessMod() <= 6.4 ) continue;
+
+		if( !sigRegions.at(i).PassAllCuts() ) continue;
 
 		h_bgtype[i]->Fill( category,                    evtWeight );
 		h_evttype[i]->Fill( evtType,                    evtWeight );
