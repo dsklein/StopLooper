@@ -135,49 +135,31 @@ int main( int argc, char* argv[] ) {
 
 
   sigRegion compr250( "compr250", "Compressed, low MET" );
-  compr250.addSelection( &MET_250_350 );
-  compr250.addSelection( &nJetsEq2 );
-  compr250.addSelection( &modTop );
+  compr250.addSelections( 3, &MET_250_350, &nJetsEq2, &modTop );
 
   sigRegion compr350( "compr350", "Compressed, high MET" );
-  compr350.addSelection( &MET_350_inf );
-  compr350.addSelection( &nJetsEq2 );
-  compr350.addSelection( &modTop );
+  compr350.addSelections( 3, &MET_350_inf, &nJetsEq2, &modTop );
 
   sigRegion boost250( "boost250", "Boosted, high MT2W, low MET" );
-  boost250.addSelection( &MET_250_350 );
-  boost250.addSelection( &nJetsEq3 );
-  boost250.addSelection( &highMT2W );
+  boost250.addSelections( 3, &MET_250_350, &nJetsEq3, &highMT2W );
 
   sigRegion boost350( "boost350", "Boosted, high MT2W, high MET" );
-  boost350.addSelection( &MET_350_inf );
-  boost350.addSelection( &nJetsEq3 );
-  boost350.addSelection( &highMT2W );
+  boost350.addSelections( 3, &MET_350_inf, &nJetsEq3, &highMT2W );
 
   sigRegion low250( "low250", "Low dM, low MET" );
-  low250.addSelection( &lowMT2W );
-  low250.addSelection( &MET_250_325 );
-  low250.addSelection( &nJetsGe4 );
+  low250.addSelections( 3, &lowMT2W, &MET_250_325, &nJetsGe4 );
 
   sigRegion low325( "low325", "Low dM, high MET" );
-  low325.addSelection( &lowMT2W );
-  low325.addSelection( &MET_325_inf );
-  low325.addSelection( &nJetsGe4 );
+  low325.addSelections( 3, &lowMT2W, &MET_325_inf, &nJetsGe4 );
 
   sigRegion high250( "high250", "High dM, low MET" );
-  high250.addSelection( &highMT2W );
-  high250.addSelection( &MET_250_350 );
-  high250.addSelection( &nJetsGe4 );
+  high250.addSelections( 3, &highMT2W, &MET_250_350, &nJetsGe4 );
 
   sigRegion high350( "high350", "High dM, mid MET" );
-  high350.addSelection( &highMT2W );
-  high350.addSelection( &MET_350_450 );
-  high350.addSelection( &nJetsGe4 );
+  high350.addSelections( 3, &highMT2W, &MET_350_450, &nJetsGe4 );
 
   sigRegion high450( "high450", "High dM, high MET" );
-  high450.addSelection( &highMT2W );
-  high450.addSelection( &MET_450_inf );
-  high450.addSelection( &nJetsGe4 );
+  high450.addSelections( 3, &highMT2W, &MET_450_inf, &nJetsGe4 );
 
   sigRegion inclusive( "inclusive", "Inclusive" );
 

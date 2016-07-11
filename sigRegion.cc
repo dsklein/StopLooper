@@ -56,6 +56,16 @@ sigRegion::sigRegion( std::string mylabel, std::string tabName, std::string root
 
 void sigRegion::addSelection( selectionBase* mySelection ) { selections.push_back(mySelection); }
 
+void sigRegion::addSelections( int count, ... ) {
+  va_list args;
+  va_start( args, count );
+  for( int i=0; i<count; i++ ) {
+	selectionBase* mySel = va_arg( args, selectionBase* );
+	selections.push_back( mySel );
+  }
+  va_end( args );
+}
+
 TString sigRegion::GetLabel()     { return static_cast<TString>(label);      }
 TString sigRegion::GetTableName() { return static_cast<TString>(name_table); }
 TString sigRegion::GetRootName()  { return static_cast<TString>(name_root);  }
