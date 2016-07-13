@@ -146,62 +146,45 @@ int main( int argc, char* argv[] ) {
   selection<bool>   j1NoTag( &j1_isBtag, false );
 
 
-  sigRegion compr250( "compr250", "Compressed, low MET" );
-  compr250.addSelections( 3, &MET_250_350, &nJetsEq2, &modTop );
-
-  sigRegion compr350( "compr350", "Compressed, high MET" );
-  compr350.addSelections( 3, &MET_350_inf, &nJetsEq2, &modTop );
-
-  sigRegion boost250( "boost250", "Boosted, high MT2W, low MET" );
-  boost250.addSelections( 3, &MET_250_350, &nJetsEq3, &highMT2W );
-
-  sigRegion boost350( "boost350", "Boosted, high MT2W, high MET" );
-  boost350.addSelections( 3, &MET_350_inf, &nJetsEq3, &highMT2W );
-
-  sigRegion low250( "low250", "Low dM, low MET" );
-  low250.addSelections( 3, &lowMT2W, &MET_250_325, &nJetsGe4 );
-
-  sigRegion low325( "low325", "Low dM, high MET" );
-  low325.addSelections( 3, &lowMT2W, &MET_325_inf, &nJetsGe4 );
-
-  sigRegion high250( "high250", "High dM, low MET" );
-  high250.addSelections( 3, &highMT2W, &MET_250_350, &nJetsGe4 );
-
-  sigRegion high350( "high350", "High dM, mid MET" );
-  high350.addSelections( 3, &highMT2W, &MET_350_450, &nJetsGe4 );
-
-  sigRegion high450( "high450", "High dM, high MET" );
-  high450.addSelections( 3, &highMT2W, &MET_450_inf, &nJetsGe4 );
-
-  sigRegion inclusive( "inclusive", "Inclusive" );
-
+  sigRegion compr250(    "compr250",    "Compressed, low MET" );
+  sigRegion compr350(    "compr350",    "Compressed, high MET" );
+  sigRegion boost250(    "boost250",    "Boosted, high MT2W, low MET" );
+  sigRegion boost350(    "boost350",    "Boosted, high MT2W, high MET" );
+  sigRegion low250(      "low250",      "Low dM, low MET" );
+  sigRegion low325(      "low325",      "Low dM, high MET" );
+  sigRegion high250(     "high250",     "High dM, low MET" );
+  sigRegion high350(     "high350",     "High dM, mid MET" );
+  sigRegion high450(     "high450",     "High dM, high MET" );
+  sigRegion inclusive(   "inclusive",   "Inclusive" );
   sigRegion corridor250( "corridor250", "Corridor, low MET" );
-  corridor250.addSelections( 4, &nJetsGe5, &j1Pt200, &j1NoTag, &MET_250_350 );
-
   sigRegion corridor350( "corridor350", "Corridor, high MET" );
-  corridor350.addSelections( 4, &nJetsGe5, &j1Pt200, &j1NoTag, &MET_350_inf );
 
-  std::vector<sigRegion> compressed  = {compr250,  compr350};
-  std::vector<sigRegion> boosted     = {boost250,  boost350};
-  std::vector<sigRegion> lowDMreg    = {low250,  low325};
-  std::vector<sigRegion> highDMreg = {high250, high350, high450};
-  std::vector<sigRegion> inclReg = {inclusive};
-  std::vector<sigRegion> corridor = {corridor250, corridor350};
-  srAnalysis->AddSigRegs( compressed );
-  srAnalysis->AddSigRegs( boosted );
-  srAnalysis->AddSigRegs( lowDMreg );
-  srAnalysis->AddSigRegs( highDMreg );
-  srAnalysis->AddSigRegs( inclReg );
-  srAnalysis->AddSigRegs( corridor );
-
-  crLostLep->AddSigRegs( compressed );
-  crLostLep->AddSigRegs( boosted );
-  crLostLep->AddSigRegs( lowDMreg );
-  crLostLep->AddSigRegs( highDMreg );
-  crLostLep->AddSigRegs( inclReg );
-  crLostLep->AddSigRegs( corridor );
+  compr250.AddSelections(    {&nJetsEq2, &MET_250_350, &modTop}   );
+  compr350.AddSelections(    {&nJetsEq2, &MET_350_inf, &modTop}   );
+  boost250.AddSelections(    {&nJetsEq3, &MET_250_350, &highMT2W} );
+  boost350.AddSelections(    {&nJetsEq3, &MET_350_inf, &highMT2W} );
+  low250.AddSelections(      {&nJetsGe4, &MET_250_325, &lowMT2W}  );
+  low325.AddSelections(      {&nJetsGe4, &MET_325_inf, &lowMT2W}  );
+  high250.AddSelections(     {&nJetsGe4, &MET_250_350, &highMT2W} );
+  high350.AddSelections(     {&nJetsGe4, &MET_350_450, &highMT2W} );
+  high450.AddSelections(     {&nJetsGe4, &MET_450_inf, &highMT2W} );
+  corridor250.AddSelections( {&nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag} );
+  corridor350.AddSelections( {&nJetsGe5, &MET_350_inf, &j1Pt200, &j1NoTag} );
 
 
+  srAnalysis->AddSigRegs( {compr250, compr350} );
+  srAnalysis->AddSigRegs( {boost250, boost350} );
+  srAnalysis->AddSigRegs( {low250,  low325} );
+  srAnalysis->AddSigRegs( {high250, high350, high450} );
+  srAnalysis->AddSigRegs( {inclusive} );
+  srAnalysis->AddSigRegs( {corridor250, corridor350} );
+
+  crLostLep->AddSigRegs( {compr250, compr350} );
+  crLostLep->AddSigRegs( {boost250, boost350} );
+  crLostLep->AddSigRegs( {low250,  low325} );
+  crLostLep->AddSigRegs( {high250, high350, high450} );
+  crLostLep->AddSigRegs( {inclusive} );
+  crLostLep->AddSigRegs( {corridor250, corridor350} );
 
 
 
