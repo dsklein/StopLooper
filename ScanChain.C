@@ -34,6 +34,10 @@ using namespace tas;
 
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > LorentzVector;
 
+// Global variables used in defining signal regions
+extern bool j1_isBtag;
+extern double j1pt;
+
 
 int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fast = true) {
 
@@ -354,10 +358,14 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	  yield_njets += evtWeight;
 	  yGen_njets++;
 
+	  j1pt = ak4pfjets_pt().at(0);
+
 	  // B-tag requirement
 	  if( ngoodbtags() < 1 ) continue;
 	  yield_1bjet += evtWeight;
 	  yGen_1bjet++;
+
+	  j1_isBtag = ak4pfjets_passMEDbtag().at(0);
 
 	  // Baseline MET cut
 	  if( pfmet() <= 250. ) continue;

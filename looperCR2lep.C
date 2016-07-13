@@ -34,6 +34,10 @@ using namespace tas;
 
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > LorentzVector;
 
+// Global variables used in defining signal regions
+extern bool j1_isBtag;
+extern double j1pt;
+
 
 int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fast = true) {
 
@@ -334,11 +338,6 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 	  int countGoodLeps = 0;
 
-	  // Second lepton veto
-	  // if( nvetoleps() > 1 && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) > 0.01 ) continue;
-	  // yield_2lepveto += evtWeight;
-	  // yGen_2lepveto++;
-
 	  // Count the number of veto leptons, but subtract one if lep1 and lep2 overlap
 	  countGoodLeps += nvetoleps();
 
@@ -355,11 +354,6 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		  yGen_2lepveto++;
 	  }
 
-	  // Track veto
-	  // if( !PassTrackVeto_v3() ) continue;
-	  // yield_trkVeto += evtWeight;
-	  // yGen_trkVeto++;
-
 	  // If we fail the track veto, count another good lepton
 	  if( !PassTrackVeto_v3() ) {
 		countGoodLeps++;
@@ -367,11 +361,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		yGen_trkVeto++;
 	  }
 
-	  // Tau veto
-	  // if( !PassTauVeto() ) continue;
-	  // yield_tauVeto += evtWeight;
-	  // yGen_tauVeto++;
-
+	  // If we fail the tau veto, count another good lepton
 	  if( !PassTauVeto() ) {
 		countGoodLeps++;
 		yield_tauVeto += evtWeight;
@@ -381,7 +371,6 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  if( countGoodLeps < 2 ) continue;
 	  yield_2lepCR += evtWeight;
 	  yGen_2lepCR++;
-
 
 
 	  ////////////////////
@@ -400,10 +389,14 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  yield_njets += evtWeight;
 	  yGen_njets++;
 
+	  j1pt = ak4pfjets_pt().at(0);
+
 	  // B-tag requirement
 	  if( ngoodbtags() < 1 ) continue;
 	  yield_1bjet += evtWeight;
 	  yGen_1bjet++;
+
+	  j1_isBtag = ak4pfjets_passMEDbtag().at(0);
 
 	  // Baseline MET cut
 	  if( pfmet() <= 250. ) continue;

@@ -10,6 +10,14 @@
 
 #include "CMS3.h"
 
+
+// Global variables, for use in defining signal regions
+extern bool j1_isBtag;
+extern double j1pt;
+
+bool j1_isBtag;
+double j1pt;
+
 // Help with program options
 void printHelp() {
   std::cout << "\nUsage: ./runLooper [arg]\n" << std::endl;
@@ -127,11 +135,15 @@ int main( int argc, char* argv[] ) {
   selection<int> nJetsEq2( (*tas::ngoodjets), 2 );
   selection<int> nJetsEq3( (*tas::ngoodjets), 3 );
   selection<int> nJetsGe4( (*tas::ngoodjets), 4, 9999999 );
+  selection<int> nJetsGe5( (*tas::ngoodjets), 5, 9999999 );
 
   selection<float>  lowMT2W( (*tas::MT2W),   0., 200.     );
   selection<float> highMT2W( (*tas::MT2W), 200., 9999999. );
 
   selection<float> modTop( (*tas::topnessMod), 6.4, 999999. );
+
+  selection<double> j1Pt200( &j1pt, 200., 999999. );
+  selection<bool>   j1NoTag( &j1_isBtag, false );
 
 
   sigRegion compr250( "compr250", "Compressed, low MET" );
@@ -163,22 +175,32 @@ int main( int argc, char* argv[] ) {
 
   sigRegion inclusive( "inclusive", "Inclusive" );
 
+  sigRegion corridor250( "corridor250", "Corridor, low MET" );
+  corridor250.addSelections( 4, &nJetsGe5, &j1Pt200, &j1NoTag, &MET_250_350 );
+
+  sigRegion corridor350( "corridor350", "Corridor, high MET" );
+  corridor350.addSelections( 4, &nJetsGe5, &j1Pt200, &j1NoTag, &MET_350_inf );
+
   std::vector<sigRegion> compressed  = {compr250,  compr350};
   std::vector<sigRegion> boosted     = {boost250,  boost350};
   std::vector<sigRegion> lowDMreg    = {low250,  low325};
   std::vector<sigRegion> highDMreg = {high250, high350, high450};
   std::vector<sigRegion> inclReg = {inclusive};
+  std::vector<sigRegion> corridor = {corridor250, corridor350};
   srAnalysis->AddSigRegs( compressed );
   srAnalysis->AddSigRegs( boosted );
   srAnalysis->AddSigRegs( lowDMreg );
   srAnalysis->AddSigRegs( highDMreg );
   srAnalysis->AddSigRegs( inclReg );
+  srAnalysis->AddSigRegs( corridor );
 
   crLostLep->AddSigRegs( compressed );
   crLostLep->AddSigRegs( boosted );
   crLostLep->AddSigRegs( lowDMreg );
   crLostLep->AddSigRegs( highDMreg );
   crLostLep->AddSigRegs( inclReg );
+  crLostLep->AddSigRegs( corridor );
+
 
 
 
