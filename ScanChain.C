@@ -79,7 +79,6 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
   TH1D *h_ptj1[nSigRegs];
   TH1D *h_j1btag[nSigRegs];
 
-
   vector<TString> regNames = myAnalysis->GetSigRegionLabelsAll();
   vector<sigRegion> sigRegions = myAnalysis->GetSigRegionsAll();
 
