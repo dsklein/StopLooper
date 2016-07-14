@@ -76,6 +76,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   TH1D *h_dphilw[nSigRegs];
   TH1D *h_njets[nSigRegs];
   TH1D *h_nbtags[nSigRegs];
+  TH1D *h_ptj1[nSigRegs];
+  TH1D *h_j1btag[nSigRegs];
 
   vector<TString> regNames = myAnalysis->GetSigRegionLabelsAll();
   vector<sigRegion> sigRegions = myAnalysis->GetSigRegionsAll();
@@ -98,6 +100,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	h_dphilw[i]   = new TH1D( Form( "dphilw_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "#Delta#phi (lep,W)",		50, 0, 3.5);
 	h_njets[i]    = new TH1D( Form( "njets_%s_%s"   , sampleName.Data(), regNames.at(i).Data()), "Number of jets",            16, -0.5, 15.5);
 	h_nbtags[i]   = new TH1D( Form( "nbtags_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "Number of b-tags",          7, -0.5, 6.5);
+	h_ptj1[i]     = new TH1D( Form( "ptj1_%s_%s"    , sampleName.Data(), regNames[i].c_str()), "Leading jet p_{T}",        40, 0, 1000);
+	h_j1btag[i]   = new TH1D( Form( "j1btag_%s_%s"  , sampleName.Data(), regNames[i].c_str()), "Is leading jet b-tagged?", 4, -0.5, 1.5);
 
 	h_bgtype[i]->SetDirectory(rootdir);
 	h_evttype[i]->SetDirectory(rootdir);
@@ -116,6 +120,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	h_dphilw[i]->SetDirectory(rootdir);
 	h_njets[i]->SetDirectory(rootdir);
 	h_nbtags[i]->SetDirectory(rootdir);
+	h_ptj1[i]->SetDirectory(rootdir);
+	h_j1btag[i]->SetDirectory(rootdir);
 
 	TAxis* axis = h_bgtype[i]->GetXaxis();
 	axis->SetBinLabel( 1, "ZtoNuNu" );
@@ -458,6 +464,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		h_dphilw[i]->Fill(  dphi_Wlep(),				evtWeight );
 		h_njets[i]->Fill(   ngoodjets(),                evtWeight );
 		h_nbtags[i]->Fill(  ngoodbtags(),               evtWeight );
+		h_ptj1[i]->Fill(    ak4pfjets_pt().at(0),       evtWeight );
+		h_j1btag[i]->Fill(  j1_isBtag,                  evtWeight );
 
 		h_yields->Fill(     float(i+1),                 evtWeight );
 
@@ -545,6 +553,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	h_dphilw[j]->Write();
 	h_njets[j]->Write();
 	h_nbtags[j]->Write();
+	h_ptj1[j]->Write();
+	h_j1btag[j]->Write();
 
 	// Build up histo of signal yields
 	if( mySample->IsSignal() ) {
@@ -579,6 +589,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	delete h_dphilw[j];
 	delete h_njets[j];
 	delete h_nbtags[j];
+	delete h_ptj1[j];
+	delete h_j1btag[j];
   }
   delete h_yields;
 

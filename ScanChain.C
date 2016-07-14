@@ -76,6 +76,9 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
   TH1D *h_dphilw[nSigRegs];
   TH1D *h_njets[nSigRegs];
   TH1D *h_nbtags[nSigRegs];
+  TH1D *h_ptj1[nSigRegs];
+  TH1D *h_j1btag[nSigRegs];
+
 
   vector<TString> regNames = myAnalysis->GetSigRegionLabelsAll();
   vector<sigRegion> sigRegions = myAnalysis->GetSigRegionsAll();
@@ -98,6 +101,8 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	h_dphilw[i]   = new TH1D( Form( "dphilw_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "#Delta#phi (lep,W)",		50, 0, 3.5);
 	h_njets[i]    = new TH1D( Form( "njets_%s_%s"   , sampleName.Data(), regNames.at(i).Data()), "Number of jets",            16, -0.5, 15.5);
 	h_nbtags[i]   = new TH1D( Form( "nbtags_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "Number of b-tags",          7, -0.5, 6.5);
+	h_ptj1[i]     = new TH1D( Form( "ptj1_%s_%s"    , sampleName.Data(), regNames.at(i).Data()), "Leading jet p_{T}",        40, 0, 1000);
+	h_j1btag[i]   = new TH1D( Form( "j1btag_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "Is leading jet b-tagged?", 4, -0.5, 1.5);
 
 	h_bgtype[i]->SetDirectory(rootdir);
 	h_evttype[i]->SetDirectory(rootdir);
@@ -116,6 +121,8 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	h_dphilw[i]->SetDirectory(rootdir);
 	h_njets[i]->SetDirectory(rootdir);
 	h_nbtags[i]->SetDirectory(rootdir);
+	h_ptj1[i]->SetDirectory(rootdir);
+	h_j1btag[i]->SetDirectory(rootdir);
 
 	TAxis* axis = h_bgtype[i]->GetXaxis();
 	axis->SetBinLabel( 1, "ZtoNuNu" );
@@ -427,6 +434,8 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 		h_dphilw[i]->Fill(  dphi_Wlep(),				evtWeight );
 		h_njets[i]->Fill(   ngoodjets(),                evtWeight );
 		h_nbtags[i]->Fill(  ngoodbtags(),               evtWeight );
+		h_ptj1[i]->Fill(    j1pt,                       evtWeight );
+		h_j1btag[i]->Fill(  j1_isBtag,                  evtWeight );
 
 		h_yields->Fill(     float(i+1),                 evtWeight );
 
@@ -523,6 +532,9 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	TH1D* hTemp = (TH1D*)plotfile->Get( h_evttype[j]->GetName() );
 	if( hTemp != 0 ) h_evttype[j]->Add( hTemp );
 	h_evttype[j]->Write( "", TObject::kOverwrite );
+
+	h_ptj1[j]->Write();
+	h_j1btag[j]->Write();
   }
   h_yields->Write();
 
@@ -545,6 +557,8 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	delete h_dphilw[j];
 	delete h_njets[j];
 	delete h_nbtags[j];
+	delete h_ptj1[j];
+	delete h_j1btag[j];
   }
   delete h_yields;
 

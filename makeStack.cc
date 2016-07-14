@@ -28,6 +28,9 @@ void makeStack( analysis* myAnalysis) {
   varNames.push_back("bkgtype");  axisLabels.push_back("Background type");
   varNames.push_back("njets"  );  axisLabels.push_back("Number of jets");
   varNames.push_back("nbtags" );  axisLabels.push_back("Number of b-tags");
+  varNames.push_back("ptj1"   );  axisLabels.push_back("p_{T}");
+  varNames.push_back("j1btag" );  axisLabels.push_back("b-tagged?");
+
 
   // Get the signal region names
   vector<TString>  regNames = myAnalysis->GetSigRegionLabelsAll();
