@@ -115,6 +115,31 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
   h_mcstats->Write();
 
 
+  ////////////////////////////////////////////////////////////////////
+  // Print out a table with the details of the lost lepton estimate
+
+  //  Print table header
+  cout << "\nLost lepton background estimate (stat errors only)\n" << endl;
+  cout << "\\begin{tabular}{ | l | c | c | c | }" << endl;
+  cout << "\\hline" << endl;
+  cout << "Signal region  &  $N^{CR}$  &  Transfer factor  &  $N_{est}^{SR}$ \\\\" << endl;
+  cout << "\\hline" << endl;
+
+  // Loop through signal regions and print out table rows
+  uint binOffset = 1;
+  for( vector<sigRegion> sigRegs : srAnalysis->GetSigRegions() ) {
+	for( uint i=0; i<sigRegs.size(); i++ ) {
+
+	  printf( "%30s & %3d &  %5.3f $\\pm$ %5.3f  &  %5.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i).GetTableName().Data(),
+			  int(h_crData->GetBinContent(i+binOffset)), h_mcRatio->GetBinContent(i+binOffset), h_mcRatio->GetBinError(i+binOffset),
+			  h_bkgEstimate->GetBinContent(i+binOffset), h_bkgEstimate->GetBinError(i+binOffset) );
+
+	}
+	binOffset += sigRegs.size();
+	cout << "\\hline" << endl;
+  }
+  cout << "\\end{tabular}\n" << endl;
+
 
   // Clean up
   outFile->Close();
