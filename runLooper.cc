@@ -26,11 +26,11 @@ void printHelp() {
 int main( int argc, char* argv[] ) {
 
 
-  TString bkgPath = "/nfs-6/userdata/mliu/onelepbabies/V08-00-01/";
-  TString llepPath = "/nfs-6/userdata/mliu/onelepbabies/V08-00-01/";
+  TString bkgPath = "/nfs-6/userdata/mliu/onelepbabies/V80_7p65_v2/";
+  TString llepPath = "/nfs-6/userdata/mliu/onelepbabies/V80_7p65_v2/";
   TString dataPath = "/hadoop/cms/store/user/jgwood/condor/stop_1l_babies/stop_babies__CMS3_V080005__BabyMaker_V0800X_v1__20160612/merged_files/";
 
-  // TString sigPath = "/nfs-7/userdata/stopRun2/signalbabies/";
+  TString sigPath = "/hadoop/cms/store/user/haweber/condor/stop1l_2016/stop_babies_V080009_signal_norm_v2/merged_files/";
 
 
   ////////////////////////////////////////////////////////////////
@@ -92,9 +92,9 @@ int main( int argc, char* argv[] ) {
   //                             new sample( "Label",  "Display name",    TColor,    sampleType )
 
   // sample* data    = srAnalysis->AddSample( "data",    "Data",           kBlack,    sample::kData );
-  // sample* signal  = srAnalysis->AddSample( "signal", "T2tt",            kBlue+3,   sample::kSignal );
-  // signal->AddFile( sigPath + "Signal_T2tt.root" );
-  // crLostLep->AddSample( signal );
+  sample* signal  = srAnalysis->AddSample( "signal", "T2tt",            kBlue+3,   sample::kSignal );
+  signal->AddFile( sigPath + "Signal_T2tt*.root" );
+  crLostLep->AddSample( signal );
 
   sample* tt2l    = srAnalysis->AddSample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
   sample* tt1l    = srAnalysis->AddSample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
@@ -200,7 +200,7 @@ int main( int argc, char* argv[] ) {
 
 	// Run ScanChain on all samples
 	// ScanChain( srAnalysis, data    );
-	// ScanChain( srAnalysis, signal  );
+	ScanChain( srAnalysis, signal  );
 	ScanChain( srAnalysis, tt2l    );
 	ScanChain( srAnalysis, tt1l    );
 	ScanChain( srAnalysis, singtop );
@@ -249,6 +249,7 @@ int main( int argc, char* argv[] ) {
 	outfile->Close();
 
 	looperCR2lep( crLostLep, CRdata );
+	looperCR2lep( crLostLep, signal );
 	looperCR2lep( crLostLep, CRtt2l );
 	looperCR2lep( crLostLep, CRtt1l );
 	looperCR2lep( crLostLep, CRsingtop );
