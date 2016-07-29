@@ -216,6 +216,8 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
     badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/badResolutionTrack_Jan13.txt");
     badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/muonBadTrack_Jan13.txt");
     cout << " ... finished!" << endl;
+
+	duplicate_removal::clear_list();
   }
 
 

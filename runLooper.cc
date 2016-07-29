@@ -101,12 +101,10 @@ int main( int argc, char* argv[] ) {
   analysis* srAnalysis = new analysis( 2.07, "plots.root" );
   analysis* crLostLep  = new analysis( 2.07, "plotsLL.root" );
 
-  //                             new sample( "Label",  "Display name",    TColor,    sampleType )
+  //                           new sample( "Label",  "Display name",    TColor,    sampleType )
 
-  // sample* data    = srAnalysis->AddSample( "data",    "Data",           kBlack,    sample::kData );
-  sample* signal  = srAnalysis->AddSample( "signal", "T2tt",            kBlue+3,   sample::kSignal );
-  signal->AddFile( sigPath + "Signal_T2tt*.root" );
-  crLostLep->AddSample( signal );
+  sample* data    =            new sample( "data",    "Data",           kBlack,    sample::kData );
+  sample* signal  = srAnalysis->AddSample( "signal",  "T2tt",           kBlue+3,   sample::kSignal );
 
   sample* tt2l    = srAnalysis->AddSample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
   sample* tt1l    = srAnalysis->AddSample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
@@ -115,15 +113,15 @@ int main( int argc, char* argv[] ) {
   sample* dy      = srAnalysis->AddSample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
   sample* rare    = srAnalysis->AddSample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
 
-  sample* CRdata    = crLostLep->AddSample( "data", "Data",              kBlack,    sample::kData );
-
-  // sample* CRttbar   = crLostLep->AddSample( "ttbar", "$t\\bar{t}$", "t#bar{t}", kCyan-3,   sample::kBackground );
-  sample* CRtt2l    = crLostLep->AddSample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
-  sample* CRtt1l    = crLostLep->AddSample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
-  sample* CRsingtop = crLostLep->AddSample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
-  sample* CRwjets   = crLostLep->AddSample( "wjets",   "W+Jets",         kOrange-2, sample::kBackground );
-  sample* CRdy      = crLostLep->AddSample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
-  sample* CRrare    = crLostLep->AddSample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
+  // srAnalysis->AddSample( data );   // Uncomment this line to unblind
+  crLostLep->AddSample( data );
+  crLostLep->AddSample( signal );
+  crLostLep->AddSample( tt2l );
+  crLostLep->AddSample( tt1l );
+  crLostLep->AddSample( singtop );
+  crLostLep->AddSample( wjets );
+  crLostLep->AddSample( dy );
+  crLostLep->AddSample( rare );
 
 
   //////////////////////////////////////////////
@@ -192,29 +190,20 @@ int main( int argc, char* argv[] ) {
 
 
 
-  //////////////////////////////////////////////
-  // Make chains and run ScanChain
+  /////////////////////
+  // Make chains
 
-  if( runlooper ) {
+  if( runlooper || runlostlep ) {
 
 	// Data samples
+	data->AddFile( dataPath + "data_met_Run2016B_MINIAOD_PromptReco-v2.root" );
+	data->AddFile( dataPath + "data_single_electron_Run2016B_MINIAOD_PromptReco-v2.root" );
+	data->AddFile( dataPath + "data_single_muon_Run2016B_MINIAOD_PromptReco-v2.root" );
 
-	// data->AddFile( bkgPath + "data_met_2015C_25ns_skimmed.root" );
-	// data->AddFile( bkgPath + "data_met_2015D_05Oct2015_v1_25ns_skimmed.root" );
-	// data->AddFile( bkgPath + "data_met_2015D_promptRecoV4_25ns_skimmed.root" );
-	// data->AddFile( bkgPath + "data_single_electron_2015C_25ns_skimmed.root" );
-	// data->AddFile( bkgPath + "data_single_electron_2015D_05Oct2015_v1_25ns_skimmed.root" );
-	// data->AddFile( bkgPath + "data_single_electron_2015D_promptRecoV4_25ns_skimmed.root" );
-	// data->AddFile( bkgPath + "data_single_muon_2015C_25ns_skimmed.root" );
-	// data->AddFile( bkgPath + "data_single_muon_2015D_05Oct2015_v1_25ns_skimmed.root" );
-	// data->AddFile( bkgPath + "data_single_muon_2015D_promptRecoV4_25ns_skimmed.root" );
-
-	// Signal samples
-	// See above^
-
+	// Signal sample(s)
+	signal->AddFile( sigPath + "Signal_T2tt*.root" );
 
 	// Background samples
-
 	tt2l->AddFile( bkgPath + "ttbar_diLept_madgraph_pythia8_ext1*25ns*.root" );
 
 	tt1l->AddFile( bkgPath + "ttbar_singleLeptFromT_madgraph_pythia8_*.root" );
@@ -246,10 +235,14 @@ int main( int argc, char* argv[] ) {
 	rare->AddFile( bkgPath + "ZZTo2L2Q_amcnlo_pythia8_25ns.root" );
 	rare->AddFile( bkgPath + "ZZTo2L2Nu_powheg_pythia8_25ns.root" );
 	rare->AddFile( bkgPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns.root" );
+  }
 
+  ///////////////////////////////////////
+  // Run ScanChain (signal regions)
 
+  if( runlooper ) {
 
-	// Reset output files
+	// Reset output file
 	TFile* outfile = new TFile( srAnalysis->GetFileName(), "RECREATE");
 	outfile->Close();
 
@@ -263,36 +256,7 @@ int main( int argc, char* argv[] ) {
 
   if( runlostlep ) {
 
-	CRdata->AddFile( dataPath + "data_met_Run2016B_MINIAOD_PromptReco-v2.root" );
-	CRdata->AddFile( dataPath + "data_single_electron_Run2016B_MINIAOD_PromptReco-v2.root" );
-	CRdata->AddFile( dataPath + "data_single_muon_Run2016B_MINIAOD_PromptReco-v2.root" );
-	CRtt2l->AddFile( llepPath + "ttbar_diLept_madgraph_pythia8_ext1*25ns*.root" );
-	CRtt1l->AddFile( llepPath + "ttbar_singleLeptFromT_madgraph_pythia8_*.root" );
-	CRtt1l->AddFile( llepPath + "ttbar_singleLeptFromTbar_madgraph_pythia8_ext1*.root" );
-	CRwjets->AddFile( llepPath + "WJetsToLNu_HT*.root" );
-	CRdy->AddFile( llepPath + "DYJetsToLL_m10To50_amcnlo_pythia8_25ns.root" );
-	CRdy->AddFile( llepPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns.root" );
-	CRsingtop->AddFile( llepPath + "t_sch_4f_amcnlo_pythia8_25ns.root" );
-	// CRsingtop->AddFile( llepPath + "t_tch_4f_powheg_pythia8_25ns.root" );
-	// CRsingtop->AddFile( llepPath + "tbar_tch_4f_powheg_pythia8_25ns.root" );
-	CRsingtop->AddFile( llepPath + "t_tW_5f_powheg_pythia8_25ns.root" );
-	CRsingtop->AddFile( llepPath + "t_tbarW_5f_powheg_pythia8_25ns.root" );
-	CRrare->AddFile( llepPath + "TTWJetsToLNu_amcnlo_pythia8_25ns.root" );
-	CRrare->AddFile( llepPath + "TTWJetsToQQ_amcnlo_pythia8_25ns.root" );
-	CRrare->AddFile( llepPath + "TTZToLLNuNu_M-10_amcnlo_pythia8_25ns.root" );
-	CRrare->AddFile( llepPath + "TTZToQQ_amcnlo_pythia8_25ns.root" );
-	// CRrare->AddFile( llepPath + "tZq_ll_4f_amcnlo_pythia8_25ns.root" );
-	// CRrare->AddFile( llepPath + "tZq_nunu_4f_amcnlo_pythia8_25ns.root" );
-	CRrare->AddFile( llepPath + "WWTo2l2Nu_powheg_25ns.root" );
-	CRrare->AddFile( llepPath + "WWToLNuQQ_powheg_25ns.root" );
-	CRrare->AddFile( llepPath + "WZTo3LNu_powheg_pythia8_25ns.root" );
-	CRrare->AddFile( llepPath + "WZTo2L2Q_amcnlo_pythia8_25ns.root" );
-	CRrare->AddFile( llepPath + "WZTo1LNu2Q_amcnlo_pythia8_25ns.root" );
-	// CRrare->AddFile( llepPath + "ZZTo4L_powheg_pythia8_25ns.root" );
-	CRrare->AddFile( llepPath + "ZZTo2L2Q_amcnlo_pythia8_25ns.root" );
-	CRrare->AddFile( llepPath + "ZZTo2L2Nu_powheg_pythia8_25ns.root" );
-	CRrare->AddFile( llepPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns.root" );
-
+	// Reset output file
 	TFile* outfile = new TFile( crLostLep->GetFileName(), "RECREATE");
 	outfile->Close();
 
@@ -302,8 +266,8 @@ int main( int argc, char* argv[] ) {
   }
 
 
-  /////////////////////////////////////////////////////
-  // Make stacked histograms and/or yield tables
+  //////////////////////////////////
+  // Make all the various outputs 
 
   if( runtables   ) makeTables( srAnalysis );
   if( runlostlep  ) makeTables( crLostLep  );
