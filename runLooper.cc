@@ -38,9 +38,9 @@ void printHelp() {
 int main( int argc, char* argv[] ) {
 
 
-  TString bkgPath = "/nfs-6/userdata/mliu/onelepbabies/V80_7p65_v2/";
   TString sigPath = "/hadoop/cms/store/user/haweber/condor/stop1l_2016/stop_babies_V080009_signal_norm_v2/merged_files/";
-  TString dataPath = "/hadoop/cms/store/user/jgwood/condor/stop_1l_babies/stop_babies__CMS3_V080005__BabyMaker_V0800X_v1__20160612/merged_files/";
+  TString bkgPath = "/hadoop/cms/store/user/jgwood/condor/stop_1l_babies/stop_babies__CMS3_V080005__BabyMaker_V0800X_v8__20160729/merged_files/";
+  TString dataPath = "/hadoop/cms/store/user/isuarez/condor/stop_1l_babies/stop_babies__CMS3_V080005__BabyMaker_V0800X_v7__20160722/merged_files/";
 
 
   ////////////////////////////////////////////////////////////////
@@ -96,8 +96,8 @@ int main( int argc, char* argv[] ) {
   ////////////////////////////////////////////////////////////////////////////////////////
   // Make "analysis" objects out of "samples"
 
-  analysis* srAnalysis = new analysis( 2.07, "plots.root" );
-  analysis* crLostLep  = new analysis( 2.07, "plotsLL.root" );
+  analysis* srAnalysis = new analysis( 12.9, "plots.root" );
+  analysis* crLostLep  = new analysis( 12.9, "plotsLL.root" );
 
   //                           new sample( "Label",  "Display name",    TColor,    sampleType )
 
@@ -208,9 +208,9 @@ int main( int argc, char* argv[] ) {
   if( runlooper || runlostlep ) {
 
 	// Data samples
-	data->AddFile( dataPath + "data_met_Run2016B_MINIAOD_PromptReco-v2.root" );
-	data->AddFile( dataPath + "data_single_electron_Run2016B_MINIAOD_PromptReco-v2.root" );
-	data->AddFile( dataPath + "data_single_muon_Run2016B_MINIAOD_PromptReco-v2.root" );
+	data->AddFile( dataPath + "data_met_Run2016*_MINIAOD_PromptReco-v2*.root" );
+	data->AddFile( dataPath + "data_single_electron_Run2016*_MINIAOD_PromptReco-v2*.root" );
+	data->AddFile( dataPath + "data_single_muon_Run2016*_MINIAOD_PromptReco-v2*.root" );
 
 	// Signal sample(s)
 	signal->AddFile( sigPath + "Signal_T2tt*.root" );

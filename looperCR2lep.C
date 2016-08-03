@@ -49,7 +49,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   TChain *chain = mySample->GetChain();
   TString sampleName = mySample->GetLabel();
   const int nSigRegs = myAnalysis->GetSigRegionsAll().size();
-  bool isFastsim = mySample->IsSignal();
+  // bool isFastsim = mySample->IsSignal();
   cout << "\nSample: " << sampleName.Data() << endl;
 
   /////////////////////////////////////////////////////////
@@ -279,7 +279,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  if( is_data() || mySample->IsData() ) evtWeight = 1.;
 	  else if( mySample->IsSignal() ) {
 		TH2F* hNEvts = (TH2F*)file.Get("histNEvts");
-		TH3D* hCounter = (TH3D*)file.Get("h_counterSMS");
+		// TH3D* hCounter = (TH3D*)file.Get("h_counterSMS");
 		double nEvtsSample = hNEvts->GetBinContent( hNEvts->FindBin( mass_stop(), mass_lsp() ) );
 		// int binx = hCounter->GetXaxis()->FindBin( mass_stop() );
 		// int biny = hCounter->GetYaxis()->FindBin( mass_lsp()  );
