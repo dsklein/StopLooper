@@ -403,18 +403,18 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 	  j1_isBtag = ak4pfjets_passMEDbtag().at(0);
 
-	  // Baseline MET cut
-	  if( pfmet() <= 250. ) continue;
+	  // Baseline MET cut (with 2nd lepton pT added to MET)
+	  if( pfmet_rl() <= 250. ) continue;
 	  yield_METcut += evtWeight;
 	  yGen_METcut++;
 
-	  // MT cut
-	  if( mt_met_lep() <= 150. ) continue;
+	  // MT cut (with 2nd lepton pT added to MET)
+	  if( mt_met_lep_rl() <= 150. ) continue;
 	  yield_MTcut += evtWeight;
 	  yGen_MTcut++;
 
-	  // Min delta-phi between MET and j1/j2
-	  if( mindphi_met_j1_j2() <= 0.8 ) continue;
+	  // Min delta-phi between MET and j1/j2 (with 2nd lepton pT added to MET)
+	  if( mindphi_met_j1_j2_rl() <= 0.8 ) continue;
 	  yield_dPhi += evtWeight;
 	  yGen_dPhi++;
 
@@ -440,12 +440,12 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  else                            evtType = 2+category;
 
 	  // Quickly calculate some variables
-	  double metSqHT = pfmet() / sqrt( ak4_HT() );
+	  double metSqHT = pfmet_rl() / sqrt( ak4_HT() );
 
 	  const TVector3 lepVec( lep1_p4().x(), lep1_p4().y(), lep1_p4().z() );
-	  const TVector3 metVec( pfmet()*cos(pfmet_phi()), pfmet()*sin(pfmet_phi()), 0 );
+	  const TVector3 metVec( pfmet_rl()*cos(pfmet_phi_rl()), pfmet_rl()*sin(pfmet_phi_rl()), 0 );
 	  const TVector3 wVec = lepVec + metVec;
-	  double dPhiLepW = fabs( wVec.DeltaPhi(lepVec) );
+	  double dPhiLepW = fabs( lepVec.DeltaPhi(wVec) );
 
 	  double drLepLeadb = ROOT::Math::VectorUtil::DeltaR( lep1_p4(), ak4pfjets_leadMEDbjet_p4() );
 
@@ -460,12 +460,12 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		h_bgtype[i]->Fill( category,                    evtWeight );
 		h_evttype[i]->Fill( evtType,                    evtWeight );
 
-		h_mt[i]->Fill(      mt_met_lep(), 				evtWeight );
-		h_met[i]->Fill(     pfmet(),					evtWeight );
-		h_mt2w[i]->Fill(	MT2W(),   					evtWeight );
+		h_mt[i]->Fill(      mt_met_lep_rl(),			evtWeight );
+		h_met[i]->Fill(     pfmet_rl(),					evtWeight );
+		h_mt2w[i]->Fill(	MT2W_rl(), 					evtWeight );
 		h_chi2[i]->Fill(	hadronic_top_chi2(),		evtWeight );
 		h_htratio[i]->Fill( ak4_htratiom(),				evtWeight );
-		h_mindphi[i]->Fill( mindphi_met_j1_j2() ,		evtWeight );
+		h_mindphi[i]->Fill( mindphi_met_j1_j2_rl(),		evtWeight );
 		h_ptb1[i]->Fill(	ak4pfjets_leadMEDbjet_p4().pt(),	evtWeight );
 		h_drlb1[i]->Fill(   drLepLeadb,					evtWeight );
 		h_ptlep[i]->Fill(   lep1_p4().pt(),				evtWeight );

@@ -414,7 +414,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	  const TVector3 lepVec( lep1_p4().x(), lep1_p4().y(), lep1_p4().z() );
 	  const TVector3 metVec( pfmet()*cos(pfmet_phi()), pfmet()*sin(pfmet_phi()), 0 );
 	  const TVector3 wVec = lepVec + metVec;
-	  double dPhiLepW = fabs( wVec.DeltaPhi(lepVec) );
+	  double dPhiLepW = fabs( lepVec.DeltaPhi(wVec) );
 
 	  double drLepLeadb = ROOT::Math::VectorUtil::DeltaR( lep1_p4(), ak4pfjets_leadMEDbjet_p4() );
 
@@ -434,7 +434,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 		h_mt2w[i]->Fill(	MT2W(),   					evtWeight );
 		h_chi2[i]->Fill(	hadronic_top_chi2(),		evtWeight );
 		h_htratio[i]->Fill( ak4_htratiom(),				evtWeight );
-		h_mindphi[i]->Fill( mindphi_met_j1_j2() ,		evtWeight );
+		h_mindphi[i]->Fill( mindphi_met_j1_j2(),		evtWeight );
 		h_ptb1[i]->Fill(	ak4pfjets_leadMEDbjet_p4().pt(),	evtWeight );
 		h_drlb1[i]->Fill(   drLepLeadb,					evtWeight );
 		h_ptlep[i]->Fill(   lep1_p4().pt(),				evtWeight );

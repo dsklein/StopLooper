@@ -133,6 +133,15 @@ int main( int argc, char* argv[] ) {
   selection<float> MET_550_inf( (*tas::pfmet), 550., 9999999. );
   selection<float> MET_650_inf( (*tas::pfmet), 650., 9999999. );
 
+  selection<float> CR_MET_250_350( (*tas::pfmet_rl), 250., 350. );
+  selection<float> CR_MET_350_450( (*tas::pfmet_rl), 350., 450. );
+  selection<float> CR_MET_450_550( (*tas::pfmet_rl), 450., 550. );
+  selection<float> CR_MET_550_650( (*tas::pfmet_rl), 550., 650. );
+  selection<float> CR_MET_350_inf( (*tas::pfmet_rl), 350., 9999999. );
+  selection<float> CR_MET_450_inf( (*tas::pfmet_rl), 450., 9999999. );
+  selection<float> CR_MET_550_inf( (*tas::pfmet_rl), 550., 9999999. );
+  selection<float> CR_MET_650_inf( (*tas::pfmet_rl), 650., 9999999. );
+
   selection<int> nJetsEq2( (*tas::ngoodjets), 2 );
   selection<int> nJetsEq3( (*tas::ngoodjets), 3 );
   selection<int> nJetsGe4( (*tas::ngoodjets), 4, 9999999 );
@@ -140,8 +149,11 @@ int main( int argc, char* argv[] ) {
 
   selection<float>  lowMT2W( (*tas::MT2W),   0., 200.     );
   selection<float> highMT2W( (*tas::MT2W), 200., 9999999. );
+  selection<float>  CR_lowMT2W( (*tas::MT2W_rl),   0., 200.     );
+  selection<float> CR_highMT2W( (*tas::MT2W_rl), 200., 9999999. );
 
   selection<float> modTop( (*tas::topnessMod), 6.4, 999999. );
+  selection<float> CR_modTop( (*tas::topnessMod_rl), 6.4, 999999. );
 
   selection<double> j1Pt200( &j1pt, 200., 999999. );
   selection<bool>   j1NoTag( &j1_isBtag, false );
@@ -166,6 +178,25 @@ int main( int argc, char* argv[] ) {
   sigRegion corridor250( "corridor250", "Corridor, low MET" );
   sigRegion corridor350( "corridor350", "Corridor, high MET" );
 
+  sigRegion compr250CR(    "compr250CR",    "CR 2 jets, modTop, MET 250-350" );
+  sigRegion compr350CR(    "compr350CR",    "CR 2 jets, modTop, MET 350-450" );
+  sigRegion compr450CR(    "compr450CR",    "CR 2 jets, modTop, MET 450+" );
+  sigRegion boost250CR(    "boost250CR",    "CR 3 jets, high MT2W, MET 250-350" );
+  sigRegion boost350CR(    "boost350CR",    "CR 3 jets, high MT2W, MET 350-450" );
+  sigRegion boost450CR(    "boost450CR",    "CR 3 jets, high MT2W, MET 450-550" );
+  sigRegion boost550CR(    "boost550CR",    "CR 3 jets, high MT2W, MET 550+" );
+  sigRegion low250CR(      "low250CR",      "CR 4+ jets, low MT2W, MET 250-350" );
+  sigRegion low350CR(      "low350CR",      "CR 4+ jets, low MT2W, MET 350-450" );
+  sigRegion low450CR(      "low450CR",      "CR 4+ jets, low MT2W, MET 450+" );
+  sigRegion high250CR(     "high250CR",     "CR 4+ jets, high MT2W, MET 250-350" );
+  sigRegion high350CR(     "high350CR",     "CR 4+ jets, high MT2W, MET 350-450" );
+  sigRegion high450CR(     "high450CR",     "CR 4+ jets, high MT2W, MET 450-550" );
+  sigRegion high550CR(     "high550CR",     "CR 4+ jets, high MT2W, MET 550-650" );
+  sigRegion high650CR(     "high650CR",     "CR 4+ jets, high MT2W, MET 650+" );
+  // sigRegion inclusive(   "inclusive",   "Inclusive" );
+  sigRegion corridor250CR( "corridor250CR", "CR Corridor, low MET" );
+  sigRegion corridor350CR( "corridor350CR", "CR Corridor, high MET" );
+
   compr250.AddSelections(    {&nJetsEq2, &MET_250_350, &modTop}   );
   compr350.AddSelections(    {&nJetsEq2, &MET_350_450, &modTop}   );
   compr450.AddSelections(    {&nJetsEq2, &MET_450_inf, &modTop}   );
@@ -184,6 +215,24 @@ int main( int argc, char* argv[] ) {
   corridor250.AddSelections( {&nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag} );
   corridor350.AddSelections( {&nJetsGe5, &MET_350_inf, &j1Pt200, &j1NoTag} );
 
+  compr250CR.AddSelections(    {&nJetsEq2, &CR_MET_250_350, &CR_modTop}   );
+  compr350CR.AddSelections(    {&nJetsEq2, &CR_MET_350_450, &CR_modTop}   );
+  compr450CR.AddSelections(    {&nJetsEq2, &CR_MET_450_inf, &CR_modTop}   );
+  boost250CR.AddSelections(    {&nJetsEq3, &CR_MET_250_350, &CR_highMT2W} );
+  boost350CR.AddSelections(    {&nJetsEq3, &CR_MET_350_450, &CR_highMT2W} );
+  boost450CR.AddSelections(    {&nJetsEq3, &CR_MET_450_550, &CR_highMT2W} );
+  boost550CR.AddSelections(    {&nJetsEq3, &CR_MET_550_inf, &CR_highMT2W} );
+  low250CR.AddSelections(      {&nJetsGe4, &CR_MET_250_350, &CR_lowMT2W}  );
+  low350CR.AddSelections(      {&nJetsGe4, &CR_MET_350_450, &CR_lowMT2W}  );
+  low450CR.AddSelections(      {&nJetsGe4, &CR_MET_450_inf, &CR_lowMT2W}  );
+  high250CR.AddSelections(     {&nJetsGe4, &CR_MET_250_350, &CR_highMT2W} );
+  high350CR.AddSelections(     {&nJetsGe4, &CR_MET_350_450, &CR_highMT2W} );
+  high450CR.AddSelections(     {&nJetsGe4, &CR_MET_450_550, &CR_highMT2W} );
+  high550CR.AddSelections(     {&nJetsGe4, &CR_MET_550_650, &CR_highMT2W} );
+  high650CR.AddSelections(     {&nJetsGe4, &CR_MET_650_inf, &CR_highMT2W} );
+  corridor250CR.AddSelections( {&nJetsGe5, &CR_MET_250_350, &j1Pt200, &j1NoTag} );
+  corridor350CR.AddSelections( {&nJetsGe5, &CR_MET_350_inf, &j1Pt200, &j1NoTag} );
+
 
   srAnalysis->AddSigRegs( {compr250, compr350, compr450} );
   srAnalysis->AddSigRegs( {boost250, boost350, boost450, boost550} );
@@ -192,12 +241,12 @@ int main( int argc, char* argv[] ) {
   srAnalysis->AddSigRegs( {inclusive} );
   srAnalysis->AddSigRegs( {corridor250, corridor350} );
 
-  crLostLep->AddSigRegs( {compr250, compr350, compr450} );
-  crLostLep->AddSigRegs( {boost250, boost350, boost450, boost550} );
-  crLostLep->AddSigRegs( {low250,  low350, low450} );
-  crLostLep->AddSigRegs( {high250, high350, high450, high550, high650} );
+  crLostLep->AddSigRegs( {compr250CR, compr350CR, compr450CR} );
+  crLostLep->AddSigRegs( {boost250CR, boost350CR, boost450CR, boost550CR} );
+  crLostLep->AddSigRegs( {low250CR,  low350CR, low450CR} );
+  crLostLep->AddSigRegs( {high250CR, high350CR, high450CR, high550CR, high650CR} );
   crLostLep->AddSigRegs( {inclusive} );
-  crLostLep->AddSigRegs( {corridor250, corridor350} );
+  crLostLep->AddSigRegs( {corridor250CR, corridor350CR} );
 
 
 
@@ -282,7 +331,8 @@ int main( int argc, char* argv[] ) {
   // Make all the various outputs 
 
   if( runtables   ) makeTables( srAnalysis );
-  if( runlostlep || runtables ) makeTables( crLostLep  );
+  if( runlostlep
+	  || runtables ) makeTables( crLostLep  );
   if( runstacks   ) makeStack( srAnalysis );
   if( runestimate ) makeLostLepEstimate( srAnalysis, crLostLep );
   if( runcards    ) makeDataCards( srAnalysis );
