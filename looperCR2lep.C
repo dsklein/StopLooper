@@ -27,7 +27,6 @@
 // Custom
 #include "analysis.h"
 #include "sample.h"
-#include "sfManager.h"
 
 using namespace std;
 using namespace tas;
@@ -49,7 +48,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   TChain *chain = mySample->GetChain();
   TString sampleName = mySample->GetLabel();
   const int nSigRegs = myAnalysis->GetSigRegionsAll().size();
-  // bool isFastsim = mySample->IsSignal();
+  bool isFastsim = mySample->IsSignal();
   cout << "\nSample: " << sampleName.Data() << endl;
 
   /////////////////////////////////////////////////////////
@@ -243,9 +242,11 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
     if(fast) tree->SetCacheSize(128*1024*1024);
     cms3.Init(tree);
 
-	// Initialize scale factor manager
-	// sfManager mySFs( isFastsim, ".", (TH1D*)file.Get( "h_counter" ) );
-    
+	// Load event weight histograms
+	TH2F* hNEvts = (TH2F*)file.Get("histNEvts");
+	TH3D* hCounterSMS = (TH3D*)file.Get("h_counterSMS");
+	TH1D* hCounter = (TH1D*)file.Get("h_counter");
+
     // Loop over Events in current file
     if( nEventsTotal >= nEventsChain ) continue;
     unsigned int nEventsTree = tree->GetEntriesFast();
@@ -275,19 +276,37 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  // Set event weight
 
 	  double evtWeight = 1.;
+	  double lepNorm = 1.;
+	  double lepNorm_veto = 1.;
+	  double lepNorm_FS = 1.;
+	  double btagNorm = 1.;
 
 	  if( is_data() || mySample->IsData() ) evtWeight = 1.;
 	  else if( mySample->IsSignal() ) {
-		TH2F* hNEvts = (TH2F*)file.Get("histNEvts");
-		// TH3D* hCounter = (TH3D*)file.Get("h_counterSMS");
 		double nEvtsSample = hNEvts->GetBinContent( hNEvts->FindBin( mass_stop(), mass_lsp() ) );
-		// int binx = hCounter->GetXaxis()->FindBin( mass_stop() );
-		// int biny = hCounter->GetYaxis()->FindBin( mass_lsp()  );
-		// double bTagSumWeights = hCounter->GetBinContent( binx, biny, 14 );
-		// mySFs.SetBtagNorm( nEvtsSample / bTagSumWeights );
+		int binx = hCounterSMS->GetXaxis()->FindBin( mass_stop() );
+		int biny = hCounterSMS->GetYaxis()->FindBin( mass_lsp()  );
+		lepNorm = nEvtsSample / hCounterSMS->GetBinContent(binx,biny,27);
+		lepNorm_veto = nEvtsSample / hCounterSMS->GetBinContent(binx,biny,30);
+		lepNorm_FS = nEvtsSample / hCounterSMS->GetBinContent(binx,biny,33);
+		btagNorm = nEvtsSample / hCounterSMS->GetBinContent(binx,biny,14);
 		evtWeight = myAnalysis->GetLumi() * 1000. * xsec() / nEvtsSample;
 	  }
-	  else evtWeight = myAnalysis->GetLumi() * scale1fb();
+	  else {
+		evtWeight = myAnalysis->GetLumi() * scale1fb();
+		double nEvtsSample = hCounter->GetBinContent(22);
+		lepNorm = nEvtsSample / hCounter->GetBinContent(28);
+		lepNorm_veto = nEvtsSample / hCounter->GetBinContent(31);
+		lepNorm_FS = nEvtsSample / hCounter->GetBinContent(34);
+		btagNorm = nEvtsSample / hCounter->GetBinContent(14);
+	  }
+
+	  if( !is_data() ) {
+	  	evtWeight *= weight_lepSF()     / lepNorm;
+	  	evtWeight *= weight_vetoLepSF() / lepNorm_veto;
+	  	if( isFastsim ) evtWeight *= weight_lepSF_fastSim() / lepNorm_FS;
+	  	evtWeight *= weight_btagsf() / btagNorm;
+	  }
 
 
 	  // Count the number of events processed
@@ -317,8 +336,6 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 	  // Must have at least 1 good lepton
 	  if( ngoodleps() < 1 ) continue;
-	  // if(      !is_data() && abs(lep1_pdgid())==11 ) evtWeight *= mySFs.GetSF_el( lep1_p4().pt(), lep1_p4().eta() );
-	  // else if( !is_data() && abs(lep1_pdgid())==13 ) evtWeight *= mySFs.GetSF_mu( lep1_p4().pt(), lep1_p4().eta() );
 	  yield_1goodlep += evtWeight;
 	  yGen_1goodlep++;
 
@@ -349,11 +366,6 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  if( nvetoleps() == 2 && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) < 0.01 ) countGoodLeps--;
 	  else if( nvetoleps() >= 2 && lep2_p4().pt() < 10. ) countGoodLeps = 1;
 
-	  // if( !is_data() && nvetoleps() >= 2 && lep2_p4().pt() >= 10. ) {
-	  // 	if(      abs(lep2_pdgid())==11 ) evtWeight *= mySFs.GetSF_elVeto( lep2_p4().pt(), lep2_p4().eta() );
-	  // 	else if( abs(lep2_pdgid())==13 ) evtWeight *= mySFs.GetSF_muVeto( lep2_p4().pt(), lep2_p4().eta() );
-	  // }
-
 	  if( countGoodLeps > 1 ) {
 		  yield_2lepveto += evtWeight;
 		  yGen_2lepveto++;
@@ -383,14 +395,6 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 	  // N-jet requirement
 	  if( ngoodjets() < 2 ) continue;
-	  // if( !is_data() ) {
-	  // 	for( uint i=0; i<ak4pfjets_p4().size(); i++ ) {
-	  // 	  evtWeight *= mySFs.GetSF_btag( ak4pfjets_p4().at(i).pt(),
-	  // 									 ak4pfjets_p4().at(i).eta(),
-	  // 									 ak4pfjets_hadron_flavor().at(i),
-	  // 									 ak4pfjets_CSV().at(i) );
-	  // 	}
-	  // }
 	  yield_njets += evtWeight;
 	  yGen_njets++;
 

@@ -6,8 +6,8 @@ ROOTCFLAGS  = $(shell root-config --cflags --libs)
 
 
 
-runLooper: runLooper.cc runLooper.h ScanChain.o looperCR2lep.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o libdataMCplotMaker.so libCMS3.so libsample.so libanalysis.so libsfManager.so sigRegion.cc
-	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runLooper.cc ScanChain.o looperCR2lep.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lCMS3 -lsample -lanalysis -lsfManager -o runLooper
+runLooper: runLooper.cc runLooper.h ScanChain.o looperCR2lep.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o libdataMCplotMaker.so libCMS3.so libsample.so libanalysis.so sigRegion.cc
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runLooper.cc ScanChain.o looperCR2lep.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lCMS3 -lsample -lanalysis -o runLooper
 #GenVector seems to be necessary to take a LorentzVector invariant mass. The error was "undefined reference to Math::GenVector::Throw()"
 
 
@@ -40,9 +40,6 @@ libsample.so: sample.cc sample.h
 
 libanalysis.so: analysis.cc analysis.h
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared analysis.cc -o libanalysis.so
-
-libsfManager.so: sfManager.cc sfManager.h btagsf/BTagCalibrationStandalone.cc
-	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared sfManager.cc btagsf/BTagCalibrationStandalone.cc -o libsfManager.so
 
 
 
