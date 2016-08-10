@@ -271,6 +271,9 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  if(      sampleName == "tt2l"  && gen_nfromtleps_() != 2 ) continue;  //Require 2 leps from top in "tt2l" events
 	  else if( sampleName == "tt1l"  && gen_nfromtleps_() != 1 ) continue;  //Require 1 lep from top in "tt1l" events
 
+	  //FastSim anomalous event filter
+	  if( isFastsim && filt_fastsimjets() ) continue;
+
 
 	  /////////////////////////////////
 	  // Set event weight
