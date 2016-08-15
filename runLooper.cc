@@ -25,8 +25,9 @@ void printHelp() {
   std::cout << "Takes zero or more arguments from the following list:" << std::endl;
   std::cout << "[blank]     equivalent to 'all'" << std::endl;
   std::cout << "help        show this message" << std::endl;
-  std::cout << "all         run ScanChain, makeTables, makeStack, and makeDataCards" << std::endl;
+  std::cout << "all         run all of the components listed below" << std::endl;
   std::cout << "scan        run ScanChain only" << std::endl;
+  std::cout << "lostlep     run lost lepton looper only" << std::endl;
   std::cout << "plots       run makeStack only" << std::endl;
   std::cout << "tables      run makeTables only" << std::endl;
   std::cout << "cards       run makeDataCards only" << std::endl;
@@ -34,10 +35,13 @@ void printHelp() {
   std::cout << "output      run makeStack, makeTables, and makeDataCards only" << std::endl;
 }
 
-///// MAIN PROGRAM /////
+
+////////////////////////////////////////////////////////////////////////////////
+//------------------------------ MAIN PROGRAM --------------------------------//
+
 int main( int argc, char* argv[] ) {
 
-
+  // Where to find the stop babies
   TString sigPath = "/hadoop/cms/store/user/haweber/condor/stop1l_2016/stop_babies_V080009_signal_norm_v2/merged_files/";
   TString bkgPath = "/hadoop/cms/store/user/jgwood/condor/stop_1l_babies/stop_babies__CMS3_V080005__BabyMaker_V0800X_v8__20160729/merged_files/";
   TString dataPath = "/hadoop/cms/store/user/isuarez/condor/stop_1l_babies/stop_babies__CMS3_V080005__BabyMaker_V0800X_v7__20160722/merged_files/";
@@ -86,7 +90,7 @@ int main( int argc, char* argv[] ) {
 	}
   }
 
-  // If the user inputs a wrong option, print the help and exit
+  // If the user inputs a wrong option, print the list of allowed options and exit
   if( needshelp ) {
 	printHelp();
 	return 1;
@@ -94,16 +98,16 @@ int main( int argc, char* argv[] ) {
 
 
   ////////////////////////////////////////////////////////////////////////////////////////
-  // Make "analysis" objects out of "samples"
+  // Define the "sample" and "analysis" objects that will do all our bookkeeping
 
+  //                     new analysis( lumi, "histogram storage file" )
   analysis* srAnalysis = new analysis( 12.9, "plots.root" );
   analysis* crLostLep  = new analysis( 12.9, "plotsLL.root" );
 
-  //                           new sample( "Label",  "Display name",    TColor,    sampleType )
-
+  //                           new sample( "Label",  "Display name(s)", TColor,    sampleType )
   sample* data    =            new sample( "data",    "Data",           kBlack,    sample::kData );
   sample* signal  = srAnalysis->AddSample( "signal",  "T2tt",           kBlue+3,   sample::kSignal );
-
+  //-----------------------------------------------------------------------------------------------------
   sample* tt2l    = srAnalysis->AddSample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
   sample* tt1l    = srAnalysis->AddSample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
   sample* singtop = srAnalysis->AddSample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
@@ -122,13 +126,16 @@ int main( int argc, char* argv[] ) {
   crLostLep->AddSample( rare );
 
 
-  //////////////////////////////////////////////
-  // Make selection and signal region objects
+  /////////////////////////////////////////////////////////////////////////////////////
+  // Create the objects that will define our signal and control regions
+
+  // Create "selection"s - objects that encode a cut on a baby branch or global variable
+  // selection<type>  obj_name( (cutVariable), minval, maxval )
   selection<float> MET_250_350( (*tas::pfmet), 250., 350. );
   selection<float> MET_350_450( (*tas::pfmet), 350., 450. );
   selection<float> MET_450_550( (*tas::pfmet), 450., 550. );
   selection<float> MET_550_650( (*tas::pfmet), 550., 650. );
-  selection<float> MET_350_inf( (*tas::pfmet), 350., 9999999. );
+  selection<float> MET_350_inf( (*tas::pfmet), 350., 9999999. ); // MET bins for the signal regions
   selection<float> MET_450_inf( (*tas::pfmet), 450., 9999999. );
   selection<float> MET_550_inf( (*tas::pfmet), 550., 9999999. );
   selection<float> MET_650_inf( (*tas::pfmet), 650., 9999999. );
@@ -137,28 +144,30 @@ int main( int argc, char* argv[] ) {
   selection<float> CR_MET_350_450( (*tas::pfmet_rl), 350., 450. );
   selection<float> CR_MET_450_550( (*tas::pfmet_rl), 450., 550. );
   selection<float> CR_MET_550_650( (*tas::pfmet_rl), 550., 650. );
-  selection<float> CR_MET_350_inf( (*tas::pfmet_rl), 350., 9999999. );
+  selection<float> CR_MET_350_inf( (*tas::pfmet_rl), 350., 9999999. ); // (MET+lep2) bins for the 2-lep control regions
   selection<float> CR_MET_450_inf( (*tas::pfmet_rl), 450., 9999999. );
   selection<float> CR_MET_550_inf( (*tas::pfmet_rl), 550., 9999999. );
   selection<float> CR_MET_650_inf( (*tas::pfmet_rl), 650., 9999999. );
 
   selection<int> nJetsEq2( (*tas::ngoodjets), 2 );
   selection<int> nJetsEq3( (*tas::ngoodjets), 3 );
-  selection<int> nJetsGe4( (*tas::ngoodjets), 4, 9999999 );
+  selection<int> nJetsGe4( (*tas::ngoodjets), 4, 9999999 ); // NJets bins
   selection<int> nJetsGe5( (*tas::ngoodjets), 5, 9999999 );
 
   selection<float>  lowMT2W( (*tas::MT2W),   0., 200.     );
   selection<float> highMT2W( (*tas::MT2W), 200., 9999999. );
-  selection<float>  CR_lowMT2W( (*tas::MT2W_rl),   0., 200.     );
+  selection<float>  CR_lowMT2W( (*tas::MT2W_rl),   0., 200.     ); // MT2W bins
   selection<float> CR_highMT2W( (*tas::MT2W_rl), 200., 9999999. );
 
-  selection<float> modTop( (*tas::topnessMod), 6.4, 999999. );
+  selection<float> modTop( (*tas::topnessMod), 6.4, 999999. ); // Modified topness for compressed T2tb regions
   selection<float> CR_modTop( (*tas::topnessMod_rl), 6.4, 999999. );
 
-  selection<double> j1Pt200( &j1pt, 200., 999999. );
+  selection<double> j1Pt200( &j1pt, 200., 999999. ); // Special selections for the corridor regions
   selection<bool>   j1NoTag( &j1_isBtag, false );
 
 
+  // Create the "sigRegion" objects that will store the definitions of our signal/control regions
+  // sigRegion objName(  "label",       "Nice name(s) for plots/tables" )
   sigRegion compr250(    "compr250",    "2 jets, modTop, MET 250-350" );
   sigRegion compr350(    "compr350",    "2 jets, modTop, MET 350-450" );
   sigRegion compr450(    "compr450",    "2 jets, modTop, MET 450+" );
@@ -197,6 +206,7 @@ int main( int argc, char* argv[] ) {
   sigRegion corridor250CR( "corridor250CR", "CR Corridor, low MET" );
   sigRegion corridor350CR( "corridor350CR", "CR Corridor, high MET" );
 
+  // Define each signal/control region as the && of several "selection"s
   compr250.AddSelections(    {&nJetsEq2, &MET_250_350, &modTop}   );
   compr350.AddSelections(    {&nJetsEq2, &MET_350_450, &modTop}   );
   compr450.AddSelections(    {&nJetsEq2, &MET_450_inf, &modTop}   );
@@ -233,7 +243,8 @@ int main( int argc, char* argv[] ) {
   corridor250CR.AddSelections( {&nJetsGe5, &CR_MET_250_350, &j1Pt200, &j1NoTag} );
   corridor350CR.AddSelections( {&nJetsGe5, &CR_MET_350_inf, &j1Pt200, &j1NoTag} );
 
-
+  // Finally, store all these signal/control regions in our "analysis" objects.
+  // Each {vector of "sigRegions"} will give rise to its own yield table, so order matters here!
   srAnalysis->AddSigRegs( {compr250, compr350, compr450} );
   srAnalysis->AddSigRegs( {boost250, boost350, boost450, boost550} );
   srAnalysis->AddSigRegs( {low250,  low350, low450} );
@@ -251,8 +262,8 @@ int main( int argc, char* argv[] ) {
 
 
 
-  /////////////////////
-  // Make chains
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  // For each "sample" object defined earlier, chain up the baby files that make up that sample
 
   if( runlooper || runlostlep ) {
 
@@ -298,37 +309,34 @@ int main( int argc, char* argv[] ) {
 	rare->AddFile( bkgPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns.root" );
   }
 
-  ///////////////////////////////////////
-  // Run ScanChain (signal regions)
+
+  ////////////////////////////////////////////////
+  // Run ScanChain (the signal region looper)
 
   if( runlooper ) {
 
 	// Reset output file
 	TFile* outfile = new TFile( srAnalysis->GetFileName(), "RECREATE");
 	outfile->Close();
-
 	// Run ScanChain on all samples
 	for( sample* mySample : srAnalysis->GetAllSamples() ) ScanChain( srAnalysis, mySample );
-
   }
 
-  //////////////////////////////////////////////
-  // Run lost lepton background estimate
+  ////////////////////////////////////////////////
+  // Run looperCR2lep (the lost-lepton CR looper)
 
   if( runlostlep ) {
 
 	// Reset output file
 	TFile* outfile = new TFile( crLostLep->GetFileName(), "RECREATE");
 	outfile->Close();
-
 	// Run lost lepton CR looper on all samples
 	for( sample* mySample : crLostLep->GetAllSamples() ) looperCR2lep( crLostLep, mySample );
-
   }
 
 
-  //////////////////////////////////
-  // Make all the various outputs 
+  /////////////////////////////////////////////////////////////////////
+  // Make all the various outputs - tables, plots, datacards...
 
   if( runtables   ) makeTables( srAnalysis );
   if( runlostlep
