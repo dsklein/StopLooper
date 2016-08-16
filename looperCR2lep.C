@@ -147,22 +147,22 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   h_yields->SetDirectory(rootdir);
 
 
-  float yield_total = 0;
-  float yield_unique = 0;
-  float yield_filter = 0;
-  float yield_vtx = 0;
-  float yield_1goodlep = 0;
-  float yield_lepSel = 0;
-  float yield_2lepveto = 0;
-  float yield_trkVeto = 0;
-  float yield_2lepCR = 0;
-  float yield_tauVeto = 0;
-  float yield_njets = 0;
-  float yield_1bjet = 0;
-  float yield_METcut = 0;
-  float yield_MTcut = 0;
-  float yield_dPhi = 0;
-  float yield_chi2 = 0;
+  double yield_total = 0;
+  double yield_unique = 0;
+  double yield_filter = 0;
+  double yield_vtx = 0;
+  double yield_1goodlep = 0;
+  double yield_lepSel = 0;
+  double yield_2lepveto = 0;
+  double yield_trkVeto = 0;
+  double yield_2lepCR = 0;
+  double yield_tauVeto = 0;
+  double yield_njets = 0;
+  double yield_1bjet = 0;
+  double yield_METcut = 0;
+  double yield_MTcut = 0;
+  double yield_dPhi = 0;
+  double yield_chi2 = 0;
 
   int yGen_total = 0;
   int yGen_unique = 0;
@@ -486,7 +486,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		h_j1btag[i]->Fill(  j1_isBtag,                  evtWeight );
 		h_modtop[i]->Fill(  topnessMod_rl(),            evtWeight );
 
-		h_yields->Fill(     float(i+1),                 evtWeight );
+		h_yields->Fill(     double(i+1),                 evtWeight );
 
 		if( mySample->IsSignal() ) h_sigyields[i]->Fill( mass_stop(), mass_lsp(), evtWeight );
 	  }
