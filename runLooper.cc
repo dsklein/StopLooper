@@ -104,26 +104,26 @@ int main( int argc, char* argv[] ) {
   analysis* srAnalysis = new analysis( 12.9, "plots.root" );
   analysis* crLostLep  = new analysis( 12.9, "plotsLL.root" );
 
-  //                           new sample( "Label",  "Display name(s)", TColor,    sampleType )
-  sample* data    =            new sample( "data",    "Data",           kBlack,    sample::kData );
-  sample* signal  = srAnalysis->AddSample( "signal",  "T2tt",           kBlue+3,   sample::kSignal );
+  //                new sample( "Label",  "Display name(s)", TColor,    sampleType )
+  sample* data    = new sample( "data",    "Data",           kBlack,    sample::kData );
+  sample* signal  = new sample( "signal",  "T2tt",           kBlue+3,   sample::kSignal );
   //-----------------------------------------------------------------------------------------------------
-  sample* tt2l    = srAnalysis->AddSample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
-  sample* tt1l    = srAnalysis->AddSample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
-  sample* singtop = srAnalysis->AddSample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
-  sample* wjets   = srAnalysis->AddSample( "wjets",   "W+Jets",         kOrange-2, sample::kBackground );
-  sample* dy      = srAnalysis->AddSample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
-  sample* rare    = srAnalysis->AddSample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
+  sample* tt2l    = new sample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
+  sample* tt1l    = new sample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
+  sample* singtop = new sample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
+  sample* wjets   = new sample( "wjets",   "W+Jets",         kOrange-2, sample::kBackground );
+  sample* dy      = new sample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
+  sample* rare    = new sample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
 
   // srAnalysis->AddSample( data );   // Uncomment this line to unblind
   crLostLep->AddSample( data );
-  crLostLep->AddSample( signal );
-  crLostLep->AddSample( tt2l );
-  crLostLep->AddSample( tt1l );
-  crLostLep->AddSample( singtop );
-  crLostLep->AddSample( wjets );
-  crLostLep->AddSample( dy );
-  crLostLep->AddSample( rare );
+  srAnalysis->AddSample( signal );   crLostLep->AddSample( signal );
+  srAnalysis->AddSample( tt2l );     crLostLep->AddSample( tt2l );
+  srAnalysis->AddSample( tt1l );     crLostLep->AddSample( tt1l );
+  srAnalysis->AddSample( singtop );  crLostLep->AddSample( singtop );
+  srAnalysis->AddSample( wjets );    crLostLep->AddSample( wjets );
+  srAnalysis->AddSample( dy );       crLostLep->AddSample( dy );
+  srAnalysis->AddSample( rare );     crLostLep->AddSample( rare );
 
 
   /////////////////////////////////////////////////////////////////////////////////////
@@ -344,6 +344,18 @@ int main( int argc, char* argv[] ) {
   if( runstacks   ) makeStack( srAnalysis );
   if( runestimate ) makeLostLepEstimate( srAnalysis, crLostLep );
   if( runcards    ) makeDataCards( srAnalysis );
+
+  // Clean up /////////
+  delete srAnalysis;
+  delete crLostLep;
+  delete data;
+  delete signal;
+  delete tt2l;
+  delete tt1l;
+  delete singtop;
+  delete wjets;
+  delete dy;
+  delete rare;
 
   return 0;
 }
