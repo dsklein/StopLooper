@@ -77,6 +77,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
   TH1D *h_nbtags[nSigRegs];
   TH1D *h_ptj1[nSigRegs];
   TH1D *h_j1btag[nSigRegs];
+  TH1D *h_modtop[nSigRegs];
 
   vector<TString> regNames = myAnalysis->GetSigRegionLabelsAll();
   vector<sigRegion> sigRegions = myAnalysis->GetSigRegionsAll();
@@ -100,7 +101,8 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	h_njets[i]    = new TH1D( Form( "njets_%s_%s"   , sampleName.Data(), regNames.at(i).Data()), "Number of jets",            16, -0.5, 15.5);
 	h_nbtags[i]   = new TH1D( Form( "nbtags_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "Number of b-tags",          7, -0.5, 6.5);
 	h_ptj1[i]     = new TH1D( Form( "ptj1_%s_%s"    , sampleName.Data(), regNames.at(i).Data()), "Leading jet p_{T}",        40, 0, 1000);
-	h_j1btag[i]   = new TH1D( Form( "j1btag_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "Is leading jet b-tagged?", 4, -0.5, 1.5);
+	h_j1btag[i]   = new TH1D( Form( "j1btag_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "Is leading jet b-tagged?", 2, -0.5, 1.5);
+	h_modtop[i]   = new TH1D( Form( "modtop_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "Modified topness",         30, -15., 15.);
 
 	h_bgtype[i]->SetDirectory(rootdir);
 	h_evttype[i]->SetDirectory(rootdir);
@@ -121,6 +123,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	h_nbtags[i]->SetDirectory(rootdir);
 	h_ptj1[i]->SetDirectory(rootdir);
 	h_j1btag[i]->SetDirectory(rootdir);
+	h_modtop[i]->SetDirectory(rootdir);
 
 	TAxis* axis = h_bgtype[i]->GetXaxis();
 	axis->SetBinLabel( 1, "ZtoNuNu" );
@@ -341,10 +344,9 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	  yGen_1goodlep++;
 
 	  // Lep 1 must pass lepton selections
-	  // These aren't necessary unless syncing with John
 	  if( abs(lep1_pdgid())==11 ) {
 	  	if( lep1_p4().pt() < 20. ) continue;
-	  	if( fabs(lep1_p4().eta()) > 1.4442 ) continue;  // It's 1.4442 in the babymaker, but John uses 1.442
+	  	if( fabs(lep1_p4().eta()) > 1.4442 ) continue;
 	  	if( !lep1_passMediumID() ) continue;
 	  }
 	  else if( abs(lep1_pdgid())==13 ) {
@@ -456,6 +458,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 		h_nbtags[i]->Fill(  ngoodbtags(),               evtWeight );
 		h_ptj1[i]->Fill(    j1pt,                       evtWeight );
 		h_j1btag[i]->Fill(  j1_isBtag,                  evtWeight );
+		h_modtop[i]->Fill(  topnessMod(),               evtWeight );
 
 		h_yields->Fill(     float(i+1),                 evtWeight );
 
@@ -540,6 +543,9 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	h_dphilw[j]->Write();
 	h_njets[j]->Write();
 	h_nbtags[j]->Write();
+	h_ptj1[j]->Write();
+	h_j1btag[j]->Write();
+	h_modtop[j]->Write();
 
 	// Build up histo of signal yields
 	if( mySample->IsSignal() ) {
@@ -552,9 +558,6 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	TH1D* hTemp = (TH1D*)plotfile->Get( h_evttype[j]->GetName() );
 	if( hTemp != 0 ) h_evttype[j]->Add( hTemp );
 	h_evttype[j]->Write( "", TObject::kOverwrite );
-
-	h_ptj1[j]->Write();
-	h_j1btag[j]->Write();
   }
   h_yields->Write();
 
@@ -579,6 +582,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	delete h_nbtags[j];
 	delete h_ptj1[j];
 	delete h_j1btag[j];
+	delete h_modtop[j];
   }
   delete h_yields;
 

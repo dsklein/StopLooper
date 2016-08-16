@@ -30,6 +30,7 @@ void makeStack( analysis* myAnalysis) {
   varNames.push_back("nbtags" );  axisLabels.push_back("Number of b-tags");
   varNames.push_back("ptj1"   );  axisLabels.push_back("p_{T}");
   varNames.push_back("j1btag" );  axisLabels.push_back("b-tagged?");
+  varNames.push_back("modtop" );  axisLabels.push_back("Modified topness");
 
 
   // Get the signal region names
