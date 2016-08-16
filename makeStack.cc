@@ -92,7 +92,7 @@ void makeStack( analysis* myAnalysis) {
 
 
 	  // Option string for the stack maker
-	  TString optString = "--energy 13 --lumi " + lumi + " --xAxisLabel "+axisLabels.at(i)+" --xAxisUnit --outputName plots/stack_" + varNames.at(i) + "_" + regNames.at(j); // + " --png";
+	  TString optString = "--energy 13 --lumi " + lumi + " --type Preliminary --outOfFrame --xAxisLabel "+axisLabels.at(i)+" --noXaxisUnit --outputName plots/stack_" + varNames.at(i) + "_" + regNames.at(j); // + " --png";
 
 	  // Run the big tamale...
 	  dataMCplotMaker( data,
@@ -117,7 +117,7 @@ void makeStack( analysis* myAnalysis) {
   for( TString sampleName : myAnalysis->GetSignalLabels() ) sigs.push_back(  (TH1F*)plotfile->Get("srYields_"+sampleName)  );
   if( myAnalysis->HasData() ) data = (TH1F*)plotfile->Get( "srYields_" + myAnalysis->GetData()->GetLabel() );
   else data = new TH1F("", "", 1, 0, 1);
-  TString optString = "--energy 13 --lumi " + lumi + " --xAxisLabel Signal Region --xAxisUnit --outputName plots/stack_srYields";
+  TString optString = "--energy 13 --lumi " + lumi + " --type Preliminary --outOfFrame --xAxisLabel Signal Region --noXaxisUnit --outputName plots/stack_srYields";
   dataMCplotMaker( data, bkgs, bkg_titles, "Yields by signal region", "", optString.Data(), sigs, sig_titles, colors );
 
   plotfile->Close();
