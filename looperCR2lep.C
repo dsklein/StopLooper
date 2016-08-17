@@ -308,10 +308,10 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  }
 
 	  if( !is_data() ) {
-	  	evtWeight *= weight_lepSF()     / lepNorm;
-	  	evtWeight *= weight_vetoLepSF() / lepNorm_veto;
-	  	if( isFastsim ) evtWeight *= weight_lepSF_fastSim() / lepNorm_FS;
-	  	evtWeight *= weight_btagsf() / btagNorm;
+	  	evtWeight *= weight_lepSF()     * lepNorm;
+	  	evtWeight *= weight_vetoLepSF() * lepNorm_veto;
+	  	if( isFastsim ) evtWeight *= weight_lepSF_fastSim() * lepNorm_FS;
+	  	evtWeight *= weight_btagsf() * btagNorm;
 	  }
 
 
@@ -366,10 +366,11 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  int countGoodLeps = 0;
 
 	  // Count the number of veto leptons, but subtract one if lep1 and lep2 overlap
-	  countGoodLeps += nvetoleps();
+	  // countGoodLeps += nvetoleps();
 
-	  if( nvetoleps() == 2 && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) < 0.01 ) countGoodLeps--;
-	  else if( nvetoleps() >= 2 && lep2_p4().pt() < 10. ) countGoodLeps = 1;
+	  // if( nvetoleps() == 2 && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) < 0.01 ) countGoodLeps--;
+	  // else if( nvetoleps() >= 2 && lep2_p4().pt() < 10. ) countGoodLeps = 1;
+	  if( nvetoleps() >= 2 && lep2_p4().pt() > 10. && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) > 0.01 ) countGoodLeps += 9999;
 
 	  if( countGoodLeps > 1 ) {
 		  yield_2lepveto += evtWeight;
@@ -377,18 +378,18 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  }
 
 	  // If we fail the track veto, count another good lepton
-	  if( !PassTrackVeto() ) {
-		countGoodLeps++;
-		yield_trkVeto += evtWeight;
-		yGen_trkVeto++;
-	  }
+	  // if( !PassTrackVeto() ) {
+	  // 	countGoodLeps++;
+	  // 	yield_trkVeto += evtWeight;
+	  // 	yGen_trkVeto++;
+	  // }
 
 	  // If we fail the tau veto, count another good lepton
-	  if( !PassTauVeto() ) {
-		countGoodLeps++;
-		yield_tauVeto += evtWeight;
-		yGen_tauVeto++;
-	  }
+	  // if( !PassTauVeto() ) {
+	  // 	countGoodLeps++;
+	  // 	yield_tauVeto += evtWeight;
+	  // 	yGen_tauVeto++;
+	  // }
 
 	  if( countGoodLeps < 2 ) continue;
 	  yield_2lepCR += evtWeight;

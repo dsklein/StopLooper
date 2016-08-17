@@ -43,7 +43,7 @@ int main( int argc, char* argv[] ) {
 
   // Where to find the stop babies
   TString sigPath = "/hadoop/cms/store/user/haweber/condor/stop1l_2016/stop_babies_V080009_signal_norm_v2/merged_files/";
-  TString bkgPath = "/hadoop/cms/store/user/jgwood/condor/stop_1l_babies/stop_babies__CMS3_V080005__BabyMaker_V0800X_v8__20160729/merged_files/";
+  TString bkgPath = "/nfs-7/userdata/stopRun2/stop_babies__CMS3_V080005__BabyMaker_V0800X_v8__20160729/";
   TString dataPath = "/hadoop/cms/store/user/isuarez/condor/stop_1l_babies/stop_babies__CMS3_V080005__BabyMaker_V0800X_v7__20160722/merged_files/";
 
 

@@ -306,11 +306,12 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	  }
 
 	  if( !is_data() ) {
-	  	evtWeight *= weight_lepSF()     / lepNorm;
-	  	evtWeight *= weight_vetoLepSF() / lepNorm_veto;
-	  	if( isFastsim ) evtWeight *= weight_lepSF_fastSim() / lepNorm_FS;
-	  	evtWeight *= weight_btagsf() / btagNorm;
+	  	evtWeight *= weight_lepSF()     * lepNorm;
+	  	evtWeight *= weight_vetoLepSF() * lepNorm_veto;
+	  	if( isFastsim ) evtWeight *= weight_lepSF_fastSim() * lepNorm_FS;
+	  	evtWeight *= weight_btagsf() * btagNorm;
 	  }
+
 
 
 	  // Count the number of events processed
