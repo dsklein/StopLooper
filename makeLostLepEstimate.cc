@@ -130,9 +130,9 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
   for( vector<sigRegion> sigRegs : srAnalysis->GetSigRegions() ) {
 	for( uint i=0; i<sigRegs.size(); i++ ) {
 
-	  printf( "%30s & %3d &  %5.3f $\\pm$ %5.3f  &  %5.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i).GetTableName().Data(),
-			  int(h_crData->GetBinContent(i+binOffset)), h_mcRatio->GetBinContent(i+binOffset), h_mcRatio->GetBinError(i+binOffset),
-			  h_bkgEstimate->GetBinContent(i+binOffset), h_bkgEstimate->GetBinError(i+binOffset) );
+	  printf( "%30s & %3d $\\pm$ %5.3f &  %5.3f $\\pm$ %5.3f  &  %5.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i).GetTableName().Data(),
+			  int(h_crData->GetBinContent(i+binOffset)), h_crData->GetBinError(i+binOffset), h_mcRatio->GetBinContent(i+binOffset),
+			  h_mcRatio->GetBinError(i+binOffset), h_bkgEstimate->GetBinContent(i+binOffset), h_bkgEstimate->GetBinError(i+binOffset) );
 
 	}
 	binOffset += sigRegs.size();

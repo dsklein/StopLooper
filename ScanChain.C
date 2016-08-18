@@ -313,7 +313,6 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	  }
 
 
-
 	  // Count the number of events processed
 	  yield_total += evtWeight;
 	  yGen_total++;
