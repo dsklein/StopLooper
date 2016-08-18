@@ -327,7 +327,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		yGen_unique++;
       }
 
-	  // MET filters and bad event filters for data
+	  // MET filters, bad event filters, and triggers for data
 	  if( is_data() ) {
 		if( badEventFilter.eventFails( run(), ls(), evt() ) ) continue;
 		if( !filt_met() ) continue;
