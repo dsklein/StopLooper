@@ -331,6 +331,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  if( is_data() ) {
 		if( badEventFilter.eventFails( run(), ls(), evt() ) ) continue;
 		if( !filt_met() ) continue;
+		if( !HLT_SingleEl() && !HLT_SingleMu() && !HLT_MET() ) continue;
 		yield_filter += evtWeight;
 		yGen_filter++;
 	  }
@@ -506,7 +507,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   printf("Total number of events:             %10.2f %9i\n", yield_total	, yGen_total		);
   if( mySample->IsData() ) {
 	printf("Events passing duplicate removal:   %10.2f %9i\n", yield_unique   , yGen_unique       );
-	printf("Events passing event filters:       %10.2f %9i\n", yield_filter   , yGen_filter       );
+	printf("Events passing filters and trigger: %10.2f %9i\n", yield_filter   , yGen_filter       );
   }
   printf("Events with 1st vertex good:        %10.2f %9i\n", yield_vtx		, yGen_vtx			);
   printf("Events with at least 1 good lepton: %10.2f %9i\n", yield_1goodlep	, yGen_1goodlep		);

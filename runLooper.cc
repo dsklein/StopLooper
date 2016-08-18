@@ -185,8 +185,8 @@ int main( int argc, char* argv[] ) {
   sigRegion high650(     "high650",     "4+ jets, high MT2W, MET 650+" );
   sigRegion inclusive(   "inclusive",   "Inclusive" );
   sigRegion corridor250( "corridor250", "Corridor, low MET" );
-  sigRegion corridor350( "corridor350", "Corridor, high MET" );
-  sigRegion corridor450( "corridor450", "Corridor, v hi MET" );
+  sigRegion corridor350( "corridor350", "Corridor, mid MET" );
+  sigRegion corridor450( "corridor450", "Corridor, high MET" );
 
   sigRegion compr250CR(    "compr250CR",    "CR 2 jets, modTop, MET 250-350" );
   sigRegion compr350CR(    "compr350CR",    "CR 2 jets, modTop, MET 350-450" );
@@ -205,8 +205,8 @@ int main( int argc, char* argv[] ) {
   sigRegion high650CR(     "high650CR",     "CR 4+ jets, high MT2W, MET 650+" );
   // sigRegion inclusive(   "inclusive",   "Inclusive" );
   sigRegion corridor250CR( "corridor250CR", "CR Corridor, low MET" );
-  sigRegion corridor350CR( "corridor350CR", "CR Corridor, high MET" );
-  sigRegion corridor450CR( "corridor450CR", "CR Corridor, v hi MET" );
+  sigRegion corridor350CR( "corridor350CR", "CR Corridor, mid MET" );
+  sigRegion corridor450CR( "corridor450CR", "CR Corridor, high MET" );
 
   // Define each signal/control region as the && of several "selection"s
   compr250.AddSelections(    {&nJetsEq2, &MET_250_350, &modTop}   );
