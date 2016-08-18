@@ -13,6 +13,10 @@ using namespace std;
 void makeTables( analysis* myAnalysis ) {
 
   TFile* infile = new TFile( myAnalysis->GetFileName(), "READ" );
+  if( infile->IsZombie() ) {
+	cout << "Error in makeTables! Couldn't open " << infile->GetName() << "!" << endl;
+	return;
+  }
 
   vector<TString> decayNames;
   decayNames.push_back("Z $\\rightarrow \\nu\\nu$");

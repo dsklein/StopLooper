@@ -26,6 +26,10 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
   // Open input files and output file
   TFile* srHistFile = new TFile( srAnalysis->GetFileName(), "READ" );
   TFile* crHistFile = new TFile( crAnalysis->GetFileName(), "READ" );
+  if( srHistFile->IsZombie() || crHistFile->IsZombie() ) {
+	cout << "Error in makeLostLepEstmate! Couldn't open one or more of the input root files!" << endl;
+	return;
+  }
   TFile* outFile    = new TFile( "bkgEstimates.root",   "RECREATE" );
 
 

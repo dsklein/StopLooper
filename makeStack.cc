@@ -12,6 +12,10 @@ using namespace std;
 void makeStack( analysis* myAnalysis) {
 
   TFile* plotfile = new TFile( myAnalysis->GetFileName(), "READ" );
+  if( plotfile->IsZombie() ) {
+	cout << "Error in makeStack! Couldn't open " << plotfile->GetName() << "!" << endl;
+	return;
+  }
 
   vector<TString> varNames;       vector<TString> axisLabels; //variables
   varNames.push_back("mt"     );  axisLabels.push_back("M_{T}");
