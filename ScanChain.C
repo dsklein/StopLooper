@@ -526,7 +526,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
   }
 
   // Store histograms and clean them up
-  TFile* plotfile = new TFile( myAnalysis->GetFileName() , "UPDATE");
+  TFile* plotfile = new TFile( myAnalysis->GetFileName(), "UPDATE");
   plotfile->cd();
 
   for( int j=0; j<nSigRegs; j++ ) {

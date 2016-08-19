@@ -6,8 +6,8 @@ ROOTCFLAGS  = $(shell root-config --cflags --libs)
 
 
 
-runLooper: runLooper.cc runLooper.h ScanChain.o looperCR2lep.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o libdataMCplotMaker.so libCMS3.so libsample.so libanalysis.so sigRegion.cc
-	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runLooper.cc ScanChain.o looperCR2lep.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lCMS3 -lsample -lanalysis -o runLooper
+runLooper: runLooper.cc runLooper.h ScanChain.o looperCR2lep.o looperCR0b.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o libdataMCplotMaker.so libCMS3.so libsample.so libanalysis.so sigRegion.cc
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runLooper.cc ScanChain.o looperCR2lep.o looperCR0b.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lCMS3 -lsample -lanalysis -o runLooper
 #GenVector seems to be necessary to take a LorentzVector invariant mass. The error was "undefined reference to Math::GenVector::Throw()"
 
 
@@ -16,6 +16,9 @@ ScanChain.o: ScanChain.C
 
 looperCR2lep.o: looperCR2lep.C
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -c looperCR2lep.C -o looperCR2lep.o
+
+looperCR0b.o: looperCR0b.C
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -c looperCR0b.C -o looperCR0b.o
 
 makeTables.o: makeTables.cc
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -c makeTables.cc -o makeTables.o

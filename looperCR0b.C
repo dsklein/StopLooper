@@ -38,7 +38,7 @@ extern bool j1_isBtag;
 extern double j1pt;
 
 
-int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fast = true) {
+int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fast = true) {
 
   // Benchmark
   TBenchmark *bmark = new TBenchmark();
@@ -155,10 +155,9 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   double yield_lepSel = 0;
   double yield_2lepveto = 0;
   double yield_trkVeto = 0;
-  double yield_2lepCR = 0;
   double yield_tauVeto = 0;
   double yield_njets = 0;
-  double yield_1bjet = 0;
+  double yield_0bjet = 0;
   double yield_METcut = 0;
   double yield_MTcut = 0;
   double yield_dPhi = 0;
@@ -173,9 +172,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   int yGen_2lepveto = 0;
   int yGen_trkVeto = 0;
   int yGen_tauVeto = 0;
-  int yGen_2lepCR = 0;
   int yGen_njets = 0;
-  int yGen_1bjet = 0;
+  int yGen_0bjet = 0;
   int yGen_METcut = 0;
   int yGen_MTcut = 0;
   int yGen_dPhi = 0;
@@ -360,45 +358,20 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  yield_lepSel += evtWeight;
 	  yGen_lepSel++;
 
+	  // Second lepton veto
+	  if( nvetoleps() > 1 && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) > 0.01 ) continue;
+	  yield_2lepveto += evtWeight;
+	  yGen_2lepveto++;
 
-	  ///////////////////
-	  // Make 2-lepton CR
+	  // Track veto
+	  if( !PassTrackVeto() ) continue;
+	  yield_trkVeto += evtWeight;
+	  yGen_trkVeto++;
 
-	  int countGoodLeps = 0;
-
-	  // Count the number of veto leptons, but subtract one if lep1 and lep2 overlap
-	  // countGoodLeps += nvetoleps();
-
-	  // if( nvetoleps() == 2 && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) < 0.01 ) countGoodLeps--;
-	  // else if( nvetoleps() >= 2 && lep2_p4().pt() < 10. ) countGoodLeps = 1;
-	  if( nvetoleps() >= 2 && lep2_p4().pt() > 10. && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) > 0.01 ) countGoodLeps += 9999;
-
-	  if( countGoodLeps > 1 ) {
-		  yield_2lepveto += evtWeight;
-		  yGen_2lepveto++;
-	  }
-
-	  // If we fail the track veto, count another good lepton
-	  // if( !PassTrackVeto() ) {
-	  // 	countGoodLeps++;
-	  // 	yield_trkVeto += evtWeight;
-	  // 	yGen_trkVeto++;
-	  // }
-
-	  // If we fail the tau veto, count another good lepton
-	  // if( !PassTauVeto() ) {
-	  // 	countGoodLeps++;
-	  // 	yield_tauVeto += evtWeight;
-	  // 	yGen_tauVeto++;
-	  // }
-
-	  if( countGoodLeps < 2 ) continue;
-	  yield_2lepCR += evtWeight;
-	  yGen_2lepCR++;
-
-
-	  ////////////////////
-	  ////////////////////
+	  // Tau veto
+	  if( !PassTauVeto() ) continue;
+	  yield_tauVeto += evtWeight;
+	  yGen_tauVeto++;
 
 	  // N-jet requirement
 	  if( ngoodjets() < 2 ) continue;
@@ -408,24 +381,24 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  j1pt = ak4pfjets_p4().at(0).pt();
 
 	  // B-tag requirement
-	  if( ngoodbtags() < 1 ) continue;
-	  yield_1bjet += evtWeight;
-	  yGen_1bjet++;
+	  if( ngoodbtags() != 0 ) continue;
+	  yield_0bjet += evtWeight;
+	  yGen_0bjet++;
 
 	  j1_isBtag = ak4pfjets_passMEDbtag().at(0);
 
-	  // Baseline MET cut (with 2nd lepton pT added to MET)
-	  if( pfmet_rl() <= 250. ) continue;
+	  // Baseline MET cut
+	  if( pfmet() <= 250. ) continue;
 	  yield_METcut += evtWeight;
 	  yGen_METcut++;
 
-	  // MT cut (with 2nd lepton pT added to MET)
-	  if( mt_met_lep_rl() <= 150. ) continue;
+	  // MT cut
+	  if( mt_met_lep() <= 150. ) continue;
 	  yield_MTcut += evtWeight;
 	  yGen_MTcut++;
 
-	  // Min delta-phi between MET and j1/j2 (with 2nd lepton pT added to MET)
-	  if( mindphi_met_j1_j2_rl() <= 0.8 ) continue;
+	  // Min delta-phi between MET and j1/j2
+	  if( mindphi_met_j1_j2() <= 0.8 ) continue;
 	  yield_dPhi += evtWeight;
 	  yGen_dPhi++;
 
@@ -451,10 +424,10 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  else                            evtType = 2+category;
 
 	  // Quickly calculate some variables
-	  double metSqHT = pfmet_rl() / sqrt( ak4_HT() );
+	  double metSqHT = pfmet() / sqrt( ak4_HT() );
 
 	  const TVector3 lepVec( lep1_p4().x(), lep1_p4().y(), lep1_p4().z() );
-	  const TVector3 metVec( pfmet_rl()*cos(pfmet_phi_rl()), pfmet_rl()*sin(pfmet_phi_rl()), 0 );
+	  const TVector3 metVec( pfmet()*cos(pfmet_phi()), pfmet()*sin(pfmet_phi()), 0 );
 	  const TVector3 wVec = lepVec + metVec;
 	  double dPhiLepW = fabs( lepVec.DeltaPhi(wVec) );
 
@@ -471,12 +444,12 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		h_bgtype[i]->Fill( category,                    evtWeight );
 		h_evttype[i]->Fill( evtType,                    evtWeight );
 
-		h_mt[i]->Fill(      mt_met_lep_rl(),			evtWeight );
-		h_met[i]->Fill(     pfmet_rl(),					evtWeight );
-		h_mt2w[i]->Fill(	MT2W_rl(), 					evtWeight );
+		h_mt[i]->Fill(      mt_met_lep(),				evtWeight );
+		h_met[i]->Fill(     pfmet(),					evtWeight );
+		h_mt2w[i]->Fill(	MT2W(),						evtWeight );
 		h_chi2[i]->Fill(	hadronic_top_chi2(),		evtWeight );
 		h_htratio[i]->Fill( ak4_htratiom(),				evtWeight );
-		h_mindphi[i]->Fill( mindphi_met_j1_j2_rl(),		evtWeight );
+		h_mindphi[i]->Fill( mindphi_met_j1_j2(),		evtWeight );
 		h_ptb1[i]->Fill(	ak4pfjets_leadMEDbjet_p4().pt(),	evtWeight );
 		h_drlb1[i]->Fill(   drLepLeadb,					evtWeight );
 		h_ptlep[i]->Fill(   lep1_p4().pt(),				evtWeight );
@@ -486,7 +459,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		h_nbtags[i]->Fill(  ngoodbtags(),               evtWeight );
 		h_ptj1[i]->Fill(    j1pt,                       evtWeight );
 		h_j1btag[i]->Fill(  j1_isBtag,                  evtWeight );
-		h_modtop[i]->Fill(  topnessMod_rl(),            evtWeight );
+		h_modtop[i]->Fill(  topnessMod(),               evtWeight );
 
 		h_yields->Fill(     double(i+1),                evtWeight );
 
@@ -512,14 +485,11 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   printf("Events with 1st vertex good:        %10.2f %9i\n", yield_vtx		, yGen_vtx			);
   printf("Events with at least 1 good lepton: %10.2f %9i\n", yield_1goodlep	, yGen_1goodlep		);
   printf("Events passing lepton selection:    %10.2f %9i\n", yield_lepSel	, yGen_lepSel		);
-
-  printf("\nEvents passing 2-lep requirement:   %10.2f %9i\n", yield_2lepCR   , yGen_2lepCR       );
-  printf("   Events with veto lepton:         %10.2f %9i\n", yield_2lepveto	, yGen_2lepveto		);
-  printf("   Events with isolated track:      %10.2f %9i\n", yield_trkVeto	, yGen_trkVeto		);
-  printf("   Events with identified tau:      %10.2f %9i\n\n", yield_tauVeto	, yGen_tauVeto		);
-
+  printf("Events passing second lepton veto:  %10.2f %9i\n", yield_2lepveto	, yGen_2lepveto		);
+  printf("Events passing track veto:          %10.2f %9i\n", yield_trkVeto	, yGen_trkVeto		);
+  printf("Events passing tau veto:            %10.2f %9i\n", yield_tauVeto	, yGen_tauVeto		);
   printf("Events with at least 2 jets:        %10.2f %9i\n", yield_njets	, yGen_njets		);
-  printf("Events with at least 1 b-tag:       %10.2f %9i\n", yield_1bjet	, yGen_1bjet		);
+  printf("Events with zero b-tags:            %10.2f %9i\n", yield_0bjet	, yGen_0bjet		);
   printf("Events with MET > 250 GeV:          %10.2f %9i\n", yield_METcut	, yGen_METcut		);
   printf("Events with MT > 150 GeV:           %10.2f %9i\n", yield_MTcut	, yGen_MTcut		);
   printf("Events with min dPhi > 0.8:         %10.2f %9i\n", yield_dPhi		, yGen_dPhi			);
