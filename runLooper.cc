@@ -44,7 +44,7 @@ int main( int argc, char* argv[] ) {
   // Where to find the stop babies
   TString sigPath = "/hadoop/cms/store/user/haweber/condor/stop1l_2016/stop_babies_V080009_signal_norm_v2/merged_files/";
   TString bkgPath = "/nfs-7/userdata/stopRun2/stop_babies__CMS3_V080005__BabyMaker_V0800X_v8__20160729/";
-  TString dataPath = "/hadoop/cms/store/user/isuarez/condor/stop_1l_babies/stop_babies__CMS3_V080005__BabyMaker_V0800X_v7__20160722/merged_files/";
+  TString dataPath = "/nfs-7/userdata/stopRun2/stop_babies__CMS3_V080005__BabyMaker_V0800X_v7__20160722/";
 
 
   ////////////////////////////////////////////////////////////////
@@ -135,8 +135,7 @@ int main( int argc, char* argv[] ) {
   selection<float> MET_350_450( (*tas::pfmet), 350., 450. );
   selection<float> MET_450_550( (*tas::pfmet), 450., 550. );
   selection<float> MET_550_650( (*tas::pfmet), 550., 650. );
-  selection<float> MET_350_inf( (*tas::pfmet), 350., 9999999. ); // MET bins for the signal regions
-  selection<float> MET_450_inf( (*tas::pfmet), 450., 9999999. );
+  selection<float> MET_450_inf( (*tas::pfmet), 450., 9999999. ); // MET bins for the signal regions
   selection<float> MET_550_inf( (*tas::pfmet), 550., 9999999. );
   selection<float> MET_650_inf( (*tas::pfmet), 650., 9999999. );
 
@@ -144,8 +143,7 @@ int main( int argc, char* argv[] ) {
   selection<float> CR_MET_350_450( (*tas::pfmet_rl), 350., 450. );
   selection<float> CR_MET_450_550( (*tas::pfmet_rl), 450., 550. );
   selection<float> CR_MET_550_650( (*tas::pfmet_rl), 550., 650. );
-  selection<float> CR_MET_350_inf( (*tas::pfmet_rl), 350., 9999999. ); // (MET+lep2) bins for the 2-lep control regions
-  selection<float> CR_MET_450_inf( (*tas::pfmet_rl), 450., 9999999. );
+  selection<float> CR_MET_450_inf( (*tas::pfmet_rl), 450., 9999999. ); // (MET+lep2) bins for the 2-lep control regions
   selection<float> CR_MET_550_inf( (*tas::pfmet_rl), 550., 9999999. );
   selection<float> CR_MET_650_inf( (*tas::pfmet_rl), 650., 9999999. );
 
@@ -285,7 +283,13 @@ int main( int argc, char* argv[] ) {
 	tt1l->AddFile( bkgPath + "ttbar_singleLeptFromT_madgraph_pythia8_*.root" );
 	tt1l->AddFile( bkgPath + "ttbar_singleLeptFromTbar_madgraph_pythia8_ext1*.root" );
 
-	wjets->AddFile( bkgPath + "WJetsToLNu_HT*.root" );
+	wjets->AddFile( bkgPath + "WJetsToLNu_HT100To200_madgraph_pythia8_ext1_25ns*.root" );
+	wjets->AddFile( bkgPath + "WJetsToLNu_HT200To400_madgraph_pythia8_ext1_25ns*.root" );
+	wjets->AddFile( bkgPath + "WJetsToLNu_HT400To600_madgraph_pythia8_25ns.root" ); // extended sample available
+	wjets->AddFile( bkgPath + "WJetsToLNu_HT600To800_madgraph_pythia8_25ns.root" ); // extended sample available
+	wjets->AddFile( bkgPath + "WJetsToLNu_HT800To1200_madgraph_pythia8_ext1_25ns*.root" );
+	wjets->AddFile( bkgPath + "WJetsToLNu_HT1200To2500_madgraph_pythia8_25ns.root" );
+	wjets->AddFile( bkgPath + "WJetsToLNu_HT2500ToInf_madgraph_pythia8_25ns.root" ); // extended sample available
 
 	dy->AddFile( bkgPath + "DYJetsToLL_m10To50_amcnlo_pythia8_25ns.root" );
 	dy->AddFile( bkgPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns.root" );
@@ -305,7 +309,7 @@ int main( int argc, char* argv[] ) {
 	rare->AddFile( bkgPath + "WWToLNuQQ_powheg_25ns.root" );
 	rare->AddFile( bkgPath + "WZTo3LNu_powheg_pythia8_25ns.root" );
 	rare->AddFile( bkgPath + "WZTo2L2Q_amcnlo_pythia8_25ns.root" );
-	rare->AddFile( bkgPath + "WZTo1LNu2Q_amcnlo_pythia8_25ns.root" );
+	rare->AddFile( bkgPath + "WZTo1LNu2Q_amcnlo_pythia8_25ns*.root" );
 	rare->AddFile( bkgPath + "WZTo1L3Nu_amcnlo_pythia8_25ns.root" );
 	// rare->AddFile( bkgPath + "ZZTo4L_powheg_pythia8_25ns.root" );
 	rare->AddFile( bkgPath + "ZZTo2L2Q_amcnlo_pythia8_25ns.root" );
