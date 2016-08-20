@@ -84,25 +84,27 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
   for( int i=0; i<nSigRegs; i++ ) {
 
-	h_bgtype[i]   = new TH1D( Form( "bkgtype_%s_%s" , sampleName.Data(), regNames.at(i).Data()), "Yield by background type",  5, 0.5, 5.5);
-	h_evttype[i]= new TH1D( Form( "evttype_%s"      , regNames.at(i).Data()),                    "Yield by event type",       6, 0.5, 6.5);
-	h_sigyields[i] = new TH2D( Form( "sigyields_%s", regNames.at(i).Data()), "Signal yields by mass point", 37, 87.5, 1012.5, 21, -12.5, 512.5 );
-	h_mt[i]       = new TH1D( Form( "mt_%s_%s"      , sampleName.Data(), regNames.at(i).Data()), "Transverse mass",			80, 0, 800);
-	h_met[i]      = new TH1D( Form( "met_%s_%s"     , sampleName.Data(), regNames.at(i).Data()), "MET",						40, 0, 1000);
-	h_mt2w[i]     = new TH1D( Form( "mt2w_%s_%s"    , sampleName.Data(), regNames.at(i).Data()), "MT2W",						50, 0, 500);
-	h_chi2[i]     = new TH1D( Form( "chi2_%s_%s"    , sampleName.Data(), regNames.at(i).Data()), "Hadronic #chi^{2}", 		50, 0, 15);
-	h_htratio[i]  = new TH1D( Form( "htratio_%s_%s" , sampleName.Data(), regNames.at(i).Data()), "H_{T} ratio",				50, 0, 1);
-	h_mindphi[i]  = new TH1D( Form( "mindphi_%s_%s" , sampleName.Data(), regNames.at(i).Data()), "min #Delta#phi(j12,MET)",	50, 0, 4);
-	h_ptb1[i]     = new TH1D( Form( "ptb1_%s_%s"    , sampleName.Data(), regNames.at(i).Data()), "p_{T} (b1)",				100, 0, 500);
-	h_drlb1[i]    = new TH1D( Form( "drlb1_%s_%s"   , sampleName.Data(), regNames.at(i).Data()), "#DeltaR (lep, b1)", 		50, 0, 5);
-	h_ptlep[i]    = new TH1D( Form( "ptlep_%s_%s"   , sampleName.Data(), regNames.at(i).Data()), "p_{T} (lep)",				100, 0, 500);
-	h_metht[i]    = new TH1D( Form( "metht_%s_%s"   , sampleName.Data(), regNames.at(i).Data()), "MET/sqrt(HT)",				50, 0, 100);
-	h_dphilw[i]   = new TH1D( Form( "dphilw_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "#Delta#phi (lep,W)",		50, 0, 3.5);
-	h_njets[i]    = new TH1D( Form( "njets_%s_%s"   , sampleName.Data(), regNames.at(i).Data()), "Number of jets",            16, -0.5, 15.5);
-	h_nbtags[i]   = new TH1D( Form( "nbtags_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "Number of b-tags",          7, -0.5, 6.5);
-	h_ptj1[i]     = new TH1D( Form( "ptj1_%s_%s"    , sampleName.Data(), regNames.at(i).Data()), "Leading jet p_{T}",        40, 0, 1000);
-	h_j1btag[i]   = new TH1D( Form( "j1btag_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "Is leading jet b-tagged?", 2, -0.5, 1.5);
-	h_modtop[i]   = new TH1D( Form( "modtop_%s_%s"  , sampleName.Data(), regNames.at(i).Data()), "Modified topness",         30, -15., 15.);
+	TString plotLabel = sampleName + "_" + regNames.at(i);
+
+	h_bgtype[i]   = new TH1D(  "bkgtype_" + plotLabel, "Yield by background type",  5, 0.5, 5.5);
+	h_evttype[i]  = new TH1D(  "evttype_" + regNames.at(i), "Yield by event type",  6, 0.5, 6.5);
+	h_sigyields[i] = new TH2D( "sigyields_" + regNames.at(i), "Signal yields by mass point", 37, 87.5, 1012.5, 21, -12.5, 512.5 );
+	h_mt[i]       = new TH1D(  "mt_"      + plotLabel, "Transverse mass",			80, 0, 800);
+	h_met[i]      = new TH1D(  "met_"     + plotLabel, "MET",						40, 0, 1000);
+	h_mt2w[i]     = new TH1D(  "mt2w_"    + plotLabel, "MT2W",						50, 0, 500);
+	h_chi2[i]     = new TH1D(  "chi2_"    + plotLabel, "Hadronic #chi^{2}", 		50, 0, 15);
+	h_htratio[i]  = new TH1D(  "htratio_" + plotLabel, "H_{T} ratio",				50, 0, 1);
+	h_mindphi[i]  = new TH1D(  "mindphi_" + plotLabel, "min #Delta#phi(j12,MET)",	50, 0, 4);
+	h_ptb1[i]     = new TH1D(  "ptb1_"    + plotLabel, "p_{T} (b1)",				100, 0, 500);
+	h_drlb1[i]    = new TH1D(  "drlb1_"   + plotLabel, "#DeltaR (lep, b1)", 		50, 0, 5);
+	h_ptlep[i]    = new TH1D(  "ptlep_"   + plotLabel, "p_{T} (lep)",				100, 0, 500);
+	h_metht[i]    = new TH1D(  "metht_"   + plotLabel, "MET/sqrt(HT)",				50, 0, 100);
+	h_dphilw[i]   = new TH1D(  "dphilw_"  + plotLabel, "#Delta#phi (lep,W)",		50, 0, 3.5);
+	h_njets[i]    = new TH1D(  "njets_"   + plotLabel, "Number of jets",            16, -0.5, 15.5);
+	h_nbtags[i]   = new TH1D(  "nbtags_"  + plotLabel, "Number of b-tags",          7, -0.5, 6.5);
+	h_ptj1[i]     = new TH1D(  "ptj1_"    + plotLabel, "Leading jet p_{T}",        40, 0, 1000);
+	h_j1btag[i]   = new TH1D(  "j1btag_"  + plotLabel, "Is leading jet b-tagged?", 2, -0.5, 1.5);
+	h_modtop[i]   = new TH1D(  "modtop_"  + plotLabel, "Modified topness",         30, -15., 15.);
 
 	h_bgtype[i]->SetDirectory(rootdir);
 	h_evttype[i]->SetDirectory(rootdir);
