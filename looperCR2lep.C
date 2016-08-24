@@ -317,7 +317,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	  	evtWeight *= weight_vetoLepSF() * lepNorm_veto;
 	  	evtWeight *= weight_btagsf() * btagNorm;
 	  	if( isFastsim ) evtWeight *= weight_lepSF_fastSim() * lepNorm_FS;
-		if( isSignal  ) evtWeight *= weight_ISR() * isrNorm;
+		if( mySample->IsSignal()  ) evtWeight *= weight_ISR() * isrNorm;
 	  }
 
 
