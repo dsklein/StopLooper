@@ -58,7 +58,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   TH1::SetDefaultSumw2();
 
 
-  TH1D* h_bgtype[nSigRegs];
+  TH1D* h_bkgtype[nSigRegs];
   TH1D* h_evttype[nSigRegs];
   TH2D* h_sigyields[nSigRegs];
 
@@ -86,7 +86,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 	TString plotLabel = sampleName + "_" + regNames.at(i);
 
-	h_bgtype[i]   = new TH1D(  "bkgtype_" + plotLabel, "Yield by background type",  5, 0.5, 5.5);
+	h_bkgtype[i]  = new TH1D(  "bkgtype_" + plotLabel, "Yield by background type",  5, 0.5, 5.5);
 	h_evttype[i]  = new TH1D(  "evttype_" + regNames.at(i), "Yield by event type",  6, 0.5, 6.5);
 	h_sigyields[i] = new TH2D( "sigyields_" + regNames.at(i), "Signal yields by mass point", 37, 87.5, 1012.5, 21, -12.5, 512.5 );
 	h_mt[i]       = new TH1D(  "mt_"      + plotLabel, "Transverse mass",			80, 0, 800);
@@ -106,7 +106,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	h_j1btag[i]   = new TH1D(  "j1btag_"  + plotLabel, "Is leading jet b-tagged?", 2, -0.5, 1.5);
 	h_modtop[i]   = new TH1D(  "modtop_"  + plotLabel, "Modified topness",         30, -15., 15.);
 
-	h_bgtype[i]->SetDirectory(rootdir);
+	h_bkgtype[i]->SetDirectory(rootdir);
 	h_evttype[i]->SetDirectory(rootdir);
 	h_sigyields[i]->SetDirectory(rootdir);
 
@@ -127,7 +127,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	h_j1btag[i]->SetDirectory(rootdir);
 	h_modtop[i]->SetDirectory(rootdir);
 
-	TAxis* axis = h_bgtype[i]->GetXaxis();
+	TAxis* axis = h_bkgtype[i]->GetXaxis();
 	axis->SetBinLabel( 1, "ZtoNuNu" );
 	axis->SetBinLabel( 2, "2+lep" );
 	axis->SetBinLabel( 3, "1lepTop" );
@@ -474,7 +474,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 		if( !sigRegions.at(i).PassAllCuts() ) continue;
 
-		h_bgtype[i]->Fill( category,                    evtWeight );
+		h_bkgtype[i]->Fill( category,                   evtWeight );
 		h_evttype[i]->Fill( evtType,                    evtWeight );
 
 		h_mt[i]->Fill(      mt_met_lep_rl(),			evtWeight );
@@ -541,10 +541,10 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	bool negsFound = false;
 
 	// First zero any decay modes with negative yields
-	for( int k=1; k<= h_bgtype[j]->GetNbinsX(); k++ ) {
-	  if( h_bgtype[j]->GetBinContent(k) < 0.0 ) {
-		h_bgtype[j]->SetBinContent(k, 0.);
-		h_bgtype[j]->SetBinError(k, 0.);
+	for( int k=1; k<= h_bkgtype[j]->GetNbinsX(); k++ ) {
+	  if( h_bkgtype[j]->GetBinContent(k) < 0.0 ) {
+		h_bkgtype[j]->SetBinContent(k, 0.);
+		h_bkgtype[j]->SetBinError(k, 0.);
 		negsFound = true;
 	  }
 	  if( h_evttype[j]->GetBinContent(k+2) < 0.0 ) {
@@ -555,7 +555,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	// If any negative yields were found in any decay mode, recalculate the total yield
 	if( negsFound ) {
 	  double newYield, newErr;
-	  newYield = h_bgtype[j]->IntegralAndError( 0, -1, newErr );
+	  newYield = h_bkgtype[j]->IntegralAndError( 0, -1, newErr );
 	  h_yields->SetBinContent(j+1, newYield);
 	  h_yields->SetBinError(j+1, newErr);
 	}
@@ -566,7 +566,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   plotfile->cd();
 
   for( int j=0; j<nSigRegs; j++ ) {
-	h_bgtype[j]->Write();
+	h_bkgtype[j]->Write();
 	h_mt[j]->Write();
 	h_met[j]->Write();
 	h_mt2w[j]->Write();
@@ -601,7 +601,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   plotfile->Close();
 
   for( int j=0; j<nSigRegs; j++ ) {
-	delete h_bgtype[j];
+	delete h_bkgtype[j];
 	delete h_evttype[j];
 	delete h_sigyields[j];
 	delete h_mt[j];
