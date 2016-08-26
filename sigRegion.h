@@ -1,6 +1,7 @@
 #ifndef SIGREGION_H
 #define SIGREGION_H
 
+#include <iostream>
 #include <limits>
 
 #include "TString.h"
@@ -26,7 +27,6 @@ public:
   selection( const T& (*func)(), T eqval );
   selection( T* myCutVar, T minval, T maxval);
   selection( T* myCutVar, T eqval );
-  selection();
   bool Pass();
 
 protected:

@@ -3,6 +3,8 @@
 #include "runLooper.h"
 #include "sigRegion.h"
 #include "sigRegion.cc"
+#include "sfHelper.h"
+#include "systematic.h"
 
 #include "TChain.h"
 #include "TFile.h"
@@ -57,7 +59,7 @@ int main( int argc, char* argv[] ) {
   // Parse command-line argument(s)
 
   std::vector<TString> arguments;
-  if( argc==1 )                       arguments.push_back( "all" );
+  if( argc==1 )                      arguments.push_back( "all" );
   else  for( int i=1; i<argc; i++ )  arguments.push_back( TString(argv[i]) );
 
   bool needshelp   = false;
