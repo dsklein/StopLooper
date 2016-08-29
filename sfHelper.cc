@@ -9,7 +9,7 @@ sfHelper myHelper; // Define an extern sfHelper
 // Function definitions for "sfHelper" class
 
 // Setup function
-void sfHelper::setup( bool is_fastsim, TH1D* counterHist, TH2F* nevtsHist=NULL, TH3D* counterHist_SMS=NULL )
+void sfHelper::Setup( bool is_fastsim, TH1D* counterHist, TH2F* nevtsHist=NULL, TH3D* counterHist_SMS=NULL )
 {
   isFastsim = is_fastsim;
   h_counter = counterHist;

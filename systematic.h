@@ -19,13 +19,14 @@ public:
   // systematic( TString systName, direction whichDir, double* myWeightVar );
   direction GetDir();
   TString GetName();
+  TString GetNameLong();
   double GetWeight();
   bool IsUp();
   bool IsDown();
   bool IsVariation();
   bool IsSkip();
 
-  static std::vector<TString> GetSysts();
+  static std::vector<TString> GetSystNames();
   static std::map<TString,std::vector<direction> > GetVariations();
 
 

@@ -31,7 +31,14 @@ bool systematic::IsSkip()      { return (var_dir==kSkipUp || var_dir==kSkipDown)
 
 double systematic::GetWeight() { return reweight_func(); }
 
-std::vector<TString> systematic::GetSysts() {
+TString systematic::GetNameLong() {
+  TString longname = name;
+  if( IsUp() ) longname += "up";
+  else if( IsDown() ) longname += "down";
+  return longname;
+}
+
+std::vector<TString> systematic::GetSystNames() {
   std::vector<TString> syst_names;
   for( auto& iter : variations ) syst_names.push_back( iter.first );
   return syst_names;

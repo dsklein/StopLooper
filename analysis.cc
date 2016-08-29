@@ -42,6 +42,8 @@ sample* analysis::AddSample(std::string myLabel, std::string tabName, std::strin
 
 void analysis::AddSigRegs( std::vector<sigRegion> regions ) { sigRegions.push_back(regions); }
 
+void analysis::AddSystematics( std::vector<systematic*> systs ) { syst_vars.insert( syst_vars.end(), systs.begin(), systs.end() ); }
+
 std::vector<short int> analysis::GetBkgColors() {
   std::vector<short int> colors;
   for( sample* mySample : backgrounds ) colors.push_back( mySample->GetColor() );
@@ -156,6 +158,13 @@ std::vector<TString> analysis::GetSigRegionLabelsAll() {
 	for( sigRegion myReg : regList ) output.push_back( myReg.GetLabel() );
   }
   return output;
+}
+
+std::vector<systematic*> analysis::GetSystematics( bool includeSkips = false ) {
+  if( includeSkips ) return syst_vars;
+  std::vector<systematic*> syst_list;
+  for( systematic* thisvar : syst_vars )  if( !thisvar->IsSkip() ) syst_list.push_back( thisvar );
+  return syst_list;
 }
 
 const float analysis::GetLumi() { return luminosity; }

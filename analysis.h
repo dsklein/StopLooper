@@ -10,6 +10,7 @@
 
 #include "sample.h"
 #include "sigRegion.h"
+#include "systematic.h"
 
 
 class analysis{
@@ -23,6 +24,7 @@ public:
   sample* AddSample( std::string myLabel, std::string tabName, std::string legName );
   sample* AddSample( std::string myLabel, std::string tabName, std::string legName, short int color, sample::sampleType type );
   void AddSigRegs( std::vector<sigRegion> regions );
+  void AddSystematics( std::vector<systematic*> systs );
   std::vector<short int> GetBkgColors();
   std::vector<TString> GetBkgLabels();
   std::vector<std::string> GetBkgNamesTable();
@@ -39,6 +41,7 @@ public:
   std::vector<sigRegion> GetSigRegionsAll();
   std::vector<std::vector<TString> > GetSigRegionLabels();
   std::vector<TString> GetSigRegionLabelsAll();
+  std::vector<systematic*> GetSystematics( bool includeSkips );
   sample* GetSample( std::string name );
   std::vector<sample*> GetAllSamples();
   const int GetNsignals();
@@ -54,6 +57,7 @@ private:
   std::vector<sample*> backgrounds;
   std::vector<sample*> signals;
   std::vector<std::vector<sigRegion> > sigRegions;
+  std::vector<systematic*> syst_vars;
   float luminosity;
   TString plotfilename;
 };

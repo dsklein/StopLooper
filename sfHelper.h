@@ -18,7 +18,7 @@ class sfHelper {
 
 public:
 
-  void setup( bool is_fastsim, TH1D* counterHist, TH2F* nevtsHist, TH3D* counterHist_SMS );
+  void Setup( bool is_fastsim, TH1D* counterHist, TH2F* nevtsHist, TH3D* counterHist_SMS );
 
   double LepSFUp();
   double LepSFDown();
