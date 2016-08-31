@@ -48,7 +48,7 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
   TChain *chain = mySample->GetChain();
   TString sampleName = mySample->GetLabel();
   const int nSigRegs = myAnalysis->GetSigRegionsAll().size();
-  const int nVariations = myAnalysis->GetSystematics(false).size();
+  const int nVariations = mySample->IsData() ? 0 : myAnalysis->GetSystematics(false).size();
   bool isFastsim = mySample->IsSignal();
   cout << "\nSample: " << sampleName.Data() << endl;
 
