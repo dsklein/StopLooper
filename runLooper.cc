@@ -30,7 +30,8 @@ void printHelp() {
   std::cout << "all         run all of the components listed below" << std::endl;
   std::cout << "scan        run ScanChain only" << std::endl;
   std::cout << "lostlep     run lost lepton looper only" << std::endl;
-  std::cout << "syst        run systematic errors only" << std::endl;
+  std::cout << "jes         run JES systematics (signal and control regions)" << std::endl;
+  std::cout << "syst        enable non-JES systematics to be run using scan or lostlep" << std::endl;
   std::cout << "plots       run makeStack only" << std::endl;
   std::cout << "tables      run makeTables only" << std::endl;
   std::cout << "cards       run makeDataCards only" << std::endl;
@@ -66,6 +67,7 @@ int main( int argc, char* argv[] ) {
   bool runlooper   = false;
   bool runlostlep  = false;
   bool runsyst     = false;
+  bool runjes      = false;
   bool runstacks   = false;
   bool runtables   = false;
   bool runcards    = false;
@@ -77,6 +79,7 @@ int main( int argc, char* argv[] ) {
 	else if( arg=="scan"  || arg=="loop"  || arg=="scanchain" ) runlooper = true;
 	else if( arg=="lostlep" || arg=="lost" || arg=="ll" ) runlostlep = true;
 	else if( arg=="systematic" || arg=="systematics" || arg=="syst" || arg=="systs" ) runsyst = true;
+	else if( arg=="jes" || arg=="JES" ) runjes = true;
 	else if( arg=="plot"  || arg=="plots" || arg=="stack" || arg=="stacks" ) runstacks = true;
 	else if( arg=="table" || arg=="tables" ) runtables = true;
 	else if( arg=="cards" || arg=="card"  || arg=="datacards" || arg=="datacard" ) runcards = true;
@@ -90,6 +93,7 @@ int main( int argc, char* argv[] ) {
 	  runlooper = true;
 	  runlostlep = true;
 	  runsyst   = true;
+	  runjes    = true;
 	  runstacks = true;
 	  runtables = true;
 	  runcards  = true;
@@ -114,10 +118,10 @@ int main( int argc, char* argv[] ) {
   //                     new analysis( lumi, "histogram storage file" )
   analysis* srAnalysis = new analysis( 12.9, "plots.root" );
   analysis* crLostLep  = new analysis( 12.9, "plotsLL.root" );
-  analysis* sr_jesup   = new analysis( 12.9, "systVariations.root" );
-  analysis* sr_jesdn   = new analysis( 12.9, "systVariations.root" );
-  analysis* cr2l_jesup = new analysis( 12.9, "systVariationsLL.root" );
-  analysis* cr2l_jesdn = new analysis( 12.9, "systVariationsLL.root" );
+  analysis* sr_jesup   = new analysis( 12.9, "jes_sr.root" );
+  analysis* sr_jesdn   = new analysis( 12.9, "jes_sr.root" );
+  analysis* cr2l_jesup = new analysis( 12.9, "jes_cr2l.root" );
+  analysis* cr2l_jesdn = new analysis( 12.9, "jes_cr2l.root" );
 
   //                new sample( "Label",  "Display name(s)", TColor,    sampleType )
   sample* data    = new sample( "data",    "Data",           kBlack,    sample::kData );
@@ -171,6 +175,28 @@ int main( int argc, char* argv[] ) {
   sr_jesdn->AddSample( wjets_jesdn );    cr2l_jesdn->AddSample( wjets_jesdn );
   sr_jesdn->AddSample( dy_jesdn );       cr2l_jesdn->AddSample( dy_jesdn );
   sr_jesdn->AddSample( rare_jesdn );     cr2l_jesdn->AddSample( rare_jesdn );
+
+  /////////////////////////////////////////////////////////////////////////
+  // Create "systematic" objects to store all our systematic variations
+
+  systematic jesup( "JES", systematic::kSkipUp,   NULL );
+  systematic jesdn( "JES", systematic::kSkipDown, NULL );
+  systematic lepSFup(  "lepSF", systematic::kUp,    (*sfhelp::LepSFUp) );
+  systematic lepSFdn(  "lepSF", systematic::kDown,  (*sfhelp::LepSFDown) );
+  systematic btagHFup( "btagHF", systematic::kUp,   (*sfhelp::BtagHeavyUp) );
+  systematic btagHFdn( "btagHF", systematic::kDown, (*sfhelp::BtagHeavyDown) );
+  systematic btagLFup( "btagLF", systematic::kUp,   (*sfhelp::BtagLightUp) );
+  systematic btagLFdn( "btagLF", systematic::kDown, (*sfhelp::BtagLightDown) );
+  systematic qSquaredup( "qSquared", systematic::kUp, (*sfhelp::QSquaredUp) );
+  systematic qSquareddn( "qSquared", systematic::kDown, (*sfhelp::QSquaredDown) );
+  systematic alphaSup( "alphaS", systematic::kUp, (*sfhelp::AlphaSUp) );
+  systematic alphaSdn( "alphaS", systematic::kDown, (*sfhelp::AlphaSDown) );
+
+  if( runsyst ) {
+	srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn } );
+	crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn } );
+  }
+
 
   /////////////////////////////////////////////////////////////////////////////////////
   // Create the objects that will define our signal and control regions
@@ -391,7 +417,7 @@ int main( int argc, char* argv[] ) {
 	rare->AddFile( bkgPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns.root" );
   }
 
-  if( runsyst ) {
+  if( runjes ) {
 	signal_jesup->AddFile( sigPath_jesup + "Signal_T2tt*.root" );
 	tt2l_jesup->AddFile( bkgPath_jesup + "ttbar_diLept_madgraph_pythia8_ext1_25ns*.root" );
 	tt1l_jesup->AddFile( bkgPath_jesup + "ttbar_singleLeptFromT_madgraph_pythia8_*.root" );
@@ -468,8 +494,12 @@ int main( int argc, char* argv[] ) {
   if( runlooper ) {
 
 	// Reset output file
-	TFile* outfile = new TFile( srAnalysis->GetFileName(), "RECREATE");
+	TFile* outfile = new TFile( srAnalysis->GetFileName(), "RECREATE" );
 	outfile->Close();
+	if( runsyst ) {
+	  outfile = new TFile( "systVariations.root", "RECREATE" );
+	  outfile->Close();
+	}
 	// Run ScanChain on all samples
 	for( sample* mySample : srAnalysis->GetAllSamples() ) ScanChain( srAnalysis, mySample );
   }
@@ -480,8 +510,12 @@ int main( int argc, char* argv[] ) {
   if( runlostlep ) {
 
 	// Reset output file
-	TFile* outfile = new TFile( crLostLep->GetFileName(), "RECREATE");
+	TFile* outfile = new TFile( crLostLep->GetFileName(), "RECREATE" );
 	outfile->Close();
+	if( runsyst ) {
+	  outfile = new TFile( "systVariationsLL.root", "RECREATE" );
+	  outfile->Close();
+	}
 	// Run lost lepton CR looper on all samples
 	for( sample* mySample : crLostLep->GetAllSamples() ) looperCR2lep( crLostLep, mySample );
   }
@@ -489,9 +523,9 @@ int main( int argc, char* argv[] ) {
   ////////////////////////////////////////////////
   // Run jet energy scale (JES) systematics
 
-  if( runsyst ) {
+  if( runjes ) {
 
-	// Reset output file
+	// Reset output files
 	TFile* outfile = new TFile( sr_jesup->GetFileName(), "RECREATE");
 	outfile->Close();
 	outfile = new TFile( cr2l_jesup->GetFileName(), "RECREATE");

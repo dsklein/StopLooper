@@ -48,6 +48,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   TChain *chain = mySample->GetChain();
   TString sampleName = mySample->GetLabel();
   const int nSigRegs = myAnalysis->GetSigRegionsAll().size();
+  const int nVariations = myAnalysis->GetSystematics(false).size();
   bool isFastsim = mySample->IsSignal();
   cout << "\nSample: " << sampleName.Data() << endl;
 
@@ -57,10 +58,9 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
   TH1::SetDefaultSumw2();
 
-
-  TH1D* h_bkgtype[nSigRegs];
-  TH1D* h_evttype[nSigRegs];
-  TH2D* h_sigyields[nSigRegs];
+  TH1D* h_bkgtype[nSigRegs][nVariations+1];
+  TH1D* h_evttype[nSigRegs][nVariations+1];
+  TH2D* h_sigyields[nSigRegs][nVariations+1];
 
   TH1D *h_mt[nSigRegs];
   TH1D *h_met[nSigRegs];
@@ -81,14 +81,23 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
   vector<TString> regNames = myAnalysis->GetSigRegionLabelsAll();
   vector<sigRegion> sigRegions = myAnalysis->GetSigRegionsAll();
+  vector<systematic*> variations = myAnalysis->GetSystematics(false);
 
   for( int i=0; i<nSigRegs; i++ ) {
 
 	TString plotLabel = sampleName + "_" + regNames.at(i);
 
-	h_bkgtype[i]  = new TH1D(  "bkgtype_" + plotLabel, "Yield by background type",  5, 0.5, 5.5);
-	h_evttype[i]  = new TH1D(  "evttype_" + regNames.at(i), "Yield by event type",  6, 0.5, 6.5);
-	h_sigyields[i] = new TH2D( "sigyields_" + regNames.at(i), "Signal yields by mass point", 37, 87.5, 1012.5, 21, -12.5, 512.5 );
+	h_bkgtype[i][0]  = new TH1D(  "bkgtype_" + plotLabel, "Yield by background type",  5, 0.5, 5.5);
+	h_evttype[i][0]  = new TH1D(  "evttype_" + regNames.at(i), "Yield by event type",  6, 0.5, 6.5);
+	h_sigyields[i][0] = new TH2D( "sigyields_" + regNames.at(i), "Signal yields by mass point", 37, 87.5, 1012.5, 21, -12.5, 512.5 );
+
+	for( int j=1; j<=nVariations; j++ ) {
+	  TString varName = variations.at(j-1)->GetNameLong();
+	  h_bkgtype[i][j]   = new TH1D( "bkgtype_" + plotLabel + "_" + varName, "Yield by background type",  5, 0.5, 5.5);
+	  h_evttype[i][j]   = new TH1D( "evttype_" + regNames.at(i) + "_" + varName, "Yield by event type",  6, 0.5, 6.5);
+	  h_sigyields[i][j] = new TH2D( "sigyields_" + regNames.at(i) + "_" + varName, "Signal yields by mass point", 37, 87.5, 1012.5, 21, -12.5, 512.5 );
+	}
+
 	h_mt[i]       = new TH1D(  "mt_"      + plotLabel, "Transverse mass",			80, 0, 800);
 	h_met[i]      = new TH1D(  "met_"     + plotLabel, "MET",						40, 0, 1000);
 	h_mt2w[i]     = new TH1D(  "mt2w_"    + plotLabel, "MT2W",						50, 0, 500);
@@ -105,10 +114,6 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	h_ptj1[i]     = new TH1D(  "ptj1_"    + plotLabel, "Leading jet p_{T}",        40, 0, 1000);
 	h_j1btag[i]   = new TH1D(  "j1btag_"  + plotLabel, "Is leading jet b-tagged?", 2, -0.5, 1.5);
 	h_modtop[i]   = new TH1D(  "modtop_"  + plotLabel, "Modified topness",         30, -15., 15.);
-
-	h_bkgtype[i]->SetDirectory(rootdir);
-	h_evttype[i]->SetDirectory(rootdir);
-	h_sigyields[i]->SetDirectory(rootdir);
 
 	h_mt[i]->SetDirectory(rootdir);
 	h_met[i]->SetDirectory(rootdir);
@@ -127,20 +132,26 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	h_j1btag[i]->SetDirectory(rootdir);
 	h_modtop[i]->SetDirectory(rootdir);
 
-	TAxis* axis = h_bkgtype[i]->GetXaxis();
-	axis->SetBinLabel( 1, "ZtoNuNu" );
-	axis->SetBinLabel( 2, "2+lep" );
-	axis->SetBinLabel( 3, "1lepTop" );
-	axis->SetBinLabel( 4, "1lepW" );
-	axis->SetBinLabel( 5, "Other" );
+	for( int j=0; j<=nVariations; j++ ) {
+	  h_bkgtype[i][j]->SetDirectory(rootdir);
+	  h_evttype[i][j]->SetDirectory(rootdir);
+	  h_sigyields[i][j]->SetDirectory(rootdir);
 
-	axis = h_evttype[i]->GetXaxis();
-	axis->SetBinLabel( 1, "Data" );
-	axis->SetBinLabel( 2, "Signals" );
-	axis->SetBinLabel( 3, "ZtoNuNu" );
-	axis->SetBinLabel( 4, "2+lep" );
-	axis->SetBinLabel( 5, "1lepTop" );
-	axis->SetBinLabel( 6, "1lepW" );
+	  TAxis* axis = h_bkgtype[i][j]->GetXaxis();
+	  axis->SetBinLabel( 1, "ZtoNuNu" );
+	  axis->SetBinLabel( 2, "2+lep" );
+	  axis->SetBinLabel( 3, "1lepTop" );
+	  axis->SetBinLabel( 4, "1lepW" );
+	  axis->SetBinLabel( 5, "Other" );
+
+	  axis = h_evttype[i][j]->GetXaxis();
+	  axis->SetBinLabel( 1, "Data" );
+	  axis->SetBinLabel( 2, "Signals" );
+	  axis->SetBinLabel( 3, "ZtoNuNu" );
+	  axis->SetBinLabel( 4, "2+lep" );
+	  axis->SetBinLabel( 5, "1lepTop" );
+	  axis->SetBinLabel( 6, "1lepW" );
+	}
 
   }
 
@@ -251,6 +262,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	TH2F* hNEvts = (TH2F*)file.Get("histNEvts");
 	TH3D* hCounterSMS = (TH3D*)file.Get("h_counterSMS");
 	TH1D* hCounter = (TH1D*)file.Get("h_counter");
+	myHelper.Setup( isFastsim, hCounter, hNEvts, hCounterSMS );
 
     // Loop over Events in current file
     if( nEventsTotal >= nEventsChain ) continue;
@@ -474,8 +486,9 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 		if( !sigRegions.at(i).PassAllCuts() ) continue;
 
-		h_bkgtype[i]->Fill( category,                   evtWeight );
-		h_evttype[i]->Fill( evtType,                    evtWeight );
+		h_bkgtype[i][0]->Fill( category,                   evtWeight );
+		h_evttype[i][0]->Fill( evtType,                    evtWeight );
+		if( mySample->IsSignal() ) h_sigyields[i][0]->Fill( mass_stop(), mass_lsp(), evtWeight );
 
 		h_mt[i]->Fill(      mt_met_lep_rl(),			evtWeight );
 		h_met[i]->Fill(     pfmet_rl(),					evtWeight );
@@ -496,7 +509,13 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 		h_yields->Fill(     double(i+1),                evtWeight );
 
-		if( mySample->IsSignal() ) h_sigyields[i]->Fill( mass_stop(), mass_lsp(), evtWeight );
+		// Special systematic variation histograms
+		for( int j=1; j<=nVariations; j++ ) {
+		  h_bkgtype[i][j]->Fill( category,   evtWeight * variations.at(j-1)->GetWeight() );
+		  h_evttype[i][j]->Fill( evtType,    evtWeight * variations.at(j-1)->GetWeight() );
+		  if( mySample->IsSignal() ) h_sigyields[i][j]->Fill( mass_stop(), mass_lsp(), evtWeight * variations.at(j-1)->GetWeight() );
+		}
+
 	  }
 
 	  // ---------------------------------------------------------------------------------------------------//
@@ -537,27 +556,29 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   }
 
   // Zero negative values in each signal region
-  for( int j=0; j<nSigRegs; j++ ) {
-	bool negsFound = false;
+  for( int i=0; i<nSigRegs; i++ ) {
+	for( int j=0; j<=nVariations; j++ ) {
+	  bool negsFound = false;
 
-	// First zero any decay modes with negative yields
-	for( int k=1; k<= h_bkgtype[j]->GetNbinsX(); k++ ) {
-	  if( h_bkgtype[j]->GetBinContent(k) < 0.0 ) {
-		h_bkgtype[j]->SetBinContent(k, 0.);
-		h_bkgtype[j]->SetBinError(k, 0.);
-		negsFound = true;
+	  // First zero any decay modes with negative yields
+	  for( int k=1; k<= h_bkgtype[i][j]->GetNbinsX(); k++ ) {
+		if( h_bkgtype[i][j]->GetBinContent(k) < 0.0 ) {
+		  h_bkgtype[i][j]->SetBinContent(k, 0.);
+		  h_bkgtype[i][j]->SetBinError(k, 0.);
+		  negsFound = true;
+		}
+		if( h_evttype[i][j]->GetBinContent(k+2) < 0.0 ) {
+		  h_evttype[i][j]->SetBinContent(k+2, 0.);
+		  h_evttype[i][j]->SetBinError(k+2, 0.);
+		}
 	  }
-	  if( h_evttype[j]->GetBinContent(k+2) < 0.0 ) {
-		h_evttype[j]->SetBinContent(k+2, 0.);
-		h_evttype[j]->SetBinError(k+2, 0.);
+	  // If any negative yields were found in any decay mode, recalculate the total yield
+	  if( j==0 && negsFound ) {
+		double newYield, newErr;
+		newYield = h_bkgtype[i][0]->IntegralAndError( 0, -1, newErr );
+		h_yields->SetBinContent(i+1, newYield);
+		h_yields->SetBinError(i+1, newErr);
 	  }
-	}
-	// If any negative yields were found in any decay mode, recalculate the total yield
-	if( negsFound ) {
-	  double newYield, newErr;
-	  newYield = h_bkgtype[j]->IntegralAndError( 0, -1, newErr );
-	  h_yields->SetBinContent(j+1, newYield);
-	  h_yields->SetBinError(j+1, newErr);
 	}
   }
 
@@ -565,61 +586,86 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
   TFile* plotfile = new TFile( myAnalysis->GetFileName(), "UPDATE");
   plotfile->cd();
 
-  for( int j=0; j<nSigRegs; j++ ) {
-	h_bkgtype[j]->Write();
-	h_mt[j]->Write();
-	h_met[j]->Write();
-	h_mt2w[j]->Write();
-	h_chi2[j]->Write();
-	h_htratio[j]->Write();
-	h_mindphi[j]->Write();
-	h_ptb1[j]->Write();
-	h_drlb1[j]->Write();
-	h_ptlep[j]->Write();
-	h_metht[j]->Write();
-	h_dphilw[j]->Write();
-	h_njets[j]->Write();
-	h_nbtags[j]->Write();
-	h_ptj1[j]->Write();
-	h_j1btag[j]->Write();
-	h_modtop[j]->Write();
+  for( int i=0; i<nSigRegs; i++ ) {
+	h_bkgtype[i][0]->Write();
+	h_mt[i]->Write();
+	h_met[i]->Write();
+	h_mt2w[i]->Write();
+	h_chi2[i]->Write();
+	h_htratio[i]->Write();
+	h_mindphi[i]->Write();
+	h_ptb1[i]->Write();
+	h_drlb1[i]->Write();
+	h_ptlep[i]->Write();
+	h_metht[i]->Write();
+	h_dphilw[i]->Write();
+	h_njets[i]->Write();
+	h_nbtags[i]->Write();
+	h_ptj1[i]->Write();
+	h_j1btag[i]->Write();
+	h_modtop[i]->Write();
 
 	// Build up histo of signal yields
 	if( mySample->IsSignal() ) {
-	  TH2D* hTemp2 = (TH2D*)plotfile->Get( h_sigyields[j]->GetName() );
-	  if( hTemp2 != 0 ) h_sigyields[j]->Add( hTemp2 );
-	  h_sigyields[j]->Write( "", TObject::kOverwrite );
+	  TH2D* hTemp2 = (TH2D*)plotfile->Get( h_sigyields[i][0]->GetName() );
+	  if( hTemp2 != 0 ) h_sigyields[i][0]->Add( hTemp2 );
+	  h_sigyields[i][0]->Write( "", TObject::kOverwrite );
 	}
 
 	// Build up histo of yields by bkg type
-	TH1D* hTemp = (TH1D*)plotfile->Get( h_evttype[j]->GetName() );
-	if( hTemp != 0 ) h_evttype[j]->Add( hTemp );
-	h_evttype[j]->Write( "", TObject::kOverwrite );
+	TH1D* hTemp = (TH1D*)plotfile->Get( h_evttype[i][0]->GetName() );
+	if( hTemp != 0 ) h_evttype[i][0]->Add( hTemp );
+	h_evttype[i][0]->Write( "", TObject::kOverwrite );
   }
   h_yields->Write();
 
   plotfile->Close();
 
-  for( int j=0; j<nSigRegs; j++ ) {
-	delete h_bkgtype[j];
-	delete h_evttype[j];
-	delete h_sigyields[j];
-	delete h_mt[j];
-	delete h_met[j];
-	delete h_mt2w[j];
-	delete h_chi2[j];
-	delete h_htratio[j];
-	delete h_mindphi[j];
-	delete h_ptb1[j];
-	delete h_drlb1[j];
-	delete h_ptlep[j];
-	delete h_metht[j];
-	delete h_dphilw[j];
-	delete h_njets[j];
-	delete h_nbtags[j];
-	delete h_ptj1[j];
-	delete h_j1btag[j];
-	delete h_modtop[j];
+  // Do similarly for the systematic variation histograms, but put them in a different file
+  if( nVariations > 0 ) {
+	TFile* systFile = new TFile("systVariationsLL.root", "UPDATE");
+	systFile->cd();
+	for( int i=0; i< nSigRegs; i++ ) {
+	  for( int j=1; j<=nVariations; j++ ) {
+		h_bkgtype[i][j]->Write();
+
+		if( mySample->IsSignal() ) {
+		  TH2D* hTemp2 = (TH2D*)systFile->Get( h_sigyields[i][j]->GetName() );
+		  if( hTemp2 != 0 ) h_sigyields[i][j]->Add( hTemp2 );
+		  h_sigyields[i][j]->Write( "", TObject::kOverwrite );
+		}
+
+		TH1D* hTemp = (TH1D*)systFile->Get( h_evttype[i][j]->GetName() );
+		if( hTemp != 0 ) h_evttype[i][j]->Add( hTemp );
+		h_evttype[i][j]->Write( "", TObject::kOverwrite );
+	  }
+	}
+	systFile->Close();
+  }
+
+  // Cleanup
+  for( int i=0; i<nSigRegs; i++ ) {
+	for( int j=0; j<=nVariations; j++ ) {
+	  delete h_bkgtype[i][j];
+	  delete h_evttype[i][j];
+	  delete h_sigyields[i][j];
+	}
+	delete h_mt[i];
+	delete h_met[i];
+	delete h_mt2w[i];
+	delete h_chi2[i];
+	delete h_htratio[i];
+	delete h_mindphi[i];
+	delete h_ptb1[i];
+	delete h_drlb1[i];
+	delete h_ptlep[i];
+	delete h_metht[i];
+	delete h_dphilw[i];
+	delete h_njets[i];
+	delete h_nbtags[i];
+	delete h_ptj1[i];
+	delete h_j1btag[i];
+	delete h_modtop[i];
   }
   delete h_yields;
 
