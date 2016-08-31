@@ -2,6 +2,7 @@
 
 #include "analysis.h"
 #include "sample.h"
+#include "systematic.h"
 
 #include "TFile.h"
 #include "TH1.h"
@@ -9,31 +10,94 @@
 
 using namespace std;
 
+void doEstimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix );
+
+// Declare some static global variables
+// This simplifies the process of repeating the background estimate over multiple systematic variations
+static vector<TString> srnames;
+static vector<TString> crnames;
+static vector<TString> crBkgLabels;
+static uint nSRegions;
+static uint nCRegions;
+static TH1D* h_crData = NULL;
+static bool crHasSignal = false;
+static vector< vector<sigRegion> > sigRegionList;
+
+// Main function ////////////////////////////////////////////////////////////
+//-------------------------------------------------------------------------//
 void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 
   TH1::SetDefaultSumw2();
-
-  vector<TString> srnames = srAnalysis->GetSigRegionLabelsAll();
-  vector<TString> crnames = crAnalysis->GetSigRegionLabelsAll();
-  uint nSRegions = srnames.size();
-  uint nCRegions = crnames.size();
-  if( nSRegions != nCRegions ) {
-	cout << "Error in makeLostLepEstimate: Different number of signal and control regions!" << endl;
-	return;
-  }
 
 
   // Open input files and output file
   TFile* srHistFile = new TFile( srAnalysis->GetPlotFileName(), "READ" );
   TFile* crHistFile = new TFile( crAnalysis->GetPlotFileName(), "READ" );
-  if( srHistFile->IsZombie() || crHistFile->IsZombie() ) {
-	cout << "Error in makeLostLepEstmate! Couldn't open one or more of the input root files!" << endl;
-	return;
+  TFile* srSystFile = new TFile( srAnalysis->GetSystFileName(), "READ" );
+  TFile* crSystFile = new TFile( crAnalysis->GetSystFileName(), "READ" );
+
+  // Check for bad files
+  for( TFile* thisFile : {srHistFile,crHistFile,srSystFile,crSystFile} ) {
+	if( thisFile->IsZombie() ) {
+	  cout << "Error in makeLostLepEstmate! Couldn't open file " << thisFile->GetName() << "!" << endl;
+	  return;
+	}
   }
   TFile* outFile    = new TFile( "lostlepEstimates.root",   "RECREATE" );
+  outFile->cd();
+
+  // Set the values of our global variables
+  srnames = srAnalysis->GetSigRegionLabelsAll();
+  crnames = crAnalysis->GetSigRegionLabelsAll();
+  nSRegions = srnames.size();
+  nCRegions = crnames.size();
+  if( nSRegions != nCRegions ) {
+	cout << "Error in makeLostLepEstimate: Different number of signal and control regions!" << endl;
+	return;
+  }
+  if( crAnalysis->HasData() ) h_crData = (TH1D*)crHistFile->Get("srYields_"+crAnalysis->GetData()->GetLabel())->Clone("crData");
+  crHasSignal = ( crAnalysis->GetNsignals() >= 1 );
+  crBkgLabels = crAnalysis->GetBkgLabels();
+  sigRegionList = srAnalysis->GetSigRegions();
 
 
-  // Declare histograms that will hold the SR/CR yields
+  // Now actually run the lost lepton background estimates!
+
+  // Once for the nominal estimate...
+  doEstimate( srHistFile, crHistFile, "" );
+
+  // ...and once for each of the systematic variations
+  for( systematic* thisSys : srAnalysis->GetSystematics(true) ) {
+
+	TString suffix = "_" + thisSys->GetNameLong();
+	doEstimate( srSystFile, crSystFile, suffix );
+
+  }
+
+
+
+
+  // Clean up
+  outFile->Close();
+  crSystFile->Close();
+  srSystFile->Close();
+  crHistFile->Close();
+  srHistFile->Close();
+
+  delete outFile;
+  delete crSystFile;
+  delete srSystFile;
+  delete crHistFile;
+  delete srHistFile;
+
+}
+
+
+
+
+void doEstimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
+
+  // Define histograms that will hold the SR/CR yields
   TH1D* h_srMC   = new TH1D( "srMC"  , "Signal region yields from MC"   , nSRegions, 0.5, float(nSRegions)+0.5 );
   TH1D* h_crMC   = new TH1D( "crMC"  , "Control region yields from MC"  , nCRegions, 0.5, float(nCRegions)+0.5 );
   for( uint i=0; i<nSRegions; i++ ) h_srMC->GetXaxis()->SetBinLabel( i+1, srnames.at(i) );
@@ -42,9 +106,9 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 
   // Get lost lepton background yields from MC in signal regions
   for( uint i=0; i<srnames.size(); i++ ) {
-	TH1D* histo = (TH1D*)srHistFile->Get("evttype_"+srnames.at(i));
+	TH1D* histo = (TH1D*)srhistfile->Get("evttype_"+srnames.at(i)+systSuffix);
 	if( histo == 0 ) {
-	  cout << "Error in makeLostLepEstimate! Could not find histogram evttype_" << srnames.at(i) << " in file " << srHistFile->GetName() << "!" << endl;
+	  cout << "Error in makeLostLepEstimate! Could not find histogram evttype_" << srnames.at(i)+systSuffix << " in file " << srhistfile->GetName() << "!" << endl;
 	  return;
 	}
 	h_srMC->SetBinContent(i+1, histo->GetBinContent(4));
@@ -52,54 +116,68 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
   }
 
   // Get total yields from MC in 2-lep control regions
-  for( TString sampleName : crAnalysis->GetBkgLabels() ) {
-	TH1D* histo = (TH1D*)crHistFile->Get("srYields_"+sampleName);
+  for( uint i=0; i<crnames.size(); i++ ) {
+	TH1D* histo = (TH1D*)crhistfile->Get("evttype_"+crnames.at(i)+systSuffix);
 	if( histo == 0 ) {
-	  cout << "Error in makeLostLepEstimate! Could not find histogram srYields_" << sampleName << " in file " << crHistFile->GetName() << "!" << endl;
+	  cout << "Error in makeLostLepEstimate! Could not find histogram evttype_" << crnames.at(i)+systSuffix << " in file " << crhistfile->GetName() << "!" << endl;
 	  return;
 	}
-	h_crMC->Add( histo );
+	double yield, error;
+	yield = histo->IntegralAndError( 3, 6, error );
+	h_crMC->SetBinContent( i+1, yield );
+	h_crMC->SetBinError(   i+1, error );
   }
+  // for( TString sampleName : crBkgLabels ) {
+  // 	TH1D* histo = (TH1D*)crhistfile->Get("srYields_"+sampleName);  /// PROBLEM!!!
+  // 	if( histo == 0 ) {
+  // 	  cout << "Error in makeLostLepEstimate! Could not find histogram srYields_" << sampleName << " in file " << crhistfile->GetName() << "!" << endl;
+  // 	  return;
+  // 	}
+  // 	h_crMC->Add( histo );
+  // }
 
   // Now do the division, M^SR / M^CR
-  TH1D* h_mcRatio = (TH1D*)h_srMC->Clone("mcRatioLostLep");
+  TH1D* h_mcRatio = (TH1D*)h_srMC->Clone("mcRatioLostLep"+systSuffix);
   h_mcRatio->SetTitle( "SR/CR ratio by signal region" );
   for( uint i=0; i<nSRegions; i++ ) h_crMC->GetXaxis()->SetBinLabel( i+1, srnames.at(i) ); // equalize bin names
   h_mcRatio->Divide( h_crMC );
 
 
   // Get data yields in CRs, and multiply by M/M
-  TH1D* h_crData;
   TH1D* h_bkgEstimate;
 
-  if( crAnalysis->HasData() ) h_crData = (TH1D*)crHistFile->Get("srYields_"+crAnalysis->GetData()->GetLabel())->Clone("crData");
-  else {
+  if( h_crData == NULL ) {  // If we don't have CR data, do a dummy estimate from MC
 	h_crData = (TH1D*)h_crMC->Clone("crData");
 	cout << "\nWarning in makeLostLepEstimate.cc: No data sample found in control region. Using MC as a dummy instead." << endl;
   }
   h_crData->SetTitle( "Control region yields from data" );
-  h_crData->Write();
+  if( systSuffix == "" ) h_crData->Write();
   for( uint i=0; i<nSRegions; i++ ) h_crData->GetXaxis()->SetBinLabel( i+1, srnames.at(i) ); // equalize bin names
 
-  h_bkgEstimate = (TH1D*)h_crData->Clone( "lostLepBkg" );
+  TString histname = systSuffix=="" ? "lostLepBkg" : "systematic"+systSuffix;
+  h_bkgEstimate = (TH1D*)h_crData->Clone( histname );
   h_bkgEstimate->SetTitle( "Lost lepton background estimate" );
   h_bkgEstimate->Multiply( h_mcRatio );
 
   // Write everything to a file
   h_mcRatio->Write();
   h_bkgEstimate->Write();
-  cout << "Lost lepton background estimate saved in " << outFile->GetName() << "." << endl;
+  cout << "Lost lepton background estimate saved in " << gFile->GetName() << "." << endl;
 
+  delete h_srMC;
+  delete h_crMC;
+
+  if( systSuffix != "" ) return;
 
   ////////////////////////////////////////////////////////////////
   // Now do some calculations for the systematics...
 
   // Calculate the signal contamination in the CRs
-  if( crAnalysis->GetNsignals() >= 1 ) {
+  if( crHasSignal ) {
 	for( uint i=0; i<nCRegions; i++ ) {
 	  double ratio = h_mcRatio->GetBinContent( i+1 );
 	  double ratio_err = h_mcRatio->GetBinError( i+1 );
-	  TH2D* h_contam = (TH2D*)crHistFile->Get("sigyields_"+crnames.at(i))->Clone("sigContam_"+srnames.at(i));
+	  TH2D* h_contam = (TH2D*)crhistfile->Get("sigyields_"+crnames.at(i)+systSuffix)->Clone("sigContam_"+srnames.at(i));
 	  for( int bin=0; bin<h_contam->GetNcells(); bin++ ) {
 		double yield = h_contam->GetBinContent(bin);
 		double error = h_contam->GetBinError(bin);
@@ -109,12 +187,12 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 	  }
 	  h_contam->Write();
 	}
-	cout << "Signal contamination estimate saved in " << outFile->GetName() << "." << endl;
+	cout << "Signal contamination estimate saved in " << gFile->GetName() << "." << endl;
   }
 
   // Isolate the uncertainties due to signal stats and MC stats
-  TH1D* h_datastats = (TH1D*)h_mcRatio->Clone("estimate_datastats");
-  TH1D* h_mcstats   = (TH1D*)h_crData->Clone("estimate_mcstats");
+  TH1D* h_datastats = (TH1D*)h_mcRatio->Clone("systematic_datastats");
+  TH1D* h_mcstats   = (TH1D*)h_crData->Clone("systematic_mcstats");
   h_datastats->SetTitle( "Background estimate with uncertainty from data stats only" );
   h_mcstats->SetTitle( "Background estimate with uncertainty from MC stats only" );
   for( uint i=1; i<=nSRegions; i++ ) {
@@ -139,7 +217,7 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 
   // Loop through signal regions and print out table rows
   uint binOffset = 1;
-  for( vector<sigRegion> sigRegs : srAnalysis->GetSigRegions() ) {
+  for( vector<sigRegion> sigRegs : sigRegionList ) {
 	for( uint i=0; i<sigRegs.size(); i++ ) {
 
 	  printf( "%30s & %3d $\\pm$ %5.3f &  %5.3f $\\pm$ %5.3f  &  %5.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i).GetTableName().Data(),
@@ -151,15 +229,5 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 	cout << "\\hline" << endl;
   }
   cout << "\\end{tabular}\n" << endl;
-
-
-  // Clean up
-  outFile->Close();
-  crHistFile->Close();
-  srHistFile->Close();
-
-  delete outFile;
-  delete crHistFile;
-  delete srHistFile;
 
 }
