@@ -24,13 +24,13 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 
 
   // Open input files and output file
-  TFile* srHistFile = new TFile( srAnalysis->GetFileName(), "READ" );
-  TFile* crHistFile = new TFile( crAnalysis->GetFileName(), "READ" );
+  TFile* srHistFile = new TFile( srAnalysis->GetPlotFileName(), "READ" );
+  TFile* crHistFile = new TFile( crAnalysis->GetPlotFileName(), "READ" );
   if( srHistFile->IsZombie() || crHistFile->IsZombie() ) {
 	cout << "Error in makeLostLepEstmate! Couldn't open one or more of the input root files!" << endl;
 	return;
   }
-  TFile* outFile    = new TFile( "bkgEstimates.root",   "RECREATE" );
+  TFile* outFile    = new TFile( "lostlepEstimates.root",   "RECREATE" );
 
 
   // Declare histograms that will hold the SR/CR yields

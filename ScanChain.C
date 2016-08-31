@@ -553,7 +553,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
   }
 
   // Store histograms and clean them up
-  TFile* plotfile = new TFile( myAnalysis->GetFileName(), "UPDATE");
+  TFile* plotfile = new TFile( myAnalysis->GetPlotFileName(), "UPDATE");
   plotfile->cd();
 
   for( int i=0; i<nSigRegs; i++ ) {
@@ -593,7 +593,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 
   // Do similarly for the systematic variation histograms, but put them in a different file
   if( nVariations > 0 ) {
-	TFile* systFile = new TFile("systVariations.root", "UPDATE");
+	TFile* systFile = new TFile(myAnalysis->GetSystFileName(), "UPDATE");
 	systFile->cd();
 	for( int i=0; i< nSigRegs; i++ ) {
 	  for( int j=1; j<=nVariations; j++ ) {

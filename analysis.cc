@@ -1,9 +1,10 @@
 #include "analysis.h"
 
 // Constructor
-analysis::analysis( float lumi = 1.0, TString fname = "default.root" )
+analysis::analysis( float lumi = 1.0, TString fname_plots = "default.root", TString fname_systs = "dummy.root" )
   : luminosity(lumi),
-	plotfilename(fname)
+	plotfilename(fname_plots),
+	systfilename(fname_systs)
 {
   data = NULL;
 }
@@ -169,8 +170,12 @@ std::vector<systematic*> analysis::GetSystematics( bool includeSkips = false ) {
 
 const float analysis::GetLumi() { return luminosity; }
 
-const TString analysis::GetFileName() { return plotfilename; }
+const TString analysis::GetPlotFileName() { return plotfilename; }
 
-void analysis::SetFileName( TString fname ) { plotfilename = fname; }
+const TString analysis::GetSystFileName() { return systfilename; }
+
+void analysis::SetPlotFileName( TString fname ) { plotfilename = fname; }
+
+void analysis::SetSystFileName( TString fname ) { systfilename = fname; }
 
 void analysis::ResetSigRegions() { sigRegions.clear(); }

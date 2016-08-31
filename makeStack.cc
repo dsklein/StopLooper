@@ -11,7 +11,7 @@ using namespace std;
 
 void makeStack( analysis* myAnalysis) {
 
-  TFile* plotfile = new TFile( myAnalysis->GetFileName(), "READ" );
+  TFile* plotfile = new TFile( myAnalysis->GetPlotFileName(), "READ" );
   if( plotfile->IsZombie() ) {
 	cout << "Error in makeStack! Couldn't open " << plotfile->GetName() << "!" << endl;
 	return;

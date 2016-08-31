@@ -16,7 +16,7 @@
 class analysis{
 
 public:
-  analysis( float lumi, TString fname );
+  analysis( float lumi, TString fname_plots, TString fname_systs );
 
   void AddSample( sample* newSample );
   sample* AddSample( std::string myLabel, std::string niceName );
@@ -48,8 +48,10 @@ public:
   const int GetNbkgs();
   bool HasData();
   const float GetLumi();
-  const TString GetFileName();
-  void SetFileName( TString fname );
+  const TString GetPlotFileName();
+  const TString GetSystFileName();
+  void SetPlotFileName( TString fname );
+  void SetSystFileName( TString fname );
   void ResetSigRegions();
 
 private:
@@ -60,6 +62,7 @@ private:
   std::vector<systematic*> syst_vars;
   float luminosity;
   TString plotfilename;
+  TString systfilename;
 };
 
 #endif

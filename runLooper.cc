@@ -116,12 +116,12 @@ int main( int argc, char* argv[] ) {
   // Define the "sample" and "analysis" objects that will do all our bookkeeping
 
   //                     new analysis( lumi, "histogram storage file" )
-  analysis* srAnalysis = new analysis( 12.9, "plots.root" );
-  analysis* crLostLep  = new analysis( 12.9, "plotsLL.root" );
-  analysis* sr_jesup   = new analysis( 12.9, "jes_sr.root" );
-  analysis* sr_jesdn   = new analysis( 12.9, "jes_sr.root" );
-  analysis* cr2l_jesup = new analysis( 12.9, "jes_cr2l.root" );
-  analysis* cr2l_jesdn = new analysis( 12.9, "jes_cr2l.root" );
+  analysis* srAnalysis = new analysis( 12.9, "plots.root", "systVariations.root" );
+  analysis* crLostLep  = new analysis( 12.9, "plotsLL.root", "systVariationsLL.root" );
+  analysis* sr_jesup   = new analysis( 12.9, "jes_sr.root", "dummy.root" );
+  analysis* sr_jesdn   = new analysis( 12.9, "jes_sr.root", "dummy.root" );
+  analysis* cr2l_jesup = new analysis( 12.9, "jes_cr2l.root", "dummy.root" );
+  analysis* cr2l_jesdn = new analysis( 12.9, "jes_cr2l.root", "dummy.root" );
 
   //                new sample( "Label",  "Display name(s)", TColor,    sampleType )
   sample* data    = new sample( "data",    "Data",           kBlack,    sample::kData );
@@ -494,10 +494,10 @@ int main( int argc, char* argv[] ) {
   if( runlooper ) {
 
 	// Reset output file
-	TFile* outfile = new TFile( srAnalysis->GetFileName(), "RECREATE" );
+	TFile* outfile = new TFile( srAnalysis->GetPlotFileName(), "RECREATE" );
 	outfile->Close();
 	if( runsyst ) {
-	  outfile = new TFile( "systVariations.root", "RECREATE" );
+	  outfile = new TFile( srAnalysis->GetSystFileName(), "RECREATE" );
 	  outfile->Close();
 	}
 	// Run ScanChain on all samples
@@ -510,10 +510,10 @@ int main( int argc, char* argv[] ) {
   if( runlostlep ) {
 
 	// Reset output file
-	TFile* outfile = new TFile( crLostLep->GetFileName(), "RECREATE" );
+	TFile* outfile = new TFile( crLostLep->GetPlotFileName(), "RECREATE" );
 	outfile->Close();
 	if( runsyst ) {
-	  outfile = new TFile( "systVariationsLL.root", "RECREATE" );
+	  outfile = new TFile( crLostLep->GetSystFileName(), "RECREATE" );
 	  outfile->Close();
 	}
 	// Run lost lepton CR looper on all samples
@@ -526,9 +526,9 @@ int main( int argc, char* argv[] ) {
   if( runjes ) {
 
 	// Reset output files
-	TFile* outfile = new TFile( sr_jesup->GetFileName(), "RECREATE");
+	TFile* outfile = new TFile( sr_jesup->GetPlotFileName(), "RECREATE");
 	outfile->Close();
-	outfile = new TFile( cr2l_jesup->GetFileName(), "RECREATE");
+	outfile = new TFile( cr2l_jesup->GetPlotFileName(), "RECREATE");
 	outfile->Close();
 
 	// Run ScanChain on JES up/down babies

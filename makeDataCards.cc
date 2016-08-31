@@ -32,8 +32,8 @@ void makeDataCards( analysis* myAnalysis ) {
   const int nSigRegs = sigRegions.size();
 
   // Open files containing background yields and uncertainties
-  TFile* yieldFile   = new TFile( myAnalysis->GetFileName(), "READ" );
-  TFile* lostlepFile = new TFile( "bkgEstimates.root", "READ" );
+  TFile* yieldFile   = new TFile( myAnalysis->GetPlotFileName(), "READ" );
+  TFile* lostlepFile = new TFile( "lostlepEstimates.root", "READ" );
   if( yieldFile->IsZombie() || lostlepFile->IsZombie() ) {
 	cout << "Error in makeDataCards! Couldn't open one or more of the input root files!" << endl;
 	return;
