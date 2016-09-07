@@ -42,6 +42,7 @@ public:
   std::vector<std::vector<TString> > GetSigRegionLabels();
   std::vector<TString> GetSigRegionLabelsAll();
   std::vector<systematic*> GetSystematics( bool includeSkips );
+  std::map<TString,std::vector<TString> > GetSystMap();
   sample* GetSample( std::string name );
   std::vector<sample*> GetAllSamples();
   const int GetNsignals();

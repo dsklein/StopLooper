@@ -540,9 +540,9 @@ int main( int argc, char* argv[] ) {
 	outfile->Close();
 
 	// Run ScanChain and looperCR2lep on JES up/down babies
-	for( sample* mySample : sr_jesup->GetAllSamples() ) ScanChain( sr_jesup, mySample );
+	for( sample* mySample : sr_jesup->GetAllSamples()   ) ScanChain(    sr_jesup,   mySample );
 	for( sample* mySample : cr2l_jesup->GetAllSamples() ) looperCR2lep( cr2l_jesup, mySample );
-	for( sample* mySample : sr_jesdn->GetAllSamples() ) ScanChain( sr_jesdn, mySample );
+	for( sample* mySample : sr_jesdn->GetAllSamples()   ) ScanChain(    sr_jesdn,   mySample );
 	for( sample* mySample : cr2l_jesdn->GetAllSamples() ) looperCR2lep( cr2l_jesdn, mySample );
   }
 

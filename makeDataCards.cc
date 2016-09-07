@@ -31,6 +31,10 @@ void makeDataCards( analysis* myAnalysis ) {
   vector<TString> sigRegions = myAnalysis->GetSigRegionLabelsAll();
   const int nSigRegs = sigRegions.size();
 
+  vector<systematic*> variations = myAnalysis->GetSystematics(true);
+  const int nVars = variations.size();
+  map<TString,vector<TString> > systMap = myAnalysis->GetSystMap();
+
   // Open files containing background yields and uncertainties
   TFile* yieldFile   = new TFile( myAnalysis->GetPlotFileName(), "READ" );
   TFile* lostlepFile = new TFile( "lostlepEstimates.root", "READ" );
@@ -52,7 +56,7 @@ void makeDataCards( analysis* myAnalysis ) {
 	TH2D* h_sigYield  = (TH2D*)yieldFile->Get( "sigyields_"+sigRegions.at(reg-1) );
 	TH2D* h_sigContam = (TH2D*)lostlepFile->Get( "sigContam_"+sigRegions.at(reg-1) );
 
-	// Subtract signal contamination from signal MC prediction
+	// Subtract signal contamination from signal MC prediction.
 	// Had a LONG discussion with John and FKW about why this is the appropriate way to do it
 	h_sigYield->Add( h_sigContam, -1. );
 
@@ -93,7 +97,9 @@ void makeDataCards( analysis* myAnalysis ) {
 		for (TString bkgName : bkgs ) fprintf( outfile, "%s, ",  bkgName.Data() );   // Will usually be 4 (znunu, 2l, 1ltop, 1lw)
 		fprintf( outfile,  ")\n" );
 
-		fprintf( outfile,  "kmax %d  number of uncertainties\n", 2*nSamples-1 ); // For now, we've got statistical and systematic for each bkg, and stat for signal
+		int nUncerts = 2*nSamples - 1;
+		if( nVars > 0 ) nUncerts += systMap.size() -1;  // Statistical uncertainty for each sample, and dummy or real systematics for each bkg
+		fprintf( outfile,  "kmax %d  number of uncertainties\n", nUncerts );
 		fprintf( outfile,  "---\n" );
 
 		fprintf( outfile,  "# Now list the number of events observed (or zero if no data)\n" );
@@ -141,7 +147,7 @@ void makeDataCards( analysis* myAnalysis ) {
 		for( int sampleIdx=0; sampleIdx<nSamples; sampleIdx++ ) {
 
 		  char statname[25];
-		  sprintf( statname, "%sStat%d", samples.at(sampleIdx).Data(), reg );	  
+		  sprintf( statname, "%sStat%d", samples.at(sampleIdx).Data(), reg );
 		  fprintf( outfile,   "%-18s  lnN ", statname );
 
 		  double statErr = 1.0 + (h_bkgYield->GetBinError(sampleIdx+2) / h_bkgYield->GetBinContent(sampleIdx+2) );
@@ -156,12 +162,14 @@ void makeDataCards( analysis* myAnalysis ) {
 		}
 
 
-		// Print out a row for the systematic uncertainty on each sample
+		// Print out a dummy systematic uncertainty for each background (except possibly dilepton, if we're using actual systematic variations)
 		for( int sampleIdx = 1; sampleIdx<nSamples; sampleIdx++ ) { // For now, skip the signal sample (don't give it a systematic uncertainty)
+
+		  if( sampleIdx == 2 && nVars > 0 ) continue;
 
 		  char systname[25];
 		  sprintf( systname, "%sSyst", samples.at(sampleIdx).Data() );	  
-		  fprintf( outfile,   "%-18s  lnN ", systname );
+		  fprintf( outfile,  "%-18s  lnN ", systname );
 
 		  double systErr = 1.3; // Flat 30% systematic for now
 		  // if( sampleIdx = 4 ) systErr = 2.0; // 100% systematic on 1-lepton from top
@@ -171,6 +179,31 @@ void makeDataCards( analysis* myAnalysis ) {
 			else fprintf( outfile,  "     -      " );
 		  }
 		  fprintf( outfile, "\n" );
+		}
+
+
+		// Print out all the systematic variations on the dilepton background
+		if( nVars > 0 ) {
+		  double nominal = h_lostLep->GetBinContent(reg);
+
+		  for( auto& iter : systMap ) {
+
+			char systname[25];
+			sprintf( systname, "dilep%s", iter.first.Data() );
+			fprintf( outfile,  "%-18s  lnN ", systname );
+
+			vector<TH1D*> variationHists;
+			for( TString varName : iter.second ) variationHists.push_back( (TH1D*)lostlepFile->Get( "variation_" + varName ) );
+			double maxdiff = 0.;
+			for( TH1D* iHist : variationHists ) maxdiff = max( maxdiff, fabs(nominal - iHist->GetBinContent(reg)) );
+
+			for( int j=0; j<nSamples; j++ ) {
+			  if( j == 2 )  fprintf( outfile, "  %8.6f  ", maxdiff/nominal);
+			  else fprintf( outfile,  "     -      " );
+			}
+			fprintf( outfile, "\n" );
+
+		  }
 		}
 
 

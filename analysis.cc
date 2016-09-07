@@ -168,6 +168,12 @@ std::vector<systematic*> analysis::GetSystematics( bool includeSkips = false ) {
   return syst_list;
 }
 
+std::map<TString,std::vector<TString> > analysis::GetSystMap() {
+  std::map<TString,std::vector<TString> > systmap;
+  for( systematic* thisVar : syst_vars ) systmap[thisVar->GetName()].push_back(thisVar->GetNameLong());
+  return systmap;
+}
+
 const float analysis::GetLumi() { return luminosity; }
 
 const TString analysis::GetPlotFileName() { return plotfilename; }

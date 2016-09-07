@@ -143,7 +143,7 @@ void doEstimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
   if( systSuffix == "" ) h_crData->Write();
   for( uint i=0; i<nSRegions; i++ ) h_crData->GetXaxis()->SetBinLabel( i+1, srnames.at(i) ); // equalize bin names
 
-  TString histname = systSuffix=="" ? "lostLepBkg" : "systematic"+systSuffix;
+  TString histname = systSuffix=="" ? "lostLepBkg" : "variation"+systSuffix;
   h_bkgEstimate = (TH1D*)h_crData->Clone( histname );
   h_bkgEstimate->SetTitle( "Lost lepton background estimate" );
   h_bkgEstimate->Multiply( h_mcRatio );
@@ -151,7 +151,8 @@ void doEstimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
   // Write everything to a file
   h_mcRatio->Write();
   h_bkgEstimate->Write();
-  cout << "Lost lepton background estimate saved in " << gFile->GetName() << "." << endl;
+  if( systSuffix == "" ) cout << "Lost lepton background estimate saved in " << gFile->GetName() << "." << endl;
+  else cout << "Systematic variation " << systSuffix << " saved in " << gFile->GetName() << "." << endl;
 
   delete h_srMC;
   delete h_crMC;
@@ -180,8 +181,8 @@ void doEstimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
   }
 
   // Isolate the uncertainties due to signal stats and MC stats
-  TH1D* h_datastats = (TH1D*)h_mcRatio->Clone("systematic_datastats");
-  TH1D* h_mcstats   = (TH1D*)h_crData->Clone("systematic_mcstats");
+  TH1D* h_datastats = (TH1D*)h_mcRatio->Clone("estimate_datastats");
+  TH1D* h_mcstats   = (TH1D*)h_crData->Clone("estimate_mcstats");
   h_datastats->SetTitle( "Background estimate with uncertainty from data stats only" );
   h_mcstats->SetTitle( "Background estimate with uncertainty from MC stats only" );
   for( uint i=1; i<=nSRegions; i++ ) {
