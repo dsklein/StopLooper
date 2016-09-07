@@ -26,17 +26,12 @@ public:
   bool IsVariation();
   bool IsSkip();
 
-  static std::vector<TString> GetSystNames();
-  static std::map<TString,std::vector<direction> > GetVariations();
-
 
 private:
   TString name;
   direction var_dir;
   double (*reweight_func)();
   // double* weightVar;
-
-  static std::map<TString,std::vector<direction> > variations;
 
 };
 
