@@ -32,6 +32,7 @@ public:
   double QSquaredDown();
   double AlphaSUp();
   double AlphaSDown();
+  double Unity();
 
 
 private:
@@ -73,6 +74,7 @@ namespace sfhelp {
   double QSquaredDown();
   double AlphaSUp();
   double AlphaSDown();
+  double Unity();
 }
 
 

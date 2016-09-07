@@ -196,6 +196,9 @@ double sfHelper::AlphaSDown() {
   return (alphas_down / alphasnorm_down ) / (alphas / alphasnorm );
 }
 
+// Dummy function that returns 1.0
+double sfHelper::Unity() { return 1.0; }
+
 
 
 namespace sfhelp {
@@ -211,4 +214,5 @@ namespace sfhelp {
   double QSquaredDown()  { return myHelper.QSquaredDown(); }
   double AlphaSUp()      { return myHelper.AlphaSUp(); }
   double AlphaSDown()    { return myHelper.AlphaSDown(); }
+  double Unity()         { return myHelper.Unity(); }
 }

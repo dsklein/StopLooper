@@ -118,10 +118,10 @@ int main( int argc, char* argv[] ) {
   //                     new analysis( lumi, "histogram storage file" )
   analysis* srAnalysis = new analysis( 12.9, "plots.root", "systVariations.root" );
   analysis* crLostLep  = new analysis( 12.9, "plotsLL.root", "systVariationsLL.root" );
-  analysis* sr_jesup   = new analysis( 12.9, "jes_sr.root", "dummy.root" );
-  analysis* sr_jesdn   = new analysis( 12.9, "jes_sr.root", "dummy.root" );
-  analysis* cr2l_jesup = new analysis( 12.9, "jes_cr2l.root", "dummy.root" );
-  analysis* cr2l_jesdn = new analysis( 12.9, "jes_cr2l.root", "dummy.root" );
+  analysis* sr_jesup   = new analysis( 12.9, "jes_sr.root", "jes_sr.root" );
+  analysis* sr_jesdn   = new analysis( 12.9, "jes_sr.root", "jes_sr.root" );
+  analysis* cr2l_jesup = new analysis( 12.9, "jes_cr2l.root", "jes_cr2l.root" );
+  analysis* cr2l_jesdn = new analysis( 12.9, "jes_cr2l.root", "jes_cr2l.root" );
 
   //                new sample( "Label",  "Display name(s)", TColor,    sampleType )
   sample* data    = new sample( "data",    "Data",           kBlack,    sample::kData );
@@ -196,6 +196,14 @@ int main( int argc, char* argv[] ) {
 	srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn } );
 	crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn } );
   }
+
+  // A hack to make JES systematics work with existing code
+  systematic jesup_dummy( "JES", systematic::kUp, (*sfhelp::Unity) );
+  systematic jesdn_dummy( "JES", systematic::kDown, (*sfhelp::Unity) );
+  sr_jesup->AddSystematics( {&jesup_dummy} );
+  sr_jesdn->AddSystematics( {&jesdn_dummy} );
+  cr2l_jesup->AddSystematics( {&jesup_dummy} );
+  cr2l_jesdn->AddSystematics( {&jesdn_dummy} );
 
 
   /////////////////////////////////////////////////////////////////////////////////////
@@ -531,11 +539,10 @@ int main( int argc, char* argv[] ) {
 	outfile = new TFile( cr2l_jesup->GetPlotFileName(), "RECREATE");
 	outfile->Close();
 
-	// Run ScanChain on JES up/down babies
+	// Run ScanChain and looperCR2lep on JES up/down babies
 	for( sample* mySample : sr_jesup->GetAllSamples() ) ScanChain( sr_jesup, mySample );
-	for( sample* mySample : sr_jesdn->GetAllSamples() ) ScanChain( sr_jesdn, mySample );
-	// Run lost lepton CR looper on JES up/down babies
 	for( sample* mySample : cr2l_jesup->GetAllSamples() ) looperCR2lep( cr2l_jesup, mySample );
+	for( sample* mySample : sr_jesdn->GetAllSamples() ) ScanChain( sr_jesdn, mySample );
 	for( sample* mySample : cr2l_jesdn->GetAllSamples() ) looperCR2lep( cr2l_jesdn, mySample );
   }
 

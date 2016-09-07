@@ -23,21 +23,24 @@ static TH1D* h_crData = NULL;
 static bool crHasSignal = false;
 static vector< vector<sigRegion> > sigRegionList;
 
+
+
 // Main function ////////////////////////////////////////////////////////////
 //-------------------------------------------------------------------------//
 void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 
   TH1::SetDefaultSumw2();
 
-
   // Open input files and output file
   TFile* srHistFile = new TFile( srAnalysis->GetPlotFileName(), "READ" );
   TFile* crHistFile = new TFile( crAnalysis->GetPlotFileName(), "READ" );
   TFile* srSystFile = new TFile( srAnalysis->GetSystFileName(), "READ" );
   TFile* crSystFile = new TFile( crAnalysis->GetSystFileName(), "READ" );
+  TFile* srJesFile  = new TFile( "jes_sr.root",   "READ" );
+  TFile* crJesFile  = new TFile( "jes_cr2l.root", "READ" );
 
   // Check for bad files
-  for( TFile* thisFile : {srHistFile,crHistFile,srSystFile,crSystFile} ) {
+  for( TFile* thisFile : {srHistFile,crHistFile,srSystFile,crSystFile,srJesFile,crJesFile} ) {
 	if( thisFile->IsZombie() ) {
 	  cout << "Error in makeLostLepEstmate! Couldn't open file " << thisFile->GetName() << "!" << endl;
 	  return;
@@ -62,19 +65,13 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 
 
   // Now actually run the lost lepton background estimates!
-
-  // Once for the nominal estimate...
+  // Once for the nominal estimate, and once for each of the systematic variations
   doEstimate( srHistFile, crHistFile, "" );
-
-  // ...and once for each of the systematic variations
   for( systematic* thisSys : srAnalysis->GetSystematics(true) ) {
-
 	TString suffix = "_" + thisSys->GetNameLong();
-	doEstimate( srSystFile, crSystFile, suffix );
-
+	if( suffix.Contains("JES") ) doEstimate( srJesFile, crJesFile, suffix );
+	else doEstimate( srSystFile, crSystFile, suffix );
   }
-
-
 
 
   // Clean up
@@ -94,7 +91,7 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 
 
 
-
+// Function that actually does the nitty-gritty of the lost lepton background estimate /////////////////
 void doEstimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 
   // Define histograms that will hold the SR/CR yields
@@ -127,14 +124,6 @@ void doEstimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 	h_crMC->SetBinContent( i+1, yield );
 	h_crMC->SetBinError(   i+1, error );
   }
-  // for( TString sampleName : crBkgLabels ) {
-  // 	TH1D* histo = (TH1D*)crhistfile->Get("srYields_"+sampleName);  /// PROBLEM!!!
-  // 	if( histo == 0 ) {
-  // 	  cout << "Error in makeLostLepEstimate! Could not find histogram srYields_" << sampleName << " in file " << crhistfile->GetName() << "!" << endl;
-  // 	  return;
-  // 	}
-  // 	h_crMC->Add( histo );
-  // }
 
   // Now do the division, M^SR / M^CR
   TH1D* h_mcRatio = (TH1D*)h_srMC->Clone("mcRatioLostLep"+systSuffix);
