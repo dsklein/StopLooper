@@ -143,8 +143,9 @@ double sfHelper::ISRDown() {
 // Get reweighting factor to vary Q^2 up
 double sfHelper::QSquaredUp() {
   if( tas::genweights().size() < 111 ) return 1.;
-  double qsquared    = tas::genweights().at(0) > 0.  ?  tas::genweights().at(0) : 1.;
-  double qsquared_up = tas::genweights().at(4) > 0.  ?  tas::genweights().at(4) : 1.;
+  double qsquared    = tas::genweights().at(0);
+  double qsquared_up = tas::genweights().at(4);
+  if( qsquared < 0. || qsquared_up < 0. ) return 1.;
   if( isFastsim ) {
 	int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
 	int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
@@ -157,8 +158,9 @@ double sfHelper::QSquaredUp() {
 // Get reweighting factor to vary Q^2 down
 double sfHelper::QSquaredDown() {
   if( tas::genweights().size() < 111 ) return 1.;
-  double qsquared      = tas::genweights().at(0) > 0.  ?  tas::genweights().at(0) : 1.;
-  double qsquared_down = tas::genweights().at(8) > 0.  ?  tas::genweights().at(8) : 1.;
+  double qsquared      = tas::genweights().at(0);
+  double qsquared_down = tas::genweights().at(8);
+  if( qsquared < 0. || qsquared_down < 0. ) return 1.;
   if( isFastsim ) {
 	int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
 	int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
@@ -171,8 +173,9 @@ double sfHelper::QSquaredDown() {
 // Get reweighting factor to vary alpha_s up
 double sfHelper::AlphaSUp() {
   if( tas::genweights().size() < 111 ) return 1.;
-  double alphas    = tas::genweights().at(0)   > 0.  ?  tas::genweights().at(0)   : 1.;
-  double alphas_up = tas::genweights().at(109) > 0.  ?  tas::genweights().at(109) : 1.;
+  double alphas    = tas::genweights().at(0);
+  double alphas_up = tas::genweights().at(109);
+  if( alphas < 0. || alphas_up < 0. ) return 1.;
   if( isFastsim ) {
 	int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
 	int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
@@ -185,8 +188,9 @@ double sfHelper::AlphaSUp() {
 // Get reweighting factor to vary alpha_s down
 double sfHelper::AlphaSDown() {
   if( tas::genweights().size() < 111 ) return 1.;
-  double alphas      = tas::genweights().at(0)   > 0.  ?  tas::genweights().at(0)   : 1.;
-  double alphas_down = tas::genweights().at(110) > 0.  ?  tas::genweights().at(110) : 1.;
+  double alphas      = tas::genweights().at(0);
+  double alphas_down = tas::genweights().at(110);
+  if( alphas < 0. || alphas_down < 0. ) return 1.;
   if( isFastsim ) {
 	int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
 	int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
