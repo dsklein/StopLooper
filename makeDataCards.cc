@@ -57,7 +57,7 @@ void makeDataCards( analysis* myAnalysis ) {
 	TH2D* h_sigContam = (TH2D*)lostlepFile->Get( "sigContam_"+sigRegions.at(reg-1) );
 
 	// Subtract signal contamination from signal MC prediction.
-	// Had a LONG discussion with John and FKW about why this is the appropriate way to do it
+	// Had a LONG discussion with John and FKW about why they want us to do it this way
 	h_sigYield->Add( h_sigContam, -1. );
 
 	// Loop over signal mass points
@@ -172,7 +172,6 @@ void makeDataCards( analysis* myAnalysis ) {
 		  fprintf( outfile,  "%-18s  lnN ", systname );
 
 		  double systErr = 1.3; // Flat 30% systematic for now
-		  // if( sampleIdx = 4 ) systErr = 2.0; // 100% systematic on 1-lepton from top
 
 		  for( int j=0; j<nSamples; j++ ) {
 			if( j == sampleIdx )  fprintf( outfile, "  %8.6f  ", systErr);
@@ -186,19 +185,20 @@ void makeDataCards( analysis* myAnalysis ) {
 		if( nVars > 0 ) {
 		  double nominal = h_lostLep->GetBinContent(reg);
 
-		  for( auto& iter : systMap ) {
+		  for( auto& iter : systMap ) {  // Loop over all distinct systematics
 
-			char systname[25];
-			sprintf( systname, "dilep%s", iter.first.Data() );
-			fprintf( outfile,  "%-18s  lnN ", systname );
+			fprintf( outfile,  "%-18s  lnN ", iter.first.Data() );
 
-			vector<TH1D*> variationHists;
-			for( TString varName : iter.second ) variationHists.push_back( (TH1D*)lostlepFile->Get( "variation_" + varName ) );
+			// Loop over all variations of this systematic, and find the biggest difference from nominal
 			double maxdiff = 0.;
-			for( TH1D* iHist : variationHists ) maxdiff = max( maxdiff, fabs(nominal - iHist->GetBinContent(reg)) );
+			for( TString varName : iter.second ) {
+			  TH1D* h_tmp = (TH1D*)lostlepFile->Get( "variation_" + varName );
+			  maxdiff = max( maxdiff, fabs(nominal - h_tmp->GetBinContent(reg)) );
+			}
 
+			// Print the rest of the systematic row
 			for( int j=0; j<nSamples; j++ ) {
-			  if( j == 2 )  fprintf( outfile, "  %8.6f  ", maxdiff/nominal);
+			  if( j == 2 )  fprintf( outfile, "  %8.6f  ", 1.0 + maxdiff/nominal);
 			  else fprintf( outfile,  "     -      " );
 			}
 			fprintf( outfile, "\n" );
@@ -207,6 +207,7 @@ void makeDataCards( analysis* myAnalysis ) {
 		}
 
 
+		// The end of this file.
 		fprintf( outfile,  "---\n" );
 		fclose(outfile);
 
