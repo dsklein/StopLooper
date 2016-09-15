@@ -147,7 +147,7 @@ void makeDataCards( analysis* myAnalysis ) {
 		for( int sampleIdx=0; sampleIdx<nSamples; sampleIdx++ ) {
 
 		  char statname[25];
-		  sprintf( statname, "%sStat%d", samples.at(sampleIdx).Data(), reg );
+		  sprintf( statname, "Stat%s%d", samples.at(sampleIdx).Data(), reg );
 		  fprintf( outfile,   "%-18s  lnN ", statname );
 
 		  double statErr = 1.0 + (h_bkgYield->GetBinError(sampleIdx+2) / h_bkgYield->GetBinContent(sampleIdx+2) );
@@ -168,7 +168,7 @@ void makeDataCards( analysis* myAnalysis ) {
 		  if( sampleIdx == 2 && nVars > 0 ) continue;
 
 		  char systname[25];
-		  sprintf( systname, "%sSyst", samples.at(sampleIdx).Data() );	  
+		  sprintf( systname, "Flat%s", samples.at(sampleIdx).Data() );
 		  fprintf( outfile,  "%-18s  lnN ", systname );
 
 		  double systErr = 1.3; // Flat 30% systematic for now
@@ -187,7 +187,7 @@ void makeDataCards( analysis* myAnalysis ) {
 
 		  for( auto& iter : systMap ) {  // Loop over all distinct systematics
 
-			fprintf( outfile,  "%-18s  lnN ", iter.first.Data() );
+			fprintf( outfile,  "Syst%-14s  lnN ", iter.first.Data() );
 
 			// Loop over all variations of this systematic, and find the biggest difference from nominal
 			double maxdiff = 0.;
