@@ -60,12 +60,17 @@ void makeDataCards( analysis* myAnalysis ) {
 	// Had a LONG discussion with John and FKW about why they want us to do it this way
 	h_sigYield->Add( h_sigContam, -1. );
 
+	// Get bin sizes
+	double binwidthX = h_sigYield->GetXaxis()->GetBinWidth(1);
+	double binwidthY = h_sigYield->GetYaxis()->GetBinWidth(1);
+
 	// Loop over signal mass points
 	for( int xbin=1; xbin<=h_sigYield->GetNbinsX(); xbin++ ) {
 	  for( int ybin=1; ybin<=h_sigYield->GetNbinsY(); ybin++ ) {
 
-		int stopmass = int( h_sigYield->GetXaxis()->GetBinCenter(xbin) );
-		int lspmass  = int( h_sigYield->GetYaxis()->GetBinCenter(ybin) );
+		// Round bin centers to sensible numbers (nearest integer multiple of the bin width)
+		int stopmass = int(binwidthX) * int( round( h_sigYield->GetXaxis()->GetBinCenter(xbin) / binwidthX ) );
+		int lspmass  = int(binwidthY) * int( round( h_sigYield->GetYaxis()->GetBinCenter(ybin) / binwidthY ) );
 
 		double sigYield = h_sigYield->GetBinContent( xbin, ybin );
 		double sigError = h_sigYield->GetBinError( xbin, ybin );

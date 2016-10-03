@@ -89,13 +89,13 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 
 	h_bkgtype[i][0]  = new TH1D(  "bkgtype_" + plotLabel, "Yield by background type",  5, 0.5, 5.5);
 	h_evttype[i][0]  = new TH1D(  "evttype_" + regNames.at(i), "Yield by event type",  6, 0.5, 6.5);
-	h_sigyields[i][0] = new TH2D( "sigyields_" + regNames.at(i), "Signal yields by mass point", 37, 87.5, 1012.5, 21, -12.5, 512.5 );
+	h_sigyields[i][0] = new TH2D( "sigyields_" + regNames.at(i), "Signal yields by mass point", 37,99,1024, 19,-1,474 );
 
 	for( int j=1; j<=nVariations; j++ ) {
 	  TString varName = variations.at(j-1)->GetNameLong();
 	  h_bkgtype[i][j]   = new TH1D( "bkgtype_" + plotLabel + "_" + varName, "Yield by background type",  5, 0.5, 5.5);
 	  h_evttype[i][j]   = new TH1D( "evttype_" + regNames.at(i) + "_" + varName, "Yield by event type",  6, 0.5, 6.5);
-	  h_sigyields[i][j] = new TH2D( "sigyields_" + regNames.at(i) + "_" + varName, "Signal yields by mass point", 37, 87.5, 1012.5, 21, -12.5, 512.5 );
+	  h_sigyields[i][j] = new TH2D( "sigyields_" + regNames.at(i) + "_" + varName, "Signal yields by mass point", 37,99,1024, 19,-1,474 );
 	}
 
 	h_mt[i]       = new TH1D(  "mt_"      + plotLabel, "Transverse mass",			80, 0, 800);
