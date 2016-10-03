@@ -191,6 +191,10 @@ int main( int argc, char* argv[] ) {
   systematic qSquareddn( "qSquared", systematic::kDown, (*sfhelp::QSquaredDown) );
   systematic alphaSup( "alphaS", systematic::kUp, (*sfhelp::AlphaSUp) );
   systematic alphaSdn( "alphaS", systematic::kDown, (*sfhelp::AlphaSDown) );
+  systematic eff2lup( "cr2ltrig", systematic::kUp, (*sfhelp::Trig2lUp) );
+  systematic eff2ldn( "cr2ltrig", systematic::kDown, (*sfhelp::Trig2lDown) );
+  systematic eff2lup_dummy( "cr2ltrig", systematic::kUp, (*sfhelp::Unity) );
+  systematic eff2ldn_dummy( "cr2ltrig", systematic::kDown, (*sfhelp::Unity) );
 
   if( runsyst ) {
 	srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn } );

@@ -33,6 +33,8 @@ public:
   double AlphaSUp();
   double AlphaSDown();
   double Unity();
+  double Trig2lUp();
+  double Trig2lDown();
 
 
 private:
@@ -75,6 +77,8 @@ namespace sfhelp {
   double AlphaSUp();
   double AlphaSDown();
   double Unity();
+  double Trig2lUp();
+  double Trig2lDown();
 }
 
 

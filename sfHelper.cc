@@ -203,6 +203,10 @@ double sfHelper::AlphaSDown() {
 // Dummy function that returns 1.0
 double sfHelper::Unity() { return 1.0; }
 
+// Get a 7% upward/downward variation for the cr2l trigger efficiency
+double sfHelper::Trig2lUp()   { return 1.07; }
+double sfHelper::Trig2lDown() { return 0.93; }
+
 
 
 namespace sfhelp {
@@ -219,4 +223,6 @@ namespace sfhelp {
   double AlphaSUp()      { return myHelper.AlphaSUp(); }
   double AlphaSDown()    { return myHelper.AlphaSDown(); }
   double Unity()         { return myHelper.Unity(); }
+  double Trig2lUp()      { return myHelper.Trig2lUp(); }
+  double Trig2lDown()    { return myHelper.Trig2lDown(); }
 }
