@@ -9,6 +9,19 @@ analysis::analysis( float lumi = 1.0, TString fname_plots = "default.root", TStr
   data = NULL;
 }
 
+// Copy functions
+analysis* analysis::Copy() { return Copy( luminosity, plotfilename, systfilename ); }
+
+analysis* analysis::Copy( float lumi, TString fname_plots, TString fname_systs ) {
+  analysis* mycopy = new analysis( lumi, fname_plots, fname_systs );
+  mycopy->data = data;
+  mycopy->backgrounds = backgrounds;
+  mycopy->signals = signals;
+  mycopy->sigRegions = sigRegions;
+  mycopy->syst_vars = syst_vars;
+  return mycopy;
+}
+
 // Everything else
 
 void analysis::AddSample( sample* newSample ) {

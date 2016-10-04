@@ -17,6 +17,8 @@ class analysis{
 
 public:
   analysis( float lumi, TString fname_plots, TString fname_systs );
+  analysis* Copy();
+  analysis* Copy( float lumi, TString fname_plots, TString fname_systs );
 
   void AddSample( sample* newSample );
   sample* AddSample( std::string myLabel, std::string niceName );
