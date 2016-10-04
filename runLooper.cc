@@ -30,6 +30,7 @@ void printHelp() {
   std::cout << "all         run all of the components listed below" << std::endl;
   std::cout << "scan        run ScanChain only" << std::endl;
   std::cout << "lostlep     run lost lepton looper only" << std::endl;
+  std::cout << "wjets       run W+Jets background looper only" << std::endl;
   std::cout << "jes         run JES systematics (signal and control regions)" << std::endl;
   std::cout << "syst        enable non-JES systematics to be run using scan or lostlep" << std::endl;
   std::cout << "plots       run makeStack only" << std::endl;
@@ -66,6 +67,7 @@ int main( int argc, char* argv[] ) {
   bool needshelp   = false;
   bool runlooper   = false;
   bool runlostlep  = false;
+  bool runwjets    = false;
   bool runsyst     = false;
   bool runjes      = false;
   bool runstacks   = false;
@@ -78,6 +80,7 @@ int main( int argc, char* argv[] ) {
 	if(      arg=="help"  || arg=="h" ) needshelp = true;
 	else if( arg=="scan"  || arg=="loop"  || arg=="scanchain" ) runlooper = true;
 	else if( arg=="lostlep" || arg=="lost" || arg=="ll" ) runlostlep = true;
+	else if( arg=="wjets" || arg=="wj" || arg=="0bjets" ) runwjets = true;
 	else if( arg=="systematic" || arg=="systematics" || arg=="syst" || arg=="systs" ) runsyst = true;
 	else if( arg=="jes" || arg=="JES" ) runjes = true;
 	else if( arg=="plot"  || arg=="plots" || arg=="stack" || arg=="stacks" ) runstacks = true;
@@ -92,6 +95,7 @@ int main( int argc, char* argv[] ) {
 	else if( arg=="all") {
 	  runlooper = true;
 	  runlostlep = true;
+	  runwjets  = true;
 	  runsyst   = true;
 	  runjes    = true;
 	  runstacks = true;
@@ -115,13 +119,16 @@ int main( int argc, char* argv[] ) {
   ////////////////////////////////////////////////////////////////////////////////////////
   // Define the "sample" and "analysis" objects that will do all our bookkeeping
 
-  //                     new analysis( lumi, "histogram storage file" )
+  //                     new analysis( lumi, "histogram storage file", "systematic storage file" )
   analysis* srAnalysis = new analysis( 12.9, "plots.root", "systVariations.root" );
   analysis* crLostLep  = new analysis( 12.9, "plotsLL.root", "systVariationsLL.root" );
+  analysis* cr0bjets;  // Will be defined later using a copy of srAnalysis
   analysis* sr_jesup   = new analysis( 12.9, "jes_sr.root", "jes_sr.root" );
   analysis* sr_jesdn   = new analysis( 12.9, "jes_sr.root", "jes_sr.root" );
   analysis* cr2l_jesup = new analysis( 12.9, "jes_cr2l.root", "jes_cr2l.root" );
   analysis* cr2l_jesdn = new analysis( 12.9, "jes_cr2l.root", "jes_cr2l.root" );
+  analysis* cr0b_jesup;
+  analysis* cr0b_jesdn;
 
   //                new sample( "Label",  "Display name(s)", TColor,    sampleType )
   sample* data    = new sample( "data",    "Data",           kBlack,    sample::kData );
@@ -379,7 +386,7 @@ int main( int argc, char* argv[] ) {
   //////////////////////////////////////////////////////////////////////////////////////////////
   // For each "sample" object defined earlier, chain up the baby files that make up that sample
 
-  if( runlooper || runlostlep ) {
+  if( runlooper || runlostlep || runwjets ) {
 
 	// Data samples
 	data->AddFile( dataPath + "data_met_Run2016*_MINIAOD_PromptReco-v2*.root" );
@@ -499,6 +506,13 @@ int main( int argc, char* argv[] ) {
 	rare_jesdn->AddFile( bkgPath_jesdn + "ZZTo2Q2Nu_amcnlo_pythia8_25ns.root" );
   }
 
+  // Make the 0-bjet control region "analyses" by copying the signal region "analyses" and changing the storage file names
+  cr0bjets = srAnalysis->Copy( 12.9, "plots0b.root", "systVariations0b.root" );
+  cr0b_jesup = sr_jesup->Copy( 12.9, "jes_cr0b.root", "jes_cr0b.root" );
+  cr0b_jesdn = sr_jesdn->Copy( 12.9, "jes_cr0b.root", "jes_cr0b.root" );
+  cr0bjets->AddSample( data );
+
+
 
   ////////////////////////////////////////////////
   // Run ScanChain (the signal region looper)
@@ -533,6 +547,22 @@ int main( int argc, char* argv[] ) {
   }
 
   ////////////////////////////////////////////////
+  // Run looperCR0b (the 0-bjet CR looper)
+
+  if( runwjets ) {
+
+	// Reset output file
+	TFile* outfile = new TFile( cr0bjets->GetPlotFileName(), "RECREATE" );
+	outfile->Close();
+	if( runsyst ) {
+	  outfile = new TFile( cr0bjets->GetSystFileName(), "RECREATE" );
+	  outfile->Close();
+	}
+	// Run 0-bjet CR looper on all samples
+	for( sample* mySample : cr0bjets->GetAllSamples() ) looperCR0b( cr0bjets, mySample );
+  }
+
+  ////////////////////////////////////////////////
   // Run jet energy scale (JES) systematics
 
   if( runjes ) {
@@ -542,12 +572,16 @@ int main( int argc, char* argv[] ) {
 	outfile->Close();
 	outfile = new TFile( cr2l_jesup->GetPlotFileName(), "RECREATE");
 	outfile->Close();
+	outfile = new TFile( cr0b_jesup->GetPlotFileName(), "RECREATE");
+	outfile->Close();
 
-	// Run ScanChain and looperCR2lep on JES up/down babies
+	// Run ScanChain, looperCR2lep, and loopercr0b on JES up/down babies
 	for( sample* mySample : sr_jesup->GetAllSamples()   ) ScanChain(    sr_jesup,   mySample );
 	for( sample* mySample : cr2l_jesup->GetAllSamples() ) looperCR2lep( cr2l_jesup, mySample );
+	for( sample* mySample : cr0b_jesup->GetAllSamples() ) looperCR0b(   cr0b_jesup, mySample );
 	for( sample* mySample : sr_jesdn->GetAllSamples()   ) ScanChain(    sr_jesdn,   mySample );
 	for( sample* mySample : cr2l_jesdn->GetAllSamples() ) looperCR2lep( cr2l_jesdn, mySample );
+	for( sample* mySample : cr0b_jesdn->GetAllSamples() ) looperCR0b(   cr0b_jesdn, mySample );
   }
 
 
@@ -556,7 +590,9 @@ int main( int argc, char* argv[] ) {
 
   if( runtables   ) makeTables( srAnalysis );
   if( runlostlep
-	  || runtables ) makeTables( crLostLep  );
+	  || runtables ) makeTables( crLostLep );
+  if( runwjets
+	  || runtables ) makeTables( cr0bjets );
   if( runstacks   ) makeStack( srAnalysis );
   if( runestimate ) makeLostLepEstimate( srAnalysis, crLostLep );
   if( runcards    ) makeDataCards( srAnalysis );
@@ -564,6 +600,7 @@ int main( int argc, char* argv[] ) {
   // Clean up /////////
   delete srAnalysis;
   delete crLostLep;
+  delete cr0bjets;
   delete data;
   delete signal;
   delete tt2l;
