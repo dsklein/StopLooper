@@ -18,45 +18,45 @@ class sfHelper {
 
 public:
 
-  void Setup( bool is_fastsim, TH1D* counterHist, TH2F* nevtsHist, TH3D* counterHist_SMS );
+	void Setup( bool is_fastsim, TH1D* counterHist, TH2F* nevtsHist, TH3D* counterHist_SMS );
 
-  double LepSFUp();
-  double LepSFDown();
-  double BtagHeavyUp();
-  double BtagHeavyDown();
-  double BtagLightUp();
-  double BtagLightDown();
-  double ISRUp();
-  double ISRDown();
-  double QSquaredUp();
-  double QSquaredDown();
-  double AlphaSUp();
-  double AlphaSDown();
-  double Unity();
-  double Trig2lUp();
-  double Trig2lDown();
+	double LepSFUp();
+	double LepSFDown();
+	double BtagHeavyUp();
+	double BtagHeavyDown();
+	double BtagLightUp();
+	double BtagLightDown();
+	double ISRUp();
+	double ISRDown();
+	double QSquaredUp();
+	double QSquaredDown();
+	double AlphaSUp();
+	double AlphaSDown();
+	double Unity();
+	double Trig2lUp();
+	double Trig2lDown();
 
 
 private:
-  bool isFastsim;
-  TH1D* h_counter;
-  TH2F* hist_nEvts;
-  TH3D* h_counterSMS;
+	bool isFastsim;
+	TH1D* h_counter;
+	TH2F* hist_nEvts;
+	TH3D* h_counterSMS;
 
-  double lepnorm;
-  double lepnorm_up;
-  double lepnorm_down;
-  double btagnorm;
-  double btagnormHF_up;
-  double btagnormLF_up;
-  double btagnormHF_down;
-  double btagnormLF_down;
-  double qsquarednorm;
-  double qsquarednorm_up;
-  double qsquarednorm_down;
-  double alphasnorm;
-  double alphasnorm_up;
-  double alphasnorm_down;
+	double lepnorm;
+	double lepnorm_up;
+	double lepnorm_down;
+	double btagnorm;
+	double btagnormHF_up;
+	double btagnormLF_up;
+	double btagnormHF_down;
+	double btagnormLF_down;
+	double qsquarednorm;
+	double qsquarednorm_up;
+	double qsquarednorm_down;
+	double alphasnorm;
+	double alphasnorm_up;
+	double alphasnorm_down;
 
 };
 
@@ -64,21 +64,21 @@ private:
 extern sfHelper myHelper;
 
 namespace sfhelp {
-  double LepSFUp();
-  double LepSFDown();
-  double BtagHeavyUp();
-  double BtagHeavyDown();
-  double BtagLightUp();
-  double BtagLightDown();
-  double ISRUp();
-  double ISRDown();
-  double QSquaredUp();
-  double QSquaredDown();
-  double AlphaSUp();
-  double AlphaSDown();
-  double Unity();
-  double Trig2lUp();
-  double Trig2lDown();
+	double LepSFUp();
+	double LepSFDown();
+	double BtagHeavyUp();
+	double BtagHeavyDown();
+	double BtagLightUp();
+	double BtagLightDown();
+	double ISRUp();
+	double ISRDown();
+	double QSquaredUp();
+	double QSquaredDown();
+	double AlphaSUp();
+	double AlphaSDown();
+	double Unity();
+	double Trig2lUp();
+	double Trig2lDown();
 }
 
 

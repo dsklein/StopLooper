@@ -7,10 +7,10 @@
 
 // Constructor
 systematic::systematic( TString systName, direction whichDir, double (*func)() )
-  : name(systName),
-	var_dir(whichDir),
-	reweight_func(func)
-	// weightVar(NULL)
+	: name(systName),
+	  var_dir(whichDir),
+	  reweight_func(func)
+	  // weightVar(NULL)
 {
 }
 
@@ -27,8 +27,8 @@ bool systematic::IsSkip()      { return (var_dir==kSkipUp || var_dir==kSkipDown)
 double systematic::GetWeight() { return reweight_func(); }
 
 TString systematic::GetNameLong() {
-  TString longname = name;
-  if( IsUp() ) longname += "up";
-  else if( IsDown() ) longname += "down";
-  return longname;
+	TString longname = name;
+	if( IsUp() ) longname += "up";
+	else if( IsDown() ) longname += "down";
+	return longname;
 }

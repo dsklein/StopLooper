@@ -16,25 +16,25 @@
 // (allows us to create a vector of generic selections)
 class selectionBase{
 public:
-  virtual bool Pass()=0;
+	virtual bool Pass()=0;
 };
 
 // Derived template classes
 template <class T> class selection : public selectionBase {
 
 public:
-  selection( const T& (*func)(), T minval, T maxval);
-  selection( const T& (*func)(), T eqval );
-  selection( T* myCutVar, T minval, T maxval);
-  selection( T* myCutVar, T eqval );
-  bool Pass();
+	selection( const T& (*func)(), T minval, T maxval);
+	selection( const T& (*func)(), T eqval );
+	selection( T* myCutVar, T minval, T maxval);
+	selection( T* myCutVar, T eqval );
+	bool Pass();
 
 protected:
-  const T& (*cms3Function)();
-  T* cutVar;
-  T minimum;
-  T maximum;
-  T equal_val;
+	const T& (*cms3Function)();
+	T* cutVar;
+	T minimum;
+	T maximum;
+	T equal_val;
 
 };
 
@@ -47,21 +47,21 @@ protected:
 class sigRegion{
 
 public:
-  sigRegion( std::string myLabel, std::string niceName );
-  sigRegion( std::string myLabel, std::string tabName, std::string rootName );
-  void AddSelection( selectionBase* mySelection );
-  void AddSelections( std::vector<selectionBase*> mySelections );
-  TString GetLabel();
-  TString GetTableName();
-  TString GetRootName();
-  bool PassAllCuts();
+	sigRegion( std::string myLabel, std::string niceName );
+	sigRegion( std::string myLabel, std::string tabName, std::string rootName );
+	void AddSelection( selectionBase* mySelection );
+	void AddSelections( std::vector<selectionBase*> mySelections );
+	TString GetLabel();
+	TString GetTableName();
+	TString GetRootName();
+	bool PassAllCuts();
 
 
 private:
-  std::string label;
-  std::string name_table;
-  std::string name_root;
-  std::vector<selectionBase*> selections;
+	std::string label;
+	std::string name_table;
+	std::string name_root;
+	std::vector<selectionBase*> selections;
 
 };
 
