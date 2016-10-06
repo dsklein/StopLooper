@@ -10,7 +10,7 @@
 
 using namespace std;
 
-void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix );
+void do1lWestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix );
 
 // Declare some static global variables
 // This simplifies the process of repeating the background estimate over multiple systematic variations
@@ -27,7 +27,7 @@ static vector< vector<sigRegion> > sigRegionList;
 
 // Main function ////////////////////////////////////////////////////////////
 //-------------------------------------------------------------------------//
-void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
+void make1lWEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 
 	TH1::SetDefaultSumw2();
 
@@ -37,17 +37,16 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 	TFile* srSystFile = new TFile( srAnalysis->GetSystFileName(), "READ" );
 	TFile* crSystFile = new TFile( crAnalysis->GetSystFileName(), "READ" );
 	TFile* srJesFile  = new TFile( "jes_sr.root",   "READ" );
-	TFile* crJesFile  = new TFile( "jes_cr2l.root", "READ" );
+	TFile* crJesFile  = new TFile( "jes_cr0b.root", "READ" );
 
 	// Check for bad files
 	for( TFile* thisFile : {srHistFile,crHistFile,srSystFile,crSystFile,srJesFile,crJesFile} ) {
 		if( thisFile->IsZombie() ) {
-			cout << "Error in makeLostLepEstmate! Couldn't open file " << thisFile->GetName() << "!" << endl;
+			cout << "Error in make1lWEstimate! Couldn't open file " << thisFile->GetName() << "!" << endl;
 			return;
 		}
 	}
-
-	TFile* outFile = new TFile( "lostlepEstimates.root", "RECREATE" );
+	TFile* outFile    = new TFile( "onelepwEstimates.root",   "RECREATE" );
 	outFile->cd();
 
 	// Set the values of our global variables
@@ -56,7 +55,7 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 	nSRegions = srnames.size();
 	nCRegions = crnames.size();
 	if( nSRegions != nCRegions ) {
-		cout << "Error in makeLostLepEstimate: Different number of signal and control regions!" << endl;
+		cout << "Error in make1lWestimate: Different number of signal and control regions!" << endl;
 		return;
 	}
 	if( crAnalysis->HasData() ) h_crData = (TH1D*)crHistFile->Get("srYields_"+crAnalysis->GetData()->GetLabel())->Clone("crData");
@@ -65,13 +64,13 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 	sigRegionList = srAnalysis->GetSigRegions();
 
 
-	// Now actually run the lost lepton background estimates!
+	// Now actually run the 1l-from-W background estimates!
 	// Once for the nominal estimate, and once for each of the systematic variations
-	doLLestimate( srHistFile, crHistFile, "" );
+	do1lWestimate( srHistFile, crHistFile, "" );
 	for( systematic* thisSys : srAnalysis->GetSystematics(true) ) {
 		TString suffix = "_" + thisSys->GetNameLong();
-		if( suffix.Contains("JES") ) doLLestimate( srJesFile, crJesFile, suffix );
-		else doLLestimate( srSystFile, crSystFile, suffix );
+		if( suffix.Contains("JES") ) do1lWestimate( srJesFile, crJesFile, suffix );
+		else do1lWestimate( srSystFile, crSystFile, suffix );
 	}
 
 
@@ -92,32 +91,32 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 
 
 
-// Function that actually does the nitty-gritty of the lost lepton background estimate /////////////////
-void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
+// Function that actually does the nitty-gritty of the 1l-from-W background estimate /////////////////
+void do1lWestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 
 	// Define histograms that will hold the SR/CR yields
-	TH1D* h_srMC = new TH1D( "srMC", "Signal region yields from MC" , nSRegions, 0.5, float(nSRegions)+0.5 );
-	TH1D* h_crMC = new TH1D( "crMC", "Control region yields from MC", nCRegions, 0.5, float(nCRegions)+0.5 );
+	TH1D* h_srMC   = new TH1D( "srMC"  , "Signal region yields from MC"   , nSRegions, 0.5, float(nSRegions)+0.5 );
+	TH1D* h_crMC   = new TH1D( "crMC"  , "Control region yields from MC"  , nCRegions, 0.5, float(nCRegions)+0.5 );
 	for( uint i=0; i<nSRegions; i++ ) h_srMC->GetXaxis()->SetBinLabel( i+1, srnames.at(i) );
 	for( uint i=0; i<nCRegions; i++ ) h_crMC->GetXaxis()->SetBinLabel( i+1, crnames.at(i) );
 
 
-	// Get lost lepton background yields from MC in signal regions
+	// Get 1l-from-W background yields from MC in signal regions
 	for( uint i=0; i<srnames.size(); i++ ) {
 		TH1D* histo = (TH1D*)srhistfile->Get("evttype_"+srnames.at(i)+systSuffix);
 		if( histo == 0 ) {
-			cout << "Error in makeLostLepEstimate! Could not find histogram evttype_" << srnames.at(i)+systSuffix << " in file " << srhistfile->GetName() << "!" << endl;
+			cout << "Error in make1lWestimate! Could not find histogram evttype_" << srnames.at(i)+systSuffix << " in file " << srhistfile->GetName() << "!" << endl;
 			return;
 		}
-		h_srMC->SetBinContent(i+1, histo->GetBinContent(4));
-		h_srMC->SetBinError(i+1, histo->GetBinError(4));
+		h_srMC->SetBinContent(i+1, histo->GetBinContent(6));
+		h_srMC->SetBinError(i+1, histo->GetBinError(6));
 	}
 
-	// Get total yields from MC in 2-lep control regions
+	// Get total yields from MC in 0-btag control regions
 	for( uint i=0; i<crnames.size(); i++ ) {
 		TH1D* histo = (TH1D*)crhistfile->Get("evttype_"+crnames.at(i)+systSuffix);
 		if( histo == 0 ) {
-			cout << "Error in makeLostLepEstimate! Could not find histogram evttype_" << crnames.at(i)+systSuffix << " in file " << crhistfile->GetName() << "!" << endl;
+			cout << "Error in make1lWestimate! Could not find histogram evttype_" << crnames.at(i)+systSuffix << " in file " << crhistfile->GetName() << "!" << endl;
 			return;
 		}
 		double yield, error;
@@ -126,8 +125,12 @@ void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 		h_crMC->SetBinError(   i+1, error );
 	}
 
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// Need to make the low MT2W estimates come directly from MC
+	//
+
 	// Now do the division, M^SR / M^CR
-	TH1D* h_mcRatio = (TH1D*)h_srMC->Clone("mcRatioLostLep"+systSuffix);
+	TH1D* h_mcRatio = (TH1D*)h_srMC->Clone("mcRatio1lepW"+systSuffix);
 	h_mcRatio->SetTitle( "SR/CR ratio by signal region" );
 	for( uint i=0; i<nSRegions; i++ ) h_crMC->GetXaxis()->SetBinLabel( i+1, srnames.at(i) ); // equalize bin names
 	h_mcRatio->Divide( h_crMC );
@@ -138,21 +141,21 @@ void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 
 	if( h_crData == NULL ) {  // If we don't have CR data, do a dummy estimate from MC
 		h_crData = (TH1D*)h_crMC->Clone("crData");
-		cout << "\nWarning in makeLostLepEstimate.cc: No data sample found in control region. Using MC as a dummy instead." << endl;
+		cout << "\nWarning in make1lWestimate.cc: No data sample found in control region. Using MC as a dummy instead." << endl;
 	}
 	h_crData->SetTitle( "Control region yields from data" );
 	if( systSuffix == "" ) h_crData->Write();
 	for( uint i=0; i<nSRegions; i++ ) h_crData->GetXaxis()->SetBinLabel( i+1, srnames.at(i) ); // equalize bin names
 
-	TString histname = systSuffix=="" ? "lostLepBkg" : "variation"+systSuffix;
+	TString histname = systSuffix=="" ? "onelepwBkg" : "variation"+systSuffix;
 	h_bkgEstimate = (TH1D*)h_crData->Clone( histname );
-	h_bkgEstimate->SetTitle( "Lost lepton background estimate" );
+	h_bkgEstimate->SetTitle( "1l-from-W background estimate" );
 	h_bkgEstimate->Multiply( h_mcRatio );
 
 	// Write everything to a file
 	h_mcRatio->Write();
 	h_bkgEstimate->Write();
-	if( systSuffix == "" ) cout << "Lost lepton background estimate saved in " << gFile->GetName() << "." << endl;
+	if( systSuffix == "" ) cout << "1l-from-W background estimate saved in " << gFile->GetName() << "." << endl;
 	else cout << "Systematic variation " << systSuffix << " saved in " << gFile->GetName() << "." << endl;
 
 	delete h_srMC;
@@ -197,10 +200,10 @@ void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 
 
 	////////////////////////////////////////////////////////////////////
-	// Print out a table with the details of the lost lepton estimate
+	// Print out a table with the details of the 1l-from-W estimate
 
 	//  Print table header
-	cout << "\nLost lepton background estimate (stat errors only)\n" << endl;
+	cout << "\n1l-from-W background estimate (stat errors only)\n" << endl;
 	cout << "\\begin{tabular}{ | l | c | c | c | }" << endl;
 	cout << "\\hline" << endl;
 	cout << "Signal region  &  $N^{CR}$  &  Transfer factor  &  $N_{est}^{SR}$ \\\\" << endl;

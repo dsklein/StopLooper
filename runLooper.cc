@@ -30,13 +30,13 @@ void printHelp() {
 	std::cout << "all         run all of the components listed below" << std::endl;
 	std::cout << "scan        run ScanChain only" << std::endl;
 	std::cout << "lostlep     run lost lepton looper only" << std::endl;
-	std::cout << "wjets       run W+Jets background looper only" << std::endl;
+	std::cout << "1lw         run 1l-from-W background looper only" << std::endl;
 	std::cout << "jes         run JES systematics (signal and control regions)" << std::endl;
 	std::cout << "syst        enable non-JES systematics to be run using scan or lostlep" << std::endl;
 	std::cout << "plots       run makeStack only" << std::endl;
 	std::cout << "tables      run makeTables only" << std::endl;
 	std::cout << "cards       run makeDataCards only" << std::endl;
-	std::cout << "estimate    run makeLostLepEstimate only" << std::endl;
+	std::cout << "estimate    run data-driven background estimates only" << std::endl;
 	std::cout << "output      run makeStack, makeTables, and makeDataCards only" << std::endl;
 }
 
@@ -67,7 +67,7 @@ int main( int argc, char* argv[] ) {
 	bool needshelp   = false;
 	bool runlooper   = false;
 	bool runlostlep  = false;
-	bool runwjets    = false;
+	bool run1lw    = false;
 	bool runsyst     = false;
 	bool runjes      = false;
 	bool runstacks   = false;
@@ -80,7 +80,7 @@ int main( int argc, char* argv[] ) {
 		if(      arg=="help"  || arg=="h" ) needshelp = true;
 		else if( arg=="scan"  || arg=="loop"  || arg=="scanchain" ) runlooper = true;
 		else if( arg=="lostlep" || arg=="lost" || arg=="ll" ) runlostlep = true;
-		else if( arg=="wjets" || arg=="wj" || arg=="0bjets" ) runwjets = true;
+		else if( arg=="1lw" || arg=="wjets" || arg=="0bjets" ) run1lw = true;
 		else if( arg=="systematic" || arg=="systematics" || arg=="syst" || arg=="systs" ) runsyst = true;
 		else if( arg=="jes" || arg=="JES" ) runjes = true;
 		else if( arg=="plot"  || arg=="plots" || arg=="stack" || arg=="stacks" ) runstacks = true;
@@ -95,7 +95,7 @@ int main( int argc, char* argv[] ) {
 		else if( arg=="all") {
 			runlooper = true;
 			runlostlep = true;
-			runwjets  = true;
+			run1lw  = true;
 			runsyst   = true;
 			runjes    = true;
 			runstacks = true;
@@ -386,7 +386,7 @@ int main( int argc, char* argv[] ) {
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// For each "sample" object defined earlier, chain up the baby files that make up that sample
 
-	if( runlooper || runlostlep || runwjets ) {
+	if( runlooper || runlostlep || run1lw ) {
 
 		// Data samples
 		data->AddFile( dataPath + "data_met_Run2016*_MINIAOD_PromptReco-v2*.root" );
@@ -549,7 +549,7 @@ int main( int argc, char* argv[] ) {
 	////////////////////////////////////////////////
 	// Run looperCR0b (the 0-bjet CR looper)
 
-	if( runwjets ) {
+	if( run1lw ) {
 
 		// Reset output file
 		TFile* outfile = new TFile( cr0bjets->GetPlotFileName(), "RECREATE" );
@@ -588,14 +588,15 @@ int main( int argc, char* argv[] ) {
 	/////////////////////////////////////////////////////////////////////
 	// Make all the various outputs - tables, plots, datacards...
 
-	if( runtables   ) makeTables( srAnalysis );
-	if( runlostlep
-	    || runtables ) makeTables( crLostLep );
-	if( runwjets
-	    || runtables ) makeTables( cr0bjets );
-	if( runstacks   ) makeStack( srAnalysis );
-	if( runestimate ) makeLostLepEstimate( srAnalysis, crLostLep );
-	if( runcards    ) makeDataCards( srAnalysis );
+	if( runtables )               makeTables( srAnalysis );
+	if( runlostlep || runtables ) makeTables( crLostLep );
+	if( run1lw || runtables )     makeTables( cr0bjets );
+	if( runstacks )               makeStack( srAnalysis );
+	if( runestimate ) {
+		makeLostLepEstimate( srAnalysis, crLostLep );
+		make1lWEstimate(srAnalysis, cr0bjets );
+	}
+	if( runcards )                makeDataCards( srAnalysis );
 
 	// Clean up /////////
 	delete srAnalysis;
