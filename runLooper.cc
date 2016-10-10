@@ -31,12 +31,12 @@ void printHelp() {
 	std::cout << "scan        run ScanChain only" << std::endl;
 	std::cout << "lostlep     run lost lepton looper only" << std::endl;
 	std::cout << "1lw         run 1l-from-W background looper only" << std::endl;
-	std::cout << "jes         run JES systematics (signal and control regions)" << std::endl;
-	std::cout << "syst        enable non-JES systematics to be run using scan or lostlep" << std::endl;
+	std::cout << "jes         run loopers to calculate JES systematic variations" << std::endl;
+	std::cout << "syst        with scan/lostlep/1lw, apply non-JES systematic variations. With estimate or cards, include all systematics in calculation" << std::endl;
 	std::cout << "plots       run makeStack only" << std::endl;
 	std::cout << "tables      run makeTables only" << std::endl;
-	std::cout << "cards       run makeDataCards only" << std::endl;
 	std::cout << "estimate    run data-driven background estimates only" << std::endl;
+	std::cout << "cards       run makeDataCards only" << std::endl;
 	std::cout << "output      run makeStack, makeTables, and makeDataCards only" << std::endl;
 }
 
@@ -67,7 +67,7 @@ int main( int argc, char* argv[] ) {
 	bool needshelp   = false;
 	bool runlooper   = false;
 	bool runlostlep  = false;
-	bool run1lw    = false;
+	bool run1lw      = false;
 	bool runsyst     = false;
 	bool runjes      = false;
 	bool runstacks   = false;
@@ -109,7 +109,7 @@ int main( int argc, char* argv[] ) {
 		}
 	}
 
-	// If the user inputs a wrong option, print the list of allowed options and exit
+	// If the user inputs a wrong option or asks for help, print the list of allowed options and exit
 	if( needshelp ) {
 		printHelp();
 		return 1;
@@ -186,22 +186,23 @@ int main( int argc, char* argv[] ) {
 	/////////////////////////////////////////////////////////////////////////
 	// Create "systematic" objects to store all our systematic variations
 
-	systematic jesup( "JES", systematic::kSkipUp,   NULL );
-	systematic jesdn( "JES", systematic::kSkipDown, NULL );
-	systematic lepSFup(  "lepSF", systematic::kUp,    (*sfhelp::LepSFUp) );
-	systematic lepSFdn(  "lepSF", systematic::kDown,  (*sfhelp::LepSFDown) );
-	systematic btagHFup( "btagHF", systematic::kUp,   (*sfhelp::BtagHeavyUp) );
-	systematic btagHFdn( "btagHF", systematic::kDown, (*sfhelp::BtagHeavyDown) );
-	systematic btagLFup( "btagLF", systematic::kUp,   (*sfhelp::BtagLightUp) );
-	systematic btagLFdn( "btagLF", systematic::kDown, (*sfhelp::BtagLightDown) );
-	systematic qSquaredup( "qSquared", systematic::kUp, (*sfhelp::QSquaredUp) );
-	systematic qSquareddn( "qSquared", systematic::kDown, (*sfhelp::QSquaredDown) );
-	systematic alphaSup( "alphaS", systematic::kUp, (*sfhelp::AlphaSUp) );
-	systematic alphaSdn( "alphaS", systematic::kDown, (*sfhelp::AlphaSDown) );
-	systematic eff2lup( "cr2ltrig", systematic::kUp, (*sfhelp::Trig2lUp) );
-	systematic eff2ldn( "cr2ltrig", systematic::kDown, (*sfhelp::Trig2lDown) );
-	systematic eff2lup_dummy( "cr2ltrig", systematic::kUp, (*sfhelp::Unity) );
-	systematic eff2ldn_dummy( "cr2ltrig", systematic::kDown, (*sfhelp::Unity) );
+	//                         "Label",    variation direction, function that provides the variation
+	systematic jesup(          "JES",      systematic::kSkipUp,   NULL );
+	systematic jesdn(          "JES",      systematic::kSkipDown, NULL );
+	systematic lepSFup(        "lepSF",    systematic::kUp,    (*sfhelp::LepSFUp) );
+	systematic lepSFdn(        "lepSF",    systematic::kDown,  (*sfhelp::LepSFDown) );
+	systematic btagHFup(       "btagHF",   systematic::kUp,    (*sfhelp::BtagHeavyUp) );
+	systematic btagHFdn(       "btagHF",   systematic::kDown,  (*sfhelp::BtagHeavyDown) );
+	systematic btagLFup(       "btagLF",   systematic::kUp,    (*sfhelp::BtagLightUp) );
+	systematic btagLFdn(       "btagLF",   systematic::kDown,  (*sfhelp::BtagLightDown) );
+	systematic qSquaredup(     "qSquared", systematic::kUp,    (*sfhelp::QSquaredUp) );
+	systematic qSquareddn(     "qSquared", systematic::kDown,  (*sfhelp::QSquaredDown) );
+	systematic alphaSup(       "alphaS",   systematic::kUp,    (*sfhelp::AlphaSUp) );
+	systematic alphaSdn(       "alphaS",   systematic::kDown,  (*sfhelp::AlphaSDown) );
+	systematic eff2lup(        "cr2ltrig", systematic::kUp,    (*sfhelp::Trig2lUp) );
+	systematic eff2ldn(        "cr2ltrig", systematic::kDown,  (*sfhelp::Trig2lDown) );
+	systematic eff2lup_dummy(  "cr2ltrig", systematic::kUp,    (*sfhelp::Unity) );
+	systematic eff2ldn_dummy(  "cr2ltrig", systematic::kDown,  (*sfhelp::Unity) );
 
 	if( runsyst ) {
 		srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn } );
@@ -209,7 +210,7 @@ int main( int argc, char* argv[] ) {
 	}
 
 	// A hack to make JES systematics work with existing code
-	systematic jesup_dummy( "JES", systematic::kUp, (*sfhelp::Unity) );
+	systematic jesup_dummy( "JES", systematic::kUp,   (*sfhelp::Unity) );
 	systematic jesdn_dummy( "JES", systematic::kDown, (*sfhelp::Unity) );
 	sr_jesup->AddSystematics( {&jesup_dummy} );
 	sr_jesdn->AddSystematics( {&jesdn_dummy} );

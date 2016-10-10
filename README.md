@@ -5,10 +5,12 @@
 
 Check out the [cmstas/Software](https://github.com/cmstas/Software) repository someplace. Copy the files `dataMCplotMaker.cc`, `dataMCplotMaker.h`, and `PlotMakingTools.h` from there into this directory.
 
-To compile all the code, simply type `make`. The plotmaking scripts mentioned above were designed to compile in ROOT, so you may find you have to make a few small manual fixes to make them work with g++. The latest version of the plotmaking scripts that I can _guarantee_ to work with no errors/warnings is the version from Aug. 16, 2016.
+I'm not the author or maintainer of these plotmaking scripts, so I can't promise that every single version will compile in g++ without errors. The latest version I can _guarantee_ to compile correctly is [commit 758ce41](https://github.com/cmstas/Software/tree/758ce412d19d7b482129f6291168878d2a620a04/dataMCplotMaker), from August 16, 2016.
+
+To compile all the code, simply type `make`.
 
 ###Running
 
-To run the entire looper, do `./runLooper`. To see a list of command-line options, do `./runLooper help`.
+To run the entire analysis, do `./runLooper`. To see a list of command-line options, do `./runLooper help`. You can use as many options as you want, e.g. `./runlooper syst lostlep tables estimate cards`.
 
-Stacked histograms will be saved in the 'plots' directory. Raw histograms will be stored in `plots.root`. Datacards will be saved in the 'datacards' directory. The LaTeX code for the yield table(s) and dilepton background estimate table will be printed to the screen.
+If you choose to make them, stacked histograms will be saved in the 'plots' directory, and datacards will be saved in the 'datacards' directory. Raw histograms will be saved in various ROOT files in this directory. The LaTeX code for various yield tables and background estimate tables will be printed to the screen.
