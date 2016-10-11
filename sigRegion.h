@@ -49,6 +49,8 @@ class sigRegion{
 public:
 	sigRegion( std::string myLabel, std::string niceName );
 	sigRegion( std::string myLabel, std::string tabName, std::string rootName );
+	sigRegion( std::string myLabel, std::string niceName, std::vector<selectionBase*> mySelections );
+	sigRegion( std::string myLabel, std::string tabName, std::string rootName, std::vector<selectionBase*> mySelections );
 	void AddSelection( selectionBase* mySelection );
 	void AddSelections( std::vector<selectionBase*> mySelections );
 	TString GetLabel();

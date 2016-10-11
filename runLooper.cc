@@ -46,18 +46,7 @@ void printHelp() {
 
 int main( int argc, char* argv[] ) {
 
-	// Where to find the stop babies
-	TString sigPath = "/hadoop/cms/store/user/haweber/condor/stop1l_2016/stop_babies_V080009_signal_norm_v2/merged_files/";
-	TString bkgPath = "/nfs-7/userdata/stopRun2/stop_babies__CMS3_V080005__BabyMaker_V0800X_v8__20160729/";
-	TString dataPath = "/nfs-7/userdata/stopRun2/stop_babies__CMS3_V080005__BabyMaker_V0800X_v7__20160722/";
 
-	TString sigPath_jesup = "/hadoop/cms/store/user/haweber/condor/stop1l_2016/stop_babies_V080009_signal_JESup_v2/merged_files/";
-	TString bkgPath_jesup = "/nfs-7/userdata/stopRun2/stop_babies__JESup__CMS3_V080005__BabyMaker_V0800X_v8__20160729/";
-	TString sigPath_jesdn = "/hadoop/cms/store/user/haweber/condor/stop1l_2016/stop_babies_V080009_signal_JESdown_v2/merged_files/";
-	TString bkgPath_jesdn = "/nfs-7/userdata/stopRun2/stop_babies__JESdn__CMS3_V080005__BabyMaker_V0800X_v8__20160729/";
-
-
-	////////////////////////////////////////////////////////////////
 	// Parse command-line argument(s)
 
 	std::vector<TString> arguments;
@@ -117,12 +106,12 @@ int main( int argc, char* argv[] ) {
 
 
 	////////////////////////////////////////////////////////////////////////////////////////
-	// Define the "sample" and "analysis" objects that will do all our bookkeeping
+	// Define the "sample" and "analysis" objects that will do much of our bookkeeping
 
 	//                     new analysis( lumi, "histogram storage file", "systematic storage file" )
 	analysis* srAnalysis = new analysis( 12.9, "plots.root", "systVariations.root" );
 	analysis* crLostLep  = new analysis( 12.9, "plotsLL.root", "systVariationsLL.root" );
-	analysis* cr0bjets;  // Will be defined later using a copy of srAnalysis
+	analysis* cr0bjets;     // Will be defined later
 	analysis* sr_jesup   = new analysis( 12.9, "jes_sr.root", "jes_sr.root" );
 	analysis* sr_jesdn   = new analysis( 12.9, "jes_sr.root", "jes_sr.root" );
 	analysis* cr2l_jesup = new analysis( 12.9, "jes_cr2l.root", "jes_cr2l.root" );
@@ -133,7 +122,6 @@ int main( int argc, char* argv[] ) {
 	//                new sample( "Label",  "Display name(s)", TColor,    sampleType )
 	sample* data    = new sample( "data",    "Data",           kBlack,    sample::kData );
 	sample* signal  = new sample( "signal",  "T2tt",           kBlue+3,   sample::kSignal );
-	//-----------------------------------------------------------------------------------------------------
 	sample* tt2l    = new sample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
 	sample* tt1l    = new sample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
 	sample* singtop = new sample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
@@ -209,7 +197,7 @@ int main( int argc, char* argv[] ) {
 		crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn } );
 	}
 
-	// A hack to make JES systematics work with existing code
+	// A sneaky trick to make JES systematics work with existing code
 	systematic jesup_dummy( "JES", systematic::kUp,   (*sfhelp::Unity) );
 	systematic jesdn_dummy( "JES", systematic::kDown, (*sfhelp::Unity) );
 	sr_jesup->AddSystematics( {&jesup_dummy} );
@@ -222,7 +210,7 @@ int main( int argc, char* argv[] ) {
 	// Create the objects that will define our signal and control regions
 
 	// Create "selection"s - objects that encode a cut on a baby branch or global variable
-	// selection<type>  obj_name( (cutVariable), minval, maxval )
+	// selection<type>  obj_name( (cutVariable), [minvalue, maxvalue] OR [equal value] )
 	selection<float> MET_250_350( (*tas::pfmet), 250., 350. );
 	selection<float> MET_350_450( (*tas::pfmet), 350., 450. );
 	selection<float> MET_450_550( (*tas::pfmet), 450., 550. );
@@ -244,12 +232,12 @@ int main( int argc, char* argv[] ) {
 	selection<int> nJetsGe4( (*tas::ngoodjets), 4, 9999999 ); // NJets bins
 	selection<int> nJetsGe5( (*tas::ngoodjets), 5, 9999999 );
 
-	selection<float>  lowMT2W( (*tas::MT2W),   0., 200.     );
-	selection<float> highMT2W( (*tas::MT2W), 200., 9999999. );
+	selection<float>  lowMT2W(    (*tas::MT2W),      0., 200.     );
+	selection<float> highMT2W(    (*tas::MT2W),    200., 9999999. );
 	selection<float>  CR_lowMT2W( (*tas::MT2W_rl),   0., 200.     ); // MT2W bins
 	selection<float> CR_highMT2W( (*tas::MT2W_rl), 200., 9999999. );
 
-	selection<float> modTop( (*tas::topnessMod), 6.4, 999999. ); // Modified topness for compressed T2tb regions
+	selection<float> modTop(    (*tas::topnessMod),    6.4, 999999. ); // Modified topness for compressed T2tb regions
 	selection<float> CR_modTop( (*tas::topnessMod_rl), 6.4, 999999. );
 
 	selection<double> j1Pt200( &j1pt, 200., 999999. ); // Special selections for the corridor regions
@@ -257,88 +245,50 @@ int main( int argc, char* argv[] ) {
 
 
 	// Create the "sigRegion" objects that will store the definitions of our signal/control regions
-	// sigRegion objName(  "label",       "Nice name(s) for plots/tables" )
-	sigRegion compr250(    "compr250",    "2 jets, modTop, MET 250-350" );
-	sigRegion compr350(    "compr350",    "2 jets, modTop, MET 350-450" );
-	sigRegion compr450(    "compr450",    "2 jets, modTop, MET 450+" );
-	sigRegion boost250(    "boost250",    "3 jets, high MT2W, MET 250-350" );
-	sigRegion boost350(    "boost350",    "3 jets, high MT2W, MET 350-450" );
-	sigRegion boost450(    "boost450",    "3 jets, high MT2W, MET 450-550" );
-	sigRegion boost550(    "boost550",    "3 jets, high MT2W, MET 550+" );
-	sigRegion low250(      "low250",      "4+ jets, low MT2W, MET 250-350" );
-	sigRegion low350(      "low350",      "4+ jets, low MT2W, MET 350-450" );
-	sigRegion low450(      "low450",      "4+ jets, low MT2W, MET 450+" );
-	sigRegion high250(     "high250",     "4+ jets, high MT2W, MET 250-350" );
-	sigRegion high350(     "high350",     "4+ jets, high MT2W, MET 350-450" );
-	sigRegion high450(     "high450",     "4+ jets, high MT2W, MET 450-550" );
-	sigRegion high550(     "high550",     "4+ jets, high MT2W, MET 550-650" );
-	sigRegion high650(     "high650",     "4+ jets, high MT2W, MET 650+" );
+	// sigRegion objName(  "label",       "Nice name(s) for plots/tables",  {selections that define the region} )
+	sigRegion compr250(    "compr250",    "2 jets, modTop, MET 250-350",     {&nJetsEq2, &MET_250_350, &modTop}   );
+	sigRegion compr350(    "compr350",    "2 jets, modTop, MET 350-450",     {&nJetsEq2, &MET_350_450, &modTop}   );
+	sigRegion compr450(    "compr450",    "2 jets, modTop, MET 450+",        {&nJetsEq2, &MET_450_inf, &modTop}   );
+	sigRegion boost250(    "boost250",    "3 jets, high MT2W, MET 250-350",  {&nJetsEq3, &MET_250_350, &highMT2W} );
+	sigRegion boost350(    "boost350",    "3 jets, high MT2W, MET 350-450",  {&nJetsEq3, &MET_350_450, &highMT2W} );
+	sigRegion boost450(    "boost450",    "3 jets, high MT2W, MET 450-550",  {&nJetsEq3, &MET_450_550, &highMT2W} );
+	sigRegion boost550(    "boost550",    "3 jets, high MT2W, MET 550+",     {&nJetsEq3, &MET_550_inf, &highMT2W} );
+	sigRegion low250(      "low250",      "4+ jets, low MT2W, MET 250-350",  {&nJetsGe4, &MET_250_350, &lowMT2W}  );
+	sigRegion low350(      "low350",      "4+ jets, low MT2W, MET 350-450",  {&nJetsGe4, &MET_350_450, &lowMT2W}  );
+	sigRegion low450(      "low450",      "4+ jets, low MT2W, MET 450+",     {&nJetsGe4, &MET_450_inf, &lowMT2W}  );
+	sigRegion high250(     "high250",     "4+ jets, high MT2W, MET 250-350", {&nJetsGe4, &MET_250_350, &highMT2W} );
+	sigRegion high350(     "high350",     "4+ jets, high MT2W, MET 350-450", {&nJetsGe4, &MET_350_450, &highMT2W} );
+	sigRegion high450(     "high450",     "4+ jets, high MT2W, MET 450-550", {&nJetsGe4, &MET_450_550, &highMT2W} );
+	sigRegion high550(     "high550",     "4+ jets, high MT2W, MET 550-650", {&nJetsGe4, &MET_550_650, &highMT2W} );
+	sigRegion high650(     "high650",     "4+ jets, high MT2W, MET 650+",    {&nJetsGe4, &MET_650_inf, &highMT2W} );
 	sigRegion inclusive(   "inclusive",   "Inclusive" );
-	sigRegion corridor250( "corridor250", "Corridor, low MET" );
-	sigRegion corridor350( "corridor350", "Corridor, mid MET" );
-	sigRegion corridor450( "corridor450", "Corridor, high MET" );
+	sigRegion corridor250( "corridor250", "Corridor, low MET",  {&nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag} );
+	sigRegion corridor350( "corridor350", "Corridor, mid MET",  {&nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag} );
+	sigRegion corridor450( "corridor450", "Corridor, high MET", {&nJetsGe5, &MET_450_inf, &j1Pt200, &j1NoTag} );
 
-	sigRegion compr250CR(    "compr250CR",    "CR 2 jets, modTop, MET 250-350" );
-	sigRegion compr350CR(    "compr350CR",    "CR 2 jets, modTop, MET 350-450" );
-	sigRegion compr450CR(    "compr450CR",    "CR 2 jets, modTop, MET 450+" );
-	sigRegion boost250CR(    "boost250CR",    "CR 3 jets, high MT2W, MET 250-350" );
-	sigRegion boost350CR(    "boost350CR",    "CR 3 jets, high MT2W, MET 350-450" );
-	sigRegion boost450CR(    "boost450CR",    "CR 3 jets, high MT2W, MET 450-550" );
-	sigRegion boost550CR(    "boost550CR",    "CR 3 jets, high MT2W, MET 550+" );
-	sigRegion low250CR(      "low250CR",      "CR 4+ jets, low MT2W, MET 250-350" );
-	sigRegion low350CR(      "low350CR",      "CR 4+ jets, low MT2W, MET 350-450" );
-	sigRegion low450CR(      "low450CR",      "CR 4+ jets, low MT2W, MET 450+" );
-	sigRegion high250CR(     "high250CR",     "CR 4+ jets, high MT2W, MET 250-350" );
-	sigRegion high350CR(     "high350CR",     "CR 4+ jets, high MT2W, MET 350-450" );
-	sigRegion high450CR(     "high450CR",     "CR 4+ jets, high MT2W, MET 450-550" );
-	sigRegion high550CR(     "high550CR",     "CR 4+ jets, high MT2W, MET 550-650" );
-	sigRegion high650CR(     "high650CR",     "CR 4+ jets, high MT2W, MET 650+" );
+	sigRegion compr250CR(    "compr250CR",    "CR 2 jets, modTop, MET 250-350",     {&nJetsEq2, &CR_MET_250_350, &CR_modTop}   );
+	sigRegion compr350CR(    "compr350CR",    "CR 2 jets, modTop, MET 350-450",     {&nJetsEq2, &CR_MET_350_450, &CR_modTop}   );
+	sigRegion compr450CR(    "compr450CR",    "CR 2 jets, modTop, MET 450+",        {&nJetsEq2, &CR_MET_450_inf, &CR_modTop}   );
+	sigRegion boost250CR(    "boost250CR",    "CR 3 jets, high MT2W, MET 250-350",  {&nJetsEq3, &CR_MET_250_350, &CR_highMT2W} );
+	sigRegion boost350CR(    "boost350CR",    "CR 3 jets, high MT2W, MET 350-450",  {&nJetsEq3, &CR_MET_350_450, &CR_highMT2W} );
+	sigRegion boost450CR(    "boost450CR",    "CR 3 jets, high MT2W, MET 450-550",  {&nJetsEq3, &CR_MET_450_550, &CR_highMT2W} );
+	sigRegion boost550CR(    "boost550CR",    "CR 3 jets, high MT2W, MET 550+",     {&nJetsEq3, &CR_MET_550_inf, &CR_highMT2W} );
+	sigRegion low250CR(      "low250CR",      "CR 4+ jets, low MT2W, MET 250-350",  {&nJetsGe4, &CR_MET_250_350, &CR_lowMT2W}  );
+	sigRegion low350CR(      "low350CR",      "CR 4+ jets, low MT2W, MET 350-450",  {&nJetsGe4, &CR_MET_350_450, &CR_lowMT2W}  );
+	sigRegion low450CR(      "low450CR",      "CR 4+ jets, low MT2W, MET 450+",     {&nJetsGe4, &CR_MET_450_inf, &CR_lowMT2W}  );
+	sigRegion high250CR(     "high250CR",     "CR 4+ jets, high MT2W, MET 250-350", {&nJetsGe4, &CR_MET_250_350, &CR_highMT2W} );
+	sigRegion high350CR(     "high350CR",     "CR 4+ jets, high MT2W, MET 350-450", {&nJetsGe4, &CR_MET_350_450, &CR_highMT2W} );
+	sigRegion high450CR(     "high450CR",     "CR 4+ jets, high MT2W, MET 450-550", {&nJetsGe4, &CR_MET_450_550, &CR_highMT2W} );
+	sigRegion high550CR(     "high550CR",     "CR 4+ jets, high MT2W, MET 550-650", {&nJetsGe4, &CR_MET_550_650, &CR_highMT2W} );
+	sigRegion high650CR(     "high650CR",     "CR 4+ jets, high MT2W, MET 650+",    {&nJetsGe4, &CR_MET_650_inf, &CR_highMT2W} );
 	// sigRegion inclusive(   "inclusive",   "Inclusive" );
-	sigRegion corridor250CR( "corridor250CR", "CR Corridor, low MET" );
-	sigRegion corridor350CR( "corridor350CR", "CR Corridor, mid MET" );
-	sigRegion corridor450CR( "corridor450CR", "CR Corridor, high MET" );
+	sigRegion corridor250CR( "corridor250CR", "CR Corridor, low MET",  {&nJetsGe5, &CR_MET_250_350, &j1Pt200, &j1NoTag} );
+	sigRegion corridor350CR( "corridor350CR", "CR Corridor, mid MET",  {&nJetsGe5, &CR_MET_350_450, &j1Pt200, &j1NoTag} );
+	sigRegion corridor450CR( "corridor450CR", "CR Corridor, high MET", {&nJetsGe5, &CR_MET_450_inf, &j1Pt200, &j1NoTag} );
 
-	// Define each signal/control region as the && of several "selection"s
-	compr250.AddSelections(    {&nJetsEq2, &MET_250_350, &modTop}   );
-	compr350.AddSelections(    {&nJetsEq2, &MET_350_450, &modTop}   );
-	compr450.AddSelections(    {&nJetsEq2, &MET_450_inf, &modTop}   );
-	boost250.AddSelections(    {&nJetsEq3, &MET_250_350, &highMT2W} );
-	boost350.AddSelections(    {&nJetsEq3, &MET_350_450, &highMT2W} );
-	boost450.AddSelections(    {&nJetsEq3, &MET_450_550, &highMT2W} );
-	boost550.AddSelections(    {&nJetsEq3, &MET_550_inf, &highMT2W} );
-	low250.AddSelections(      {&nJetsGe4, &MET_250_350, &lowMT2W}  );
-	low350.AddSelections(      {&nJetsGe4, &MET_350_450, &lowMT2W}  );
-	low450.AddSelections(      {&nJetsGe4, &MET_450_inf, &lowMT2W}  );
-	high250.AddSelections(     {&nJetsGe4, &MET_250_350, &highMT2W} );
-	high350.AddSelections(     {&nJetsGe4, &MET_350_450, &highMT2W} );
-	high450.AddSelections(     {&nJetsGe4, &MET_450_550, &highMT2W} );
-	high550.AddSelections(     {&nJetsGe4, &MET_550_650, &highMT2W} );
-	high650.AddSelections(     {&nJetsGe4, &MET_650_inf, &highMT2W} );
-	corridor250.AddSelections( {&nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag} );
-	corridor350.AddSelections( {&nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag} );
-	corridor450.AddSelections( {&nJetsGe5, &MET_450_inf, &j1Pt200, &j1NoTag} );
-
-	compr250CR.AddSelections(    {&nJetsEq2, &CR_MET_250_350, &CR_modTop}   );
-	compr350CR.AddSelections(    {&nJetsEq2, &CR_MET_350_450, &CR_modTop}   );
-	compr450CR.AddSelections(    {&nJetsEq2, &CR_MET_450_inf, &CR_modTop}   );
-	boost250CR.AddSelections(    {&nJetsEq3, &CR_MET_250_350, &CR_highMT2W} );
-	boost350CR.AddSelections(    {&nJetsEq3, &CR_MET_350_450, &CR_highMT2W} );
-	boost450CR.AddSelections(    {&nJetsEq3, &CR_MET_450_550, &CR_highMT2W} );
-	boost550CR.AddSelections(    {&nJetsEq3, &CR_MET_550_inf, &CR_highMT2W} );
-	low250CR.AddSelections(      {&nJetsGe4, &CR_MET_250_350, &CR_lowMT2W}  );
-	low350CR.AddSelections(      {&nJetsGe4, &CR_MET_350_450, &CR_lowMT2W}  );
-	low450CR.AddSelections(      {&nJetsGe4, &CR_MET_450_inf, &CR_lowMT2W}  );
-	high250CR.AddSelections(     {&nJetsGe4, &CR_MET_250_350, &CR_highMT2W} );
-	high350CR.AddSelections(     {&nJetsGe4, &CR_MET_350_450, &CR_highMT2W} );
-	high450CR.AddSelections(     {&nJetsGe4, &CR_MET_450_550, &CR_highMT2W} );
-	high550CR.AddSelections(     {&nJetsGe4, &CR_MET_550_650, &CR_highMT2W} );
-	high650CR.AddSelections(     {&nJetsGe4, &CR_MET_650_inf, &CR_highMT2W} );
-	corridor250CR.AddSelections( {&nJetsGe5, &CR_MET_250_350, &j1Pt200, &j1NoTag} );
-	corridor350CR.AddSelections( {&nJetsGe5, &CR_MET_350_450, &j1Pt200, &j1NoTag} );
-	corridor450CR.AddSelections( {&nJetsGe5, &CR_MET_450_inf, &j1Pt200, &j1NoTag} );
 
 	// Finally, store all these signal/control regions in our "analysis" objects.
-	// Each {vector of "sigRegions"} will give rise to its own yield table, so order matters here!
+	// Each {vector of "sigRegions"} will give rise to its own yield table, so structure matters here!
 	srAnalysis->AddSigRegs( {compr250, compr350, compr450} );
 	srAnalysis->AddSigRegs( {boost250, boost350, boost450, boost550} );
 	srAnalysis->AddSigRegs( {low250,  low350, low450} );
@@ -383,9 +333,18 @@ int main( int argc, char* argv[] ) {
 
 
 
-
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// For each "sample" object defined earlier, chain up the baby files that make up that sample
+
+	TString sigPath = "/hadoop/cms/store/user/haweber/condor/stop1l_2016/stop_babies_V080009_signal_norm_v2/merged_files/";
+	TString bkgPath = "/nfs-7/userdata/stopRun2/stop_babies__CMS3_V080005__BabyMaker_V0800X_v8__20160729/";
+	TString dataPath = "/nfs-7/userdata/stopRun2/stop_babies__CMS3_V080005__BabyMaker_V0800X_v7__20160722/";
+
+	TString sigPath_jesup = "/hadoop/cms/store/user/haweber/condor/stop1l_2016/stop_babies_V080009_signal_JESup_v2/merged_files/";
+	TString bkgPath_jesup = "/nfs-7/userdata/stopRun2/stop_babies__JESup__CMS3_V080005__BabyMaker_V0800X_v8__20160729/";
+	TString sigPath_jesdn = "/hadoop/cms/store/user/haweber/condor/stop1l_2016/stop_babies_V080009_signal_JESdown_v2/merged_files/";
+	TString bkgPath_jesdn = "/nfs-7/userdata/stopRun2/stop_babies__JESdn__CMS3_V080005__BabyMaker_V0800X_v8__20160729/";
+
 
 	if( runlooper || runlostlep || run1lw ) {
 
@@ -611,6 +570,20 @@ int main( int argc, char* argv[] ) {
 	delete wjets;
 	delete dy;
 	delete rare;
+	delete signal_jesup;
+	delete tt2l_jesup;
+	delete tt1l_jesup;
+	delete singtop_jesup;
+	delete wjets_jesup;
+	delete dy_jesup;
+	delete rare_jesup;	
+	delete signal_jesdn;
+	delete tt2l_jesdn;
+	delete tt1l_jesdn;
+	delete singtop_jesdn;
+	delete wjets_jesdn;
+	delete dy_jesdn;
+	delete rare_jesdn;
 
 	return 0;
 }

@@ -124,16 +124,30 @@ template <> bool selection<int>::Pass() {
 // Function definitions for "sigRegion" class
 
 // Constructors
-sigRegion::sigRegion( std::string mylabel, std::string niceName )
-	: label(mylabel),
+sigRegion::sigRegion( std::string myLabel, std::string niceName )
+	: label(myLabel),
 	  name_table(niceName),
 	  name_root(niceName)
 {}
 
-sigRegion::sigRegion( std::string mylabel, std::string tabName, std::string rootName )
-	: label(mylabel),
+sigRegion::sigRegion( std::string myLabel, std::string tabName, std::string rootName )
+	: label(myLabel),
 	  name_table(tabName),
 	  name_root(rootName)
+{}
+
+sigRegion::sigRegion( std::string myLabel, std::string niceName, std::vector<selectionBase*> mySelections )
+	: label(myLabel),
+	  name_table(niceName),
+	  name_root(niceName),
+	  selections(mySelections)
+{}
+
+sigRegion::sigRegion( std::string myLabel, std::string tabName, std::string rootName, std::vector<selectionBase*> mySelections )
+	: label(myLabel),
+	  name_table(tabName),
+	  name_root(rootName),
+	  selections(mySelections)
 {}
 
 // Other functions
