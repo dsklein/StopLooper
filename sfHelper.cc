@@ -8,6 +8,20 @@ sfHelper myHelper; // Define an extern sfHelper
 
 // Function definitions for "sfHelper" class
 
+// Constructor and destructor
+sfHelper::sfHelper()
+{
+	TFile trigeffFile( "reference-data/triggerefficiency_2lCR.root" );
+	h_trigeff_cr2l = (TH2F*)trigeffFile.Get("twoDefficiencypass_gapsfilled")->Clone("trigeff_cr2l");
+	h_trigeff_cr2l->SetDirectory(0);
+	trigeffFile.Close();
+}
+
+sfHelper::~sfHelper()
+{
+	delete h_trigeff_cr2l;
+}
+
 // Setup function
 void sfHelper::Setup( bool is_fastsim, TH1D* counterHist, TH2F* nevtsHist=NULL, TH3D* counterHist_SMS=NULL )
 {
@@ -203,9 +217,26 @@ double sfHelper::AlphaSDown() {
 // Dummy function that returns 1.0
 double sfHelper::Unity() { return 1.0; }
 
-// Get a 7% upward/downward variation for the cr2l trigger efficiency
-double sfHelper::Trig2lUp()   { return 1.07; }
-double sfHelper::Trig2lDown() { return 0.93; }
+// Get the 2-lepton CR trigger efficiency
+double sfHelper::TrigEff2l() {
+	double mymet = max(  250., min(499.99, double(tas::pfmet_rl()) ) );
+	double myleppt = max( 20., min(499.99, double(tas::lep1_p4().pt()) ) );
+	return h_trigeff_cr2l->GetBinContent( h_trigeff_cr2l->FindBin(mymet, myleppt) );
+}
+
+// Get reweighting factor to vary the cr2l trigger efficiency up by 7 percentage points
+double sfHelper::Trig2lUp() {
+	double oldeff = TrigEff2l();
+	double neweff = oldeff + 0.07;
+	return neweff / oldeff;
+}
+
+// Get reweighting factor to vary the cr2l trigger efficiency down by 7 percentage points
+double sfHelper::Trig2lDown() {
+	double oldeff = TrigEff2l();
+	double neweff = oldeff - 0.07;
+	return neweff / oldeff;
+}
 
 
 
@@ -223,6 +254,7 @@ namespace sfhelp {
 	double AlphaSUp()      { return myHelper.AlphaSUp(); }
 	double AlphaSDown()    { return myHelper.AlphaSDown(); }
 	double Unity()         { return myHelper.Unity(); }
+	double TrigEff2l()     { return myHelper.TrigEff2l(); }
 	double Trig2lUp()      { return myHelper.Trig2lUp(); }
 	double Trig2lDown()    { return myHelper.Trig2lDown(); }
 }

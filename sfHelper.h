@@ -18,6 +18,9 @@ class sfHelper {
 
 public:
 
+	sfHelper();
+	~sfHelper();
+
 	void Setup( bool is_fastsim, TH1D* counterHist, TH2F* nevtsHist, TH3D* counterHist_SMS );
 
 	double LepSFUp();
@@ -33,6 +36,7 @@ public:
 	double AlphaSUp();
 	double AlphaSDown();
 	double Unity();
+	double TrigEff2l();
 	double Trig2lUp();
 	double Trig2lDown();
 
@@ -42,6 +46,7 @@ private:
 	TH1D* h_counter;
 	TH2F* hist_nEvts;
 	TH3D* h_counterSMS;
+	TH2F* h_trigeff_cr2l;
 
 	double lepnorm;
 	double lepnorm_up;
@@ -77,6 +82,7 @@ namespace sfhelp {
 	double AlphaSUp();
 	double AlphaSDown();
 	double Unity();
+	double TrigEff2l();
 	double Trig2lUp();
 	double Trig2lDown();
 }

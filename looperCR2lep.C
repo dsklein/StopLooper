@@ -52,10 +52,6 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	bool isFastsim = mySample->IsSignal();
 	cout << "\nSample: " << sampleName.Data() << endl;
 
-	// Load CR2l trigger efficiency
-	TFile file_trigeff("reference-data/triggerefficiency_2lCR.root", "READ");
-	TH2F* h_trigeff_cr2l = (TH2F*)file_trigeff.Get("twoDefficiencypass");
-
 	/////////////////////////////////////////////////////////
 	// Histograms
 	TDirectory *rootdir = gDirectory->GetDirectory("Rint:");
@@ -306,10 +302,6 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 			double btagNorm = 1.;
 			double isrNorm = 1.;
 
-			double mymet = max(  250., min(499.99, double(pfmet_rl()) ) );
-			double myleppt = max( 20., min(499.99, double(lep1_p4().pt()) ) );
-			double trigeffCR2l = h_trigeff_cr2l->GetBinContent( h_trigeff_cr2l->FindBin(mymet, myleppt) );
-
 			if( is_data() || mySample->IsData() ) evtWeight = 1.;
 			else if( mySample->IsSignal() ) {
 				double nEvtsSample = hNEvts->GetBinContent( hNEvts->FindBin( mass_stop(), mass_lsp() ) );
@@ -339,7 +331,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 				if( isFastsim ) evtWeight *= weight_lepSF_fastSim() * lepNorm_FS;
 				if( mySample->IsSignal()  ) evtWeight *= weight_ISR() * isrNorm;
 
-				evtWeight *= trigeffCR2l;
+				evtWeight *= myHelper.TrigEff2l();
 			}
 
 
@@ -531,13 +523,11 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 			// ---------------------------------------------------------------------------------------------------//
 			////////////////////////////////////////////////////////////////////////////////////////////////////////
 		} //End of loop over events
-  
+
 		// Clean Up
 		delete tree;
 		file.Close();
 	}
-
-	file_trigeff.Close();
 
 	cout << "Cutflow yields:                        (yield)  (gen evts)" << endl;
 

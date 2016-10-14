@@ -193,8 +193,8 @@ int main( int argc, char* argv[] ) {
 	systematic eff2ldn_dummy(  "cr2ltrig", systematic::kDown,  (*sfhelp::Unity) );
 
 	if( runsyst ) {
-		srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn } );
-		crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn } );
+		srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &eff2lup_dummy, &eff2ldn_dummy } );
+		crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &eff2lup, &eff2ldn } );
 	}
 
 	// A sneaky trick to make JES systematics work with existing code
