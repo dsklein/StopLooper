@@ -161,6 +161,7 @@ void makeDataCards( analysis* myAnalysis ) {
 			tmpstr = Form( "%-18s  lnN ", systname );
 
 			double systErr = 1.3; // Flat 30% systematic for now
+			if( sampleIdx == 3 ) systErr = 2.0; // 100% systematic on 1l from top
 
 			for( int j=0; j<nSamples; j++ ) {
 				if( j == sampleIdx ) tmpstr += Form( "  %8.6f  ", systErr);
