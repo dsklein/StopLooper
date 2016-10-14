@@ -148,7 +148,7 @@ void makeTables( analysis* myAnalysis ) {
 		cout << "\\end{tabular}\n\n" << endl;
 
 	} // end loop over lists of signal regions
- 
+
 	infile->Close();
 	delete infile;
 

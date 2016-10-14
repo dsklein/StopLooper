@@ -266,13 +266,13 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 		if( nEventsTotal >= nEventsChain ) continue;
 		unsigned int nEventsTree = tree->GetEntriesFast();
 		for( unsigned int event = 0; event < nEventsTree; ++event) {
-    
+
 			// Get Event Content
 			if( nEventsTotal >= nEventsChain ) continue;
 			if(fast) tree->LoadTree(event);
 			cms3.GetEntry(event);
 			++nEventsTotal;
-    
+
 			// Progress
 			CMS3::progress( nEventsTotal, nEventsChain );
 
@@ -494,7 +494,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 			// ---------------------------------------------------------------------------------------------------//
 			////////////////////////////////////////////////////////////////////////////////////////////////////////
 		} //End of loop over events
-  
+
 		// Clean Up
 		delete tree;
 		file.Close();
