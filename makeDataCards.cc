@@ -131,9 +131,12 @@ void makeDataCards( analysis* myAnalysis ) {
 		/////////////////////////////////////////////////////////////////////////
 		// Make a similar template for the rows that store all the uncertainties
 
-		// Generate a row for the statistical uncertainty on each sample (except signal, which is handled later)
+		// Generate a row for the statistical uncertainty on each sample
+		//  (except signal, which is handled later, and 1l-from-top, which is covered by the 100% uncertainty)
 		uncertlines.push_back( "### Placeholder line. Stat uncertainty on signal yield will go here." );
 		for( int sampleIdx=1; sampleIdx<nSamples; sampleIdx++ ) {
+
+			if( sampleIdx == 3 ) continue;
 
 			char statname[25];
 			sprintf( statname, "Stat%s%d", samples.at(sampleIdx).Data(), reg );
@@ -154,14 +157,20 @@ void makeDataCards( analysis* myAnalysis ) {
 		// Write out a dummy systematic uncertainty for each of the backgrounds that doesn't have an actual systematic calculation
 		for( int sampleIdx = 1; sampleIdx<nSamples; sampleIdx++ ) { // For now, skip the signal sample (don't give it a systematic uncertainty)
 
-			if( sampleIdx == 2 && nVars > 0 ) continue;
-
+			double systErr = 0.;
 			char systname[25];
-			sprintf( systname, "Flat%s", samples.at(sampleIdx).Data() );
-			tmpstr = Form( "%-18s  lnN ", systname );
 
-			double systErr = 1.3; // Flat 30% systematic for now
-			if( sampleIdx == 3 ) systErr = 2.0; // 100% systematic on 1l from top
+			if(      sampleIdx == 2 && nVars > 0 ) continue; // Don't use dummy systematic for ll background if we have actual systematics
+			else if( sampleIdx == 3 ) {
+				systErr = 2.0; // 100% systematic on 1l from top
+				sprintf( systname, "Flat%s%d", samples.at(sampleIdx).Data(), reg );
+			}
+			else {
+				systErr = 1.3; // Flat 30% systematic for now
+				sprintf( systname, "Flat%s", samples.at(sampleIdx).Data() );
+			}
+
+			tmpstr = Form( "%-18s  lnN ", systname );
 
 			for( int j=0; j<nSamples; j++ ) {
 				if( j == sampleIdx ) tmpstr += Form( "  %8.6f  ", systErr);
