@@ -133,7 +133,32 @@ void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 	h_mcRatio->Divide( h_crMC );
 
 
-	// Get data yields in CRs, and multiply by M/M
+	// Do the MET extrapolation
+	TH1D* h_extrapolation = (TH1D*)h_srMC->Clone("extrap"+systSuffix);
+	TH1D* h_extrap_denom  = (TH1D*)h_srMC->Clone("extrap_denominator"+systSuffix);
+	h_extrapolation->SetTitle( "MET extrapolation factor" );
+	h_extrap_denom->SetTitle(  "MET extrapolation denominator" );
+
+	vector< vector<TString> > binmerge_list = { {"boost450", "boost550"}, {"high550", "high650"} };  // Merge certain sets of bins in the denominator
+	for( vector<TString> bins : binmerge_list ) {
+		double content = 0.;
+		double errorsq = 0.;
+		for( TString binname : bins ) {
+			int binnum = h_extrap_denom->GetXaxis()->FindBin(binname);
+			content += h_extrap_denom->GetBinContent(binnum);
+			errorsq += (h_extrap_denom->GetBinError(binnum) * h_extrap_denom->GetBinError(binnum));
+		}
+		for( TString binname : bins ) {
+			int binnum = h_extrap_denom->GetXaxis()->FindBin(binname);
+			h_extrap_denom->SetBinContent( binnum, content );
+			h_extrap_denom->SetBinError(   binnum, sqrt(errorsq) );
+		}
+	}
+
+	h_extrapolation->Divide( h_extrapolation, h_extrap_denom, 1., 1., "B" );
+
+
+	// Get data yields in CRs, and multiply by M/M and the extrapolation factor
 	TH1D* h_bkgEstimate;
 
 	if( h_crData == NULL ) {  // If we don't have CR data, do a dummy estimate from MC
@@ -152,6 +177,7 @@ void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 	// Write everything to a file
 	h_mcRatio->Write();
 	h_bkgEstimate->Write();
+	h_extrapolation->Write();
 	if( systSuffix == "" ) cout << "Lost lepton background estimate saved in " << gFile->GetName() << "." << endl;
 	else cout << "Systematic variation " << systSuffix << " saved in " << gFile->GetName() << "." << endl;
 
@@ -201,9 +227,9 @@ void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 
 	//  Print table header
 	cout << "\nLost lepton background estimate (stat errors only)\n" << endl;
-	cout << "\\begin{tabular}{ | l | c | c | c | }" << endl;
+	cout << "\\begin{tabular}{ | l | c | c | c | c | }" << endl;
 	cout << "\\hline" << endl;
-	cout << "Signal region  &  $N^{CR}$  &  Transfer factor  &  $N_{est}^{SR}$ \\\\" << endl;
+	cout << "Signal region  &  $N^{CR}$  &  MC Transfer Factor  &  MET Transfer Factor  &  $N_{est}^{SR}$ \\\\" << endl;
 	cout << "\\hline" << endl;
 
 	// Loop through signal regions and print out table rows
@@ -211,9 +237,10 @@ void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 	for( vector<sigRegion> sigRegs : sigRegionList ) {
 		for( uint i=0; i<sigRegs.size(); i++ ) {
 
-			printf( "%32s & %4d $\\pm$ %6.3f &  %5.3f $\\pm$ %5.3f  &  %6.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i).GetTableName().Data(),
+			printf( "%32s & %4d $\\pm$ %6.3f &  %5.3f $\\pm$ %5.3f  &  %5.3f $\\pm$ %5.3f  &  %6.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i).GetTableName().Data(),
 			        int(h_crData->GetBinContent(i+binOffset)), h_crData->GetBinError(i+binOffset), h_mcRatio->GetBinContent(i+binOffset),
-			        h_mcRatio->GetBinError(i+binOffset), h_bkgEstimate->GetBinContent(i+binOffset), h_bkgEstimate->GetBinError(i+binOffset) );
+			        h_mcRatio->GetBinError(i+binOffset), h_extrapolation->GetBinContent(i+binOffset), h_extrapolation->GetBinError(i+binOffset),
+			        h_bkgEstimate->GetBinContent(i+binOffset), h_bkgEstimate->GetBinError(i+binOffset) );
 
 		}
 		binOffset += sigRegs.size();
