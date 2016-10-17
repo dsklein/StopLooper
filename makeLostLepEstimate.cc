@@ -158,7 +158,7 @@ void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 	h_extrapolation->Divide( h_extrapolation, h_extrap_denom, 1., 1., "B" );
 
 
-	// Get data yields in CRs, and multiply by M/M and the extrapolation factor
+	// Get data yields in CRs
 	TH1D* h_bkgEstimate;
 
 	if( h_crData == NULL ) {  // If we don't have CR data, do a dummy estimate from MC
@@ -169,10 +169,12 @@ void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 	if( systSuffix == "" ) h_crData->Write();
 	for( uint i=0; i<nSRegions; i++ ) h_crData->GetXaxis()->SetBinLabel( i+1, srnames.at(i) ); // equalize bin names
 
+	// Multiply CR data yield by the various transfer/extrapolation factors
 	TString histname = systSuffix=="" ? "lostLepBkg" : "variation"+systSuffix;
 	h_bkgEstimate = (TH1D*)h_crData->Clone( histname );
 	h_bkgEstimate->SetTitle( "Lost lepton background estimate" );
 	h_bkgEstimate->Multiply( h_mcRatio );
+	h_bkgEstimate->Multiply( h_extrapolation );
 
 	// Write everything to a file
 	h_mcRatio->Write();
