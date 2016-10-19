@@ -191,10 +191,12 @@ int main( int argc, char* argv[] ) {
 	systematic eff2ldn(        "cr2ltrig", systematic::kDown,  (*sfhelp::Trig2lDown) );
 	systematic eff2lup_dummy(  "cr2ltrig", systematic::kUp,    (*sfhelp::Unity) );
 	systematic eff2ldn_dummy(  "cr2ltrig", systematic::kDown,  (*sfhelp::Unity) );
+	systematic metresup(       "METres",   systematic::kUp,    (*sfhelp::MetResUp) );
+	systematic metresdn(       "METres",   systematic::kDown,  (*sfhelp::MetResDown) );
 
 	if( runsyst ) {
-		srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &eff2lup_dummy, &eff2ldn_dummy } );
-		crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &eff2lup, &eff2ldn } );
+		srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &eff2lup_dummy, &eff2ldn_dummy, &metresup, &metresdn } );
+		crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn } );
 	}
 
 	// A sneaky trick to make JES systematics work with existing code

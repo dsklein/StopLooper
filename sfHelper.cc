@@ -23,9 +23,10 @@ sfHelper::~sfHelper()
 }
 
 // Setup function
-void sfHelper::Setup( bool is_fastsim, TH1D* counterHist, TH2F* nevtsHist=NULL, TH3D* counterHist_SMS=NULL )
+void sfHelper::Setup( bool is_fastsim, bool is_cr2l, TH1D* counterHist, TH2F* nevtsHist=NULL, TH3D* counterHist_SMS=NULL )
 {
 	isFastsim = is_fastsim;
+	isCR2l = is_cr2l;
 	h_counter = counterHist;
 	hist_nEvts = nevtsHist;
 	h_counterSMS = counterHist_SMS;
@@ -238,6 +239,48 @@ double sfHelper::Trig2lDown() {
 	return neweff / oldeff;
 }
 
+// Get MET resolution SF
+double sfHelper::MetResSF() {
+	double mymet = isCR2l ? tas::pfmet_rl() : tas::pfmet();
+	double mymt2w = isCR2l ? tas::MT2W_rl() : tas::MT2W();
+
+	if( tas::ngoodjets() == 2) {
+		if(      mymet >= 450. ) return 0.776;
+		else if( mymet >= 350. ) return 0.910;
+		else if( mymet >= 250. ) return 1.048;
+	}
+	else if( tas::ngoodjets() == 3 ) {
+		if(      mymet >= 550. ) return 0.658;
+		else if( mymet >= 450. ) return 0.808;
+		else if( mymet >= 350. ) return 0.928;
+		else if( mymet >= 250. ) return 1.076;
+	}
+	else if( tas::ngoodjets() >= 4 ) {
+		if( mymt2w < 200. && mymet >= 450. ) return 0.740;
+		else if( mymet >= 650. ) return 0.564;
+		else if( mymet >= 550. ) return 0.747;
+		else if( mymet >= 450. ) return 0.873;
+		else if( mymet >= 350. ) return 0.939;
+		else if( mymet >= 250. ) return 1.076;
+	}
+
+	return 1.0;
+}
+
+// Get reweighting factor to vary the MET resolution SF up
+double sfHelper::MetResUp() {
+	double sf = MetResSF();
+	double err = fabs(1.0-sf) / 2.;
+	return (sf+err) / sf;
+}
+
+// Get reweighting factor to vary the MET resolution SF down
+double sfHelper::MetResDown() {
+	double sf = MetResSF();
+	double err = fabs(1.0-sf) / 2.;
+	return (sf-err) / sf;
+}
+
 
 
 namespace sfhelp {
@@ -257,4 +300,7 @@ namespace sfhelp {
 	double TrigEff2l()     { return myHelper.TrigEff2l(); }
 	double Trig2lUp()      { return myHelper.Trig2lUp(); }
 	double Trig2lDown()    { return myHelper.Trig2lDown(); }
+	double MetResSF()      { return myHelper.MetResSF(); }
+	double MetResUp()      { return myHelper.MetResUp(); }
+	double MetResDown()    { return myHelper.MetResDown(); }
 }

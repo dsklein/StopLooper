@@ -21,7 +21,7 @@ public:
 	sfHelper();
 	~sfHelper();
 
-	void Setup( bool is_fastsim, TH1D* counterHist, TH2F* nevtsHist, TH3D* counterHist_SMS );
+	void Setup( bool is_fastsim, bool is_cr2l, TH1D* counterHist, TH2F* nevtsHist, TH3D* counterHist_SMS );
 
 	double LepSFUp();
 	double LepSFDown();
@@ -39,10 +39,14 @@ public:
 	double TrigEff2l();
 	double Trig2lUp();
 	double Trig2lDown();
+	double MetResSF();
+	double MetResUp();
+	double MetResDown();
 
 
 private:
 	bool isFastsim;
+	bool isCR2l;
 	TH1D* h_counter;
 	TH2F* hist_nEvts;
 	TH3D* h_counterSMS;
@@ -85,6 +89,9 @@ namespace sfhelp {
 	double TrigEff2l();
 	double Trig2lUp();
 	double Trig2lDown();
+	double MetResSF();
+	double MetResUp();
+	double MetResDown();
 }
 
 

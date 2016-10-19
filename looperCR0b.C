@@ -260,7 +260,7 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 		TH2F* hNEvts = (TH2F*)file.Get("histNEvts");
 		TH3D* hCounterSMS = (TH3D*)file.Get("h_counterSMS");
 		TH1D* hCounter = (TH1D*)file.Get("h_counter");
-		myHelper.Setup( isFastsim, hCounter, hNEvts, hCounterSMS );
+		myHelper.Setup( isFastsim, false, hCounter, hNEvts, hCounterSMS );
 
 		// Loop over Events in current file
 		if( nEventsTotal >= nEventsChain ) continue;
@@ -328,6 +328,7 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 				evtWeight *= weight_btagsf() * btagNorm;
 				if( isFastsim ) evtWeight *= weight_lepSF_fastSim() * lepNorm_FS;
 				if( mySample->IsSignal()  ) evtWeight *= weight_ISR() * isrNorm;
+				if( !mySample->IsSignal() ) evtWeight *= myHelper.MetResSF();
 			}
 
 
