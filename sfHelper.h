@@ -6,6 +6,7 @@
 #include "TH1D.h"
 #include "TH2F.h"
 #include "TH3D.h"
+#include "Math/VectorUtil.h"
 
 #include "CMS3.h"
 
@@ -42,15 +43,19 @@ public:
 	double MetResSF();
 	double MetResUp();
 	double MetResDown();
-
+	double TopSystPtSF();
+	double TopSystPtUp();
+	double TopSystPtDown();
 
 private:
 	bool isFastsim;
 	bool isCR2l;
+	int topptBin;
 	TH1D* h_counter;
 	TH2F* hist_nEvts;
 	TH3D* h_counterSMS;
 	TH2F* h_trigeff_cr2l;
+	TH1D* h_sf_toppt;
 
 	double lepnorm;
 	double lepnorm_up;
@@ -92,6 +97,9 @@ namespace sfhelp {
 	double MetResSF();
 	double MetResUp();
 	double MetResDown();
+	double TopSystPtSF();
+	double TopSystPtUp();
+	double TopSystPtDown();
 }
 
 

@@ -4,6 +4,7 @@
 
 sfHelper myHelper; // Define an extern sfHelper
 
+typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > LorentzVector;
 
 
 // Function definitions for "sfHelper" class
@@ -15,11 +16,17 @@ sfHelper::sfHelper()
 	h_trigeff_cr2l = (TH2F*)trigeffFile.Get("twoDefficiencypass_gapsfilled")->Clone("trigeff_cr2l");
 	h_trigeff_cr2l->SetDirectory(0);
 	trigeffFile.Close();
+
+	TFile topptFile( "reference-data/sf_top_system_pt.root" );
+	h_sf_toppt = (TH1D*)topptFile.Get("topsyst_pt_sf")->Clone("top_system_pt_sf");
+	h_sf_toppt->SetDirectory(0);
+	topptFile.Close();
 }
 
 sfHelper::~sfHelper()
 {
 	delete h_trigeff_cr2l;
+	delete h_sf_toppt;
 }
 
 // Setup function
@@ -30,6 +37,7 @@ void sfHelper::Setup( bool is_fastsim, bool is_cr2l, TH1D* counterHist, TH2F* ne
 	h_counter = counterHist;
 	hist_nEvts = nevtsHist;
 	h_counterSMS = counterHist_SMS;
+	topptBin = -99;
 
 	qsquarednorm    = h_counter->GetBinContent( 1 );
 	alphasnorm      = h_counter->GetBinContent( 1 );
@@ -281,6 +289,61 @@ double sfHelper::MetResDown() {
 	return (sf-err) / sf;
 }
 
+// Get Top system pT scale factor
+double sfHelper::TopSystPtSF() {
+	topptBin = -99;
+	if( !tas::is2lep() ) return 1.0;
+
+	LorentzVector topsystem_p4( 0., 0., 0., 0. );
+	int nTops = 0;
+	int nWs = 0;
+
+	for( uint i=0; i<tas::genqs_p4().size(); i++ ) {
+		if( abs(tas::genqs_id().at(i)) == 6 && tas::genqs_isLastCopy().at(i) )	{
+			topsystem_p4 += tas::genqs_p4().at(i);
+			nTops++;
+		}
+	}
+	if( nTops > 2 ) return 1.0;
+
+	for( uint i=0; i<tas::genbosons_p4().size(); i++ ) {
+		if( abs(tas::genbosons_id().at(i)) == 24 &&
+		    // tas::genbosons_isHardProcess().at(i) &&
+		    abs(tas::genbosons_motherid().at(i)) != 6 &&
+		    tas::genbosons_isLastCopy().at(i) ) {
+			topsystem_p4 += tas::genbosons_p4().at(i);
+			nWs++;
+		}
+	}
+
+	// This will pick out only tt2l and tW events
+	if( nWs > 1 ) return 1.0;
+	else if( (nTops + nWs) > 2 ) return 1.0;
+
+	double system_pt = topsystem_p4.Pt();
+	topptBin = h_sf_toppt->FindBin(system_pt);
+	return h_sf_toppt->GetBinContent(topptBin);
+}
+
+// Get reweighting factor to vary the top system pT SF up
+double sfHelper::TopSystPtUp() {
+	if( !tas::is2lep() ) return 1.0;
+	if( topptBin < 0 ) return 1.0;
+
+	double sf  = h_sf_toppt->GetBinContent(topptBin);
+	double err = h_sf_toppt->GetBinError(topptBin);
+	return (sf+err) / sf;
+}
+
+// Get reweighting factor to vary the top system pT SF down
+double sfHelper::TopSystPtDown() {
+	if( !tas::is2lep() ) return 1.0;
+	if( topptBin < 0 ) return 1.0;
+
+	double sf  = h_sf_toppt->GetBinContent(topptBin);
+	double err = h_sf_toppt->GetBinError(topptBin);
+	return (sf-err) / sf;
+}
 
 
 namespace sfhelp {
@@ -303,4 +366,7 @@ namespace sfhelp {
 	double MetResSF()      { return myHelper.MetResSF(); }
 	double MetResUp()      { return myHelper.MetResUp(); }
 	double MetResDown()    { return myHelper.MetResDown(); }
+	double TopSystPtSF()   { return myHelper.TopSystPtSF(); }
+	double TopSystPtUp()   { return myHelper.TopSystPtUp(); }
+	double TopSystPtDown() { return myHelper.TopSystPtDown(); }
 }
