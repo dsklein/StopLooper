@@ -193,10 +193,14 @@ int main( int argc, char* argv[] ) {
 	systematic eff2ldn_dummy(  "cr2ltrig", systematic::kDown,  (*sfhelp::Unity) );
 	systematic metresup(       "METres",   systematic::kUp,    (*sfhelp::MetResUp) );
 	systematic metresdn(       "METres",   systematic::kDown,  (*sfhelp::MetResDown) );
+	systematic topptup(        "topSysPt", systematic::kUp,    (*sfhelp::TopSystPtUp) );
+	systematic topptdn(        "topSysPt", systematic::kDown,  (*sfhelp::TopSystPtDown) );
 
 	if( runsyst ) {
-		srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &eff2lup_dummy, &eff2ldn_dummy, &metresup, &metresdn } );
-		crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn } );
+		srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn} );
+		srAnalysis->AddSystematics( {&qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &eff2lup_dummy, &eff2ldn_dummy, &metresup, &metresdn, &topptup, &topptdn } );
+		crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn} );
+		crLostLep->AddSystematics(  {&qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, &topptup, &topptdn } );
 	}
 
 	// A sneaky trick to make JES systematics work with existing code
@@ -556,7 +560,7 @@ int main( int argc, char* argv[] ) {
 	if( runstacks )               makeStack( srAnalysis );
 	if( runestimate ) {
 		makeLostLepEstimate( srAnalysis, crLostLep );
-		make1lWEstimate(srAnalysis, cr0bjets );
+		make1lWEstimate( srAnalysis, cr0bjets );
 	}
 	if( runcards )                makeDataCards( srAnalysis );
 
