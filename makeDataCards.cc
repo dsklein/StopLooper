@@ -34,6 +34,8 @@ void makeDataCards( analysis* myAnalysis ) {
 	const int nVars = variations.size();
 	map<TString,vector<TString> > systMap = myAnalysis->GetSystMap();
 
+	map<TString,vector<double> > dilep_uncert;
+
 	// Open files containing background yields and uncertainties
 	TFile* yieldFile   = new TFile( myAnalysis->GetPlotFileName(), "READ" );
 	TFile* lostlepFile = new TFile( "lostlepEstimates.root", "READ" );
@@ -203,7 +205,10 @@ void makeDataCards( analysis* myAnalysis ) {
 				}
 				tmpstr += "\n";
 				uncertlines.push_back( tmpstr );
-			}
+
+				dilep_uncert[iter.first].push_back( maxdiff/nominal );
+
+			} // End loop over each systematic
 		}
 
 		// Count number of uncertainties, and insert appropriate row into datacard template
@@ -274,6 +279,33 @@ void makeDataCards( analysis* myAnalysis ) {
 		} // End loop over x bins (stop masses)
 
 	} // End loop over signal regions
+
+
+
+	// Print table of systematics for the dilepton background estimate
+	if( nVars > 0 ) {
+
+		printf( "\n\nSystematics on dilepton background estimate\n\n" );
+
+		printf( "\\begin{tabular}{ | l |" );
+		for( TString regName : sigRegions ) printf( " c |" );
+		printf( " }\n" );
+		printf( "\\hline\n" );
+
+		printf( "Systematic " );
+		for( TString regName : sigRegions ) printf( "& %s ", regName.Data() );
+		printf( " \\\\ \\hline\n" );
+
+		for( auto& iter : dilep_uncert ) {
+			printf( "%10s ", iter.first.Data() );
+			for( double uncert : iter.second ) printf( "& %4.1f\\%% ", uncert*100. );
+			printf( " \\\\\n" );
+		}
+
+		printf( "\\hline\n" );
+		printf( "\\end{tabular}\n" );
+	}
+
 
 	lostlepFile->Close();
 	yieldFile->Close();
