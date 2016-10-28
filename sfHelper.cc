@@ -345,6 +345,18 @@ double sfHelper::TopSystPtDown() {
 	return (sf-err) / sf;
 }
 
+// Get reiweighting factor to vary the non-1l-from-W CR contamination up
+double sfHelper::Contam1lwUp() {
+	if( tas::is1lepFromW() ) return 1.0;
+	return 1.5;
+}
+
+// Get reiweighting factor to vary the non-1l-from-W CR contamination down
+double sfHelper::Contam1lwDown() {
+	if( tas::is1lepFromW() ) return 1.0;
+	return 0.5;
+}
+
 
 namespace sfhelp {
 	double LepSFUp()       { return myHelper.LepSFUp(); }
@@ -369,4 +381,6 @@ namespace sfhelp {
 	double TopSystPtSF()   { return myHelper.TopSystPtSF(); }
 	double TopSystPtUp()   { return myHelper.TopSystPtUp(); }
 	double TopSystPtDown() { return myHelper.TopSystPtDown(); }
+	double Contam1lwUp()   { return myHelper.Contam1lwUp(); }
+	double Contam1lwDown() { return myHelper.Contam1lwDown(); }
 }

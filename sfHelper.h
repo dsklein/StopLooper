@@ -46,6 +46,8 @@ public:
 	double TopSystPtSF();
 	double TopSystPtUp();
 	double TopSystPtDown();
+	double Contam1lwUp();
+	double Contam1lwDown();
 
 private:
 	bool isFastsim;
@@ -100,6 +102,8 @@ namespace sfhelp {
 	double TopSystPtSF();
 	double TopSystPtUp();
 	double TopSystPtDown();
+	double Contam1lwUp();
+	double Contam1lwDown();
 }
 
 

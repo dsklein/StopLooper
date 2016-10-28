@@ -195,12 +195,16 @@ int main( int argc, char* argv[] ) {
 	systematic metresdn(       "METres",   systematic::kDown,  (*sfhelp::MetResDown) );
 	systematic topptup(        "topSysPt", systematic::kUp,    (*sfhelp::TopSystPtUp) );
 	systematic topptdn(        "topSysPt", systematic::kDown,  (*sfhelp::TopSystPtDown) );
+	systematic contam1lwup(    "contam",   systematic::kUp,    (*sfhelp::Contam1lwUp) );
+	systematic contam1lwdn(    "contam",   systematic::kDown,  (*sfhelp::Contam1lwDown) );
+	systematic contamup_dummy( "contam",   systematic::kUp,    (*sfhelp::Unity) );
+	systematic contamdn_dummy( "contam",   systematic::kDown,  (*sfhelp::Unity) );
 
 	if( runsyst ) {
-		srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn} );
-		srAnalysis->AddSystematics( {&qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &eff2lup_dummy, &eff2ldn_dummy, &metresup, &metresdn, &topptup, &topptdn } );
-		crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn} );
-		crLostLep->AddSystematics(  {&qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, &topptup, &topptdn } );
+		srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
+		srAnalysis->AddSystematics( {&eff2lup_dummy, &eff2ldn_dummy, &metresup, &metresdn, &topptup, &topptdn, &contamup_dummy, &contamdn_dummy } );
+		crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn} );
+		crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, &topptup, &topptdn } );
 	}
 
 	// A sneaky trick to make JES systematics work with existing code
@@ -480,7 +484,7 @@ int main( int argc, char* argv[] ) {
 	if( runsyst ) {
 		cr0bjets->ResetSystematics();
 		cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn} );
-		cr0bjets->AddSystematics( {&qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &metresup, &metresdn } );
+		cr0bjets->AddSystematics( {&qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &metresup, &metresdn, &contam1lwup, &contam1lwdn } );
 	}
 
 

@@ -195,6 +195,10 @@ void makeDataCards( analysis* myAnalysis ) {
 				double maxdiff = 0.;
 				for( TString varName : iter.second ) {
 					TH1D* h_tmp = (TH1D*)lostlepFile->Get( "variation_" + varName );
+					if( h_tmp == 0 ) {
+						cout << "Warning in makeDataCards: Couldn't find lost lepton variation histogram '" << varName << "'!" << endl;
+						continue;
+					}
 					maxdiff = max( maxdiff, fabs(nominal - h_tmp->GetBinContent(reg)) );
 				}
 
