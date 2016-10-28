@@ -198,3 +198,5 @@ void analysis::SetPlotFileName( TString fname ) { plotfilename = fname; }
 void analysis::SetSystFileName( TString fname ) { systfilename = fname; }
 
 void analysis::ResetSigRegions() { sigRegions.clear(); }
+
+void analysis::ResetSystematics() {syst_vars.clear(); }

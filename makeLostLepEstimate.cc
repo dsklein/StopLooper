@@ -68,7 +68,7 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 	// Now actually run the lost lepton background estimates!
 	// Once for the nominal estimate, and once for each of the systematic variations
 	doLLestimate( srHistFile, crHistFile, "" );
-	for( systematic* thisSys : srAnalysis->GetSystematics(true) ) {
+	for( systematic* thisSys : crAnalysis->GetSystematics(true) ) {
 		TString suffix = "_" + thisSys->GetNameLong();
 		if( suffix.Contains("JES") ) doLLestimate( srJesFile, crJesFile, suffix );
 		else doLLestimate( srSystFile, crSystFile, suffix );

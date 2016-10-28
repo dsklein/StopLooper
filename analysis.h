@@ -56,6 +56,7 @@ public:
 	void SetPlotFileName( TString fname );
 	void SetSystFileName( TString fname );
 	void ResetSigRegions();
+	void ResetSystematics();
 
 private:
 	sample* data;

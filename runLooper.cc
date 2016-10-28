@@ -472,11 +472,16 @@ int main( int argc, char* argv[] ) {
 		rare_jesdn->AddFile( bkgPath_jesdn + "ZZTo2Q2Nu_amcnlo_pythia8_25ns.root" );
 	}
 
-	// Make the 0-bjet control region "analyses" by copying the signal region "analyses" and changing the storage file names
+	// Make the 0-bjet control region "analyses" by copying the signal region "analyses" and changing a few properties
 	cr0bjets = srAnalysis->Copy( 12.9, "plots0b.root", "systVariations0b.root" );
 	cr0b_jesup = sr_jesup->Copy( 12.9, "jes_cr0b.root", "jes_cr0b.root" );
 	cr0b_jesdn = sr_jesdn->Copy( 12.9, "jes_cr0b.root", "jes_cr0b.root" );
 	cr0bjets->AddSample( data );
+	if( runsyst ) {
+		cr0bjets->ResetSystematics();
+		cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn} );
+		cr0bjets->AddSystematics( {&qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &metresup, &metresdn } );
+	}
 
 
 

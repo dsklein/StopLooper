@@ -67,7 +67,7 @@ void make1lWEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 	// Now actually run the 1l-from-W background estimates!
 	// Once for the nominal estimate, and once for each of the systematic variations
 	do1lWestimate( srHistFile, crHistFile, "" );
-	for( systematic* thisSys : srAnalysis->GetSystematics(true) ) {
+	for( systematic* thisSys : crAnalysis->GetSystematics(true) ) {
 		TString suffix = "_" + thisSys->GetNameLong();
 		if( suffix.Contains("JES") ) do1lWestimate( srJesFile, crJesFile, suffix );
 		else do1lWestimate( srSystFile, crSystFile, suffix );
