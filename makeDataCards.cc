@@ -10,15 +10,18 @@
 
 using namespace std;
 
+double calculateMaxdiff( int bin, TFile* histfile, const double& nominal, vector<TString> varNames );
+void printSystTable( vector<TString> sigRegions, map<TString,vector<double> > uncertainties );
 
-void makeDataCards( analysis* myAnalysis ) {
+
+void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, analysis* onelepwAnalysis = NULL ) {
 
 	// Do the basic setup stuff
 
 	vector<TString> bkgs = { "zNuNu", "dilep", "top1l", "W1l" }; // Eventually pull this from the analysis object
 	const int nBkgs = bkgs.size();
 
-	if( myAnalysis->GetNsignals() < 1 ) {
+	if( srAnalysis->GetNsignals() < 1 ) {
 		cout << "\nError in makeDataCards.cc: Need at least one signal sample!" << endl;
 		return;
 	}
@@ -27,23 +30,37 @@ void makeDataCards( analysis* myAnalysis ) {
 	samples.insert( samples.begin(), "signal" );
 	const int nSamples = samples.size();
 
-	vector<TString> sigRegions = myAnalysis->GetSigRegionLabelsAll();
+	vector<TString> sigRegions = srAnalysis->GetSigRegionLabelsAll();
 	const int nSigRegs = sigRegions.size();
 
-	vector<systematic*> variations = myAnalysis->GetSystematics(true);
-	const int nVars = variations.size();
-	map<TString,vector<TString> > systMap = myAnalysis->GetSystMap();
+	int nVars_ll, nVars_1lw;
+	map<TString,vector<TString> > systMap_sr, systMap_ll, systMap_1lw;
 
-	map<TString,vector<double> > dilep_uncert;
+	systMap_sr = srAnalysis->GetSystMap();
+	if( lostlepAnalysis ) {
+		nVars_ll  = lostlepAnalysis->GetSystematics(true).size();
+	  systMap_ll = lostlepAnalysis->GetSystMap();
+	}
+	if( onelepwAnalysis ) {
+		nVars_1lw   = onelepwAnalysis->GetSystematics(true).size();
+		systMap_1lw = onelepwAnalysis->GetSystMap();
+	}
+
+	map<TString,vector<double> > lostlep_uncert, onelepw_uncert;
 
 	// Open files containing background yields and uncertainties
-	TFile* yieldFile   = new TFile( myAnalysis->GetPlotFileName(), "READ" );
+	TFile* yieldFile   = new TFile( srAnalysis->GetPlotFileName(), "READ" );
 	TFile* lostlepFile = new TFile( "lostlepEstimates.root", "READ" );
-	if( yieldFile->IsZombie() || lostlepFile->IsZombie() ) {
-		cout << "Error in makeDataCards! Couldn't open one or more of the input root files!" << endl;
-		return;
+	TFile* onelepwFile = new TFile( "onelepwEstimates.root", "READ" );
+	for( TFile* thisFile : {yieldFile, lostlepFile, onelepwFile} ) {
+		if( thisFile->IsZombie() ) {
+			cout << "Error in makeDataCards! Couldn't open file" << thisFile->GetName() << "!" << endl;
+			return;
+		}
 	}
+
 	TH1D* h_lostLep = (TH1D*)lostlepFile->Get("lostLepBkg");
+	TH1D* h_onelepw = (TH1D*)onelepwFile->Get("onelepwBkg");
 
 	//////////////////////////////////////////////////////////////////////////////
 	// Loop over signal regions, making a datacard for each SR and each mass point
@@ -89,8 +106,7 @@ void makeDataCards( analysis* myAnalysis ) {
 
 		cardlines.push_back( "# Now list the number of events observed (or zero if no data)\n" );
 		cardlines.push_back( Form("bin %d\n", reg) );
-		if( myAnalysis->HasData() ) cardlines.push_back( Form( "observation %d\n", int(h_bkgYield->GetBinContent(1)) ) );
-		else                        cardlines.push_back(       "observation 0\n" );
+		cardlines.push_back( Form( "observation %d\n", int(h_bkgYield->GetBinContent(1)) ) );
 		cardlines.push_back( "---\n" );
 
 		cardlines.push_back(  "# Now list the expected events (i.e. Monte Carlo yield) for signal and all backgrounds in our particular bin\n" );
@@ -118,8 +134,9 @@ void makeDataCards( analysis* myAnalysis ) {
 		TString bkgRates;
 
 		for( int i=1; i<nSamples; i++ ) {
-			if( i==2 ) yield = h_lostLep->GetBinContent(reg); // Pull 2l yield from lostLepton estimate histogram
-			else       yield = h_bkgYield->GetBinContent(i+2);
+			if(      i==2 ) yield = h_lostLep->GetBinContent(reg); // Pull 2l yield from lostLepton estimate histogram
+			else if( i==4 ) yield = h_onelepw->GetBinContent(reg); // Pull 1lw yield from 1l-from-w estimate histogram
+			else            yield = h_bkgYield->GetBinContent(i+2);
 			bkgRates += Form( " %10f", yield );
 		}
 		bkgRates += "\n";
@@ -145,7 +162,8 @@ void makeDataCards( analysis* myAnalysis ) {
 			tmpstr = Form( "%-18s  lnN ", statname );
 
 			double statErr = 1.0 + (h_bkgYield->GetBinError(sampleIdx+2) / h_bkgYield->GetBinContent(sampleIdx+2) );
-			if( sampleIdx==2 ) statErr = 1.0 + ( h_lostLep->GetBinError(reg) / h_lostLep->GetBinContent(reg) );  // Pull 2l stat error from lostLepton estimate histogram
+			if(      sampleIdx==2 ) statErr = 1.0 + ( h_lostLep->GetBinError(reg) / h_lostLep->GetBinContent(reg) );  // Pull 2l stat error from lostLepton estimate histogram
+			else if( sampleIdx==4 ) statErr = 1.0 + ( h_onelepw->GetBinError(reg) / h_onelepw->GetBinContent(reg) );  // Pull 1lw stat error from 1l-from-w estimate histogram
 
 			for( int j=0; j<nSamples; j++ ) {
 				if( j == sampleIdx )  tmpstr += Form( "  %8.6f  ", statErr);
@@ -157,12 +175,14 @@ void makeDataCards( analysis* myAnalysis ) {
 
 
 		// Write out a dummy systematic uncertainty for each of the backgrounds that doesn't have an actual systematic calculation
-		for( int sampleIdx = 1; sampleIdx<nSamples; sampleIdx++ ) { // For now, skip the signal sample (don't give it a systematic uncertainty)
+		//   For now, skip the signal sample (don't give it a systematic uncertainty)
+		for( int sampleIdx = 1; sampleIdx<nSamples; sampleIdx++ ) {
 
 			double systErr = 0.;
 			char systname[25];
 
-			if(      sampleIdx == 2 && nVars > 0 ) continue; // Don't use dummy systematic for ll background if we have actual systematics
+			if(      sampleIdx == 2 && nVars_ll  > 0 ) continue; // Don't use dummy systematic for ll background if we have actual systematics
+			else if( sampleIdx == 4 && nVars_1lw > 0 ) continue; // Same with 1l-from-W background
 			else if( sampleIdx == 3 ) {
 				systErr = 2.0; // 100% systematic on 1l from top
 				sprintf( systname, "Flat%s%d", samples.at(sampleIdx).Data(), reg );
@@ -182,37 +202,41 @@ void makeDataCards( analysis* myAnalysis ) {
 			uncertlines.push_back( tmpstr );
 		}
 
+		////////////////////////////////////////////////////////////////
+		// Make the systematics section of the datacard
 
-		// Write out all the systematic variations on the dilepton background
-		if( nVars > 0 ) {
+		// Start with an empty systematics table...
+		map<TString,vector<TString> > syst_holder;
+		vector<TString> emptySystLine = {"     -      ", "     -      ", "     -      ", "     -      ", "     -      " };
+		for( auto& iter : systMap_ll )  syst_holder[iter.first] = emptySystLine;
+		for( auto& iter : systMap_1lw ) syst_holder[iter.first] = emptySystLine;
+
+		// Calculate the lost lepton systematics, and populate the datacard and the printable systematic tables
+		if( nVars_ll > 0 ) {
 			double nominal = h_lostLep->GetBinContent(reg);
+			for( auto& iter : systMap_ll ) {                      // Loop over all systematics for the ll background
+				double maxdiff = calculateMaxdiff( reg, lostlepFile, nominal, iter.second ); // Calculate the biggest variation
+				syst_holder[iter.first].at(2) = Form( "  %8.6f  ", 1.0 + maxdiff/nominal );  // Populate the appropriate cell in the datacard systematics table
+				lostlep_uncert[iter.first].push_back( maxdiff/nominal );     // and also add that number to the printable lost lepton systematics table
+			}
+		}
 
-			for( auto& iter : systMap ) {  // Loop over all distinct systematics
+		// Same with 1l-from-W systematics
+		if( nVars_1lw > 0 ) {
+			double nominal = h_onelepw->GetBinContent(reg);
+			for( auto& iter : systMap_1lw ) {
+				double maxdiff = calculateMaxdiff( reg, onelepwFile, nominal, iter.second );
+				syst_holder[iter.first].at(4) = Form( "  %8.6f  ", 1.0 + maxdiff/nominal );
+				onelepw_uncert[iter.first].push_back( maxdiff/nominal );
+			}
+		}
 
-				tmpstr = Form( "Syst%-14s  lnN ", iter.first.Data() );
-
-				// Loop over all variations of this systematic, and find the biggest difference from nominal
-				double maxdiff = 0.;
-				for( TString varName : iter.second ) {
-					TH1D* h_tmp = (TH1D*)lostlepFile->Get( "variation_" + varName );
-					if( h_tmp == 0 ) {
-						cout << "Warning in makeDataCards: Couldn't find lost lepton variation histogram '" << varName << "'!" << endl;
-						continue;
-					}
-					maxdiff = max( maxdiff, fabs(nominal - h_tmp->GetBinContent(reg)) );
-				}
-
-				// Write the rest of the systematic row
-				for( int j=0; j<nSamples; j++ ) {
-					if( j == 2 )  tmpstr += Form( "  %8.6f  ", 1.0 + maxdiff/nominal );
-					else tmpstr += "     -      " ;
-				}
-				tmpstr += "\n";
-				uncertlines.push_back( tmpstr );
-
-				dilep_uncert[iter.first].push_back( maxdiff/nominal );
-
-			} // End loop over each systematic
+		// Now assemble the systematics table, and add it to our datacard template
+		for( auto& iter : syst_holder ) {
+			tmpstr = Form( "Syst%-14s  lnN ", iter.first.Data() );
+			for( TString cell : iter.second ) tmpstr += cell;
+			tmpstr += "\n";
+			uncertlines.push_back( tmpstr );
 		}
 
 		// Count number of uncertainties, and insert appropriate row into datacard template
@@ -286,33 +310,63 @@ void makeDataCards( analysis* myAnalysis ) {
 
 
 
-	// Print table of systematics for the dilepton background estimate
-	if( nVars > 0 ) {
-
+	// Print table of systematics for the dilepton background estimate and the 1l-from-W estimate
+	if( nVars_ll > 0 ) {
 		printf( "\n\nSystematics on dilepton background estimate\n\n" );
-
-		printf( "\\begin{tabular}{ | l |" );
-		for( TString regName : sigRegions ) printf( " c |" );
-		printf( " }\n" );
-		printf( "\\hline\n" );
-
-		printf( "Systematic " );
-		for( TString regName : sigRegions ) printf( "& %s ", regName.Data() );
-		printf( " \\\\ \\hline\n" );
-
-		for( auto& iter : dilep_uncert ) {
-			printf( "%10s ", iter.first.Data() );
-			for( double uncert : iter.second ) printf( "& %4.1f\\%% ", uncert*100. );
-			printf( " \\\\\n" );
-		}
-
-		printf( "\\hline\n" );
-		printf( "\\end{tabular}\n" );
+		printSystTable( sigRegions, lostlep_uncert );
+	}
+	if( nVars_1lw > 0 ) {
+		printf( "\n\nSystematics on 1l-from-W background estimate\n\n" );
+		printSystTable( sigRegions, onelepw_uncert );
 	}
 
 
 	lostlepFile->Close();
+	onelepwFile->Close();
 	yieldFile->Close();
 	delete lostlepFile;
+	delete onelepwFile;
 	delete yieldFile;
+}
+
+
+
+
+double calculateMaxdiff( int bin, TFile* histfile, const double& nominal, vector<TString> varNames ) {
+
+	double maxdiff = 0.;
+
+	for( TString varName : varNames ) {
+		TH1D* h_tmp = (TH1D*)histfile->Get( "variation_" + varName );
+		if( h_tmp == 0 ) {
+			cout << "Warning in makeDataCards: Couldn't find histogram variation_" << varName << " in file " << histfile->GetName() << "!" << endl;
+			continue;
+		}
+		maxdiff = max( maxdiff, fabs(nominal - h_tmp->GetBinContent(bin)) );
+	}
+
+	return maxdiff;
+}
+
+
+void printSystTable( vector<TString> sigRegions, map<TString,vector<double> > uncertainties ) {
+
+	printf( "\n\\begin{tabular}{ | l |" );
+	for( TString regName : sigRegions ) printf( " c |" );
+	printf( " }\n" );
+	printf( "\\hline\n" );
+
+	printf( "Systematic " );
+	for( TString regName : sigRegions ) printf( "& %s ", regName.Data() );
+	printf( " \\\\ \\hline\n" );
+
+	for( auto& iter : uncertainties ) {
+		printf( "%10s ", iter.first.Data() );
+		for( double uncert : iter.second ) printf( "& %4.1f\\%% ", uncert*100. );
+		printf( " \\\\\n" );
+	}
+
+	printf( "\\hline\n" );
+	printf( "\\end{tabular}\n\n" );
+
 }

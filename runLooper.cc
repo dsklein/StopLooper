@@ -571,7 +571,7 @@ int main( int argc, char* argv[] ) {
 		makeLostLepEstimate( srAnalysis, crLostLep );
 		make1lWEstimate( srAnalysis, cr0bjets );
 	}
-	if( runcards )                makeDataCards( srAnalysis );
+	if( runcards )                makeDataCards( srAnalysis, crLostLep, cr0bjets );
 
 	// Clean up /////////
 	delete srAnalysis;
