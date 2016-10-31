@@ -32,7 +32,6 @@ void printHelp() {
 	std::cout << "lostlep     run lost lepton looper only" << std::endl;
 	std::cout << "1lw         run 1l-from-W background looper only" << std::endl;
 	std::cout << "jes         run loopers to calculate JES systematic variations" << std::endl;
-	std::cout << "syst        with scan/lostlep/1lw, apply non-JES systematic variations. With estimate or cards, include all systematics in calculation" << std::endl;
 	std::cout << "plots       run makeStack only" << std::endl;
 	std::cout << "tables      run makeTables only" << std::endl;
 	std::cout << "estimate    run data-driven background estimates only" << std::endl;
@@ -57,7 +56,6 @@ int main( int argc, char* argv[] ) {
 	bool runlooper   = false;
 	bool runlostlep  = false;
 	bool run1lw      = false;
-	bool runsyst     = false;
 	bool runjes      = false;
 	bool runstacks   = false;
 	bool runtables   = false;
@@ -70,7 +68,6 @@ int main( int argc, char* argv[] ) {
 		else if( arg=="scan"  || arg=="loop"  || arg=="scanchain" ) runlooper = true;
 		else if( arg=="lostlep" || arg=="lost" || arg=="ll" ) runlostlep = true;
 		else if( arg=="1lw" || arg=="wjets" || arg=="0bjets" ) run1lw = true;
-		else if( arg=="systematic" || arg=="systematics" || arg=="syst" || arg=="systs" ) runsyst = true;
 		else if( arg=="jes" || arg=="JES" ) runjes = true;
 		else if( arg=="plot"  || arg=="plots" || arg=="stack" || arg=="stacks" ) runstacks = true;
 		else if( arg=="table" || arg=="tables" ) runtables = true;
@@ -85,7 +82,6 @@ int main( int argc, char* argv[] ) {
 			runlooper = true;
 			runlostlep = true;
 			run1lw  = true;
-			runsyst   = true;
 			runjes    = true;
 			runstacks = true;
 			runtables = true;
@@ -200,12 +196,10 @@ int main( int argc, char* argv[] ) {
 	systematic contamup_dummy( "contam",   systematic::kUp,    (*sfhelp::Unity) );
 	systematic contamdn_dummy( "contam",   systematic::kDown,  (*sfhelp::Unity) );
 
-	if( runsyst ) {
-		srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
-		srAnalysis->AddSystematics( {&eff2lup_dummy, &eff2ldn_dummy, &metresup, &metresdn, &topptup, &topptdn, &contamup_dummy, &contamdn_dummy } );
-		crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn} );
-		crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, &topptup, &topptdn } );
-	}
+	srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
+	srAnalysis->AddSystematics( {&eff2lup_dummy, &eff2ldn_dummy, &metresup, &metresdn, &topptup, &topptdn, &contamup_dummy, &contamdn_dummy } );
+	crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn} );
+	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, &topptup, &topptdn } );
 
 	// A sneaky trick to make JES systematics work with existing code
 	systematic jesup_dummy( "JES", systematic::kUp,   (*sfhelp::Unity) );
@@ -481,11 +475,9 @@ int main( int argc, char* argv[] ) {
 	cr0b_jesup = sr_jesup->Copy( 12.9, "jes_cr0b.root", "jes_cr0b.root" );
 	cr0b_jesdn = sr_jesdn->Copy( 12.9, "jes_cr0b.root", "jes_cr0b.root" );
 	cr0bjets->AddSample( data );
-	if( runsyst ) {
-		cr0bjets->ResetSystematics();
-		cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn} );
-		cr0bjets->AddSystematics( {&qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &metresup, &metresdn, &contam1lwup, &contam1lwdn } );
-	}
+	cr0bjets->ResetSystematics();
+	cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn} );
+	cr0bjets->AddSystematics( {&qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &metresup, &metresdn, &contam1lwup, &contam1lwdn } );
 
 
 
@@ -497,10 +489,9 @@ int main( int argc, char* argv[] ) {
 		// Reset output file
 		TFile* outfile = new TFile( srAnalysis->GetPlotFileName(), "RECREATE" );
 		outfile->Close();
-		if( runsyst ) {
-			outfile = new TFile( srAnalysis->GetSystFileName(), "RECREATE" );
-			outfile->Close();
-		}
+		outfile = new TFile( srAnalysis->GetSystFileName(), "RECREATE" );
+		outfile->Close();
+
 		// Run ScanChain on all samples
 		for( sample* mySample : srAnalysis->GetAllSamples() ) ScanChain( srAnalysis, mySample );
 	}
@@ -513,10 +504,9 @@ int main( int argc, char* argv[] ) {
 		// Reset output file
 		TFile* outfile = new TFile( crLostLep->GetPlotFileName(), "RECREATE" );
 		outfile->Close();
-		if( runsyst ) {
-			outfile = new TFile( crLostLep->GetSystFileName(), "RECREATE" );
-			outfile->Close();
-		}
+		outfile = new TFile( crLostLep->GetSystFileName(), "RECREATE" );
+		outfile->Close();
+
 		// Run lost lepton CR looper on all samples
 		for( sample* mySample : crLostLep->GetAllSamples() ) looperCR2lep( crLostLep, mySample );
 	}
@@ -529,10 +519,9 @@ int main( int argc, char* argv[] ) {
 		// Reset output file
 		TFile* outfile = new TFile( cr0bjets->GetPlotFileName(), "RECREATE" );
 		outfile->Close();
-		if( runsyst ) {
-			outfile = new TFile( cr0bjets->GetSystFileName(), "RECREATE" );
-			outfile->Close();
-		}
+		outfile = new TFile( cr0bjets->GetSystFileName(), "RECREATE" );
+		outfile->Close();
+
 		// Run 0-bjet CR looper on all samples
 		for( sample* mySample : cr0bjets->GetAllSamples() ) looperCR0b( cr0bjets, mySample );
 	}
