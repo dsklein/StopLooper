@@ -6,6 +6,7 @@
 
 #include "TString.h"
 #include "TChain.h"
+#include "sigRegion.h"
 
 
 class sample{
@@ -18,6 +19,7 @@ public:
 	sample(std::string myLabel, std::string tabName, std::string legName, short int color, sampleType type);
 
 	void    AddFile(TString filename);
+	void    AddSelections( std::vector<selectionBase*> newselections );
 	TString GetLabel();
 	TString GetTableName();
 	TString GetLegName();
@@ -26,6 +28,7 @@ public:
 	bool    IsBkg();
 	short int GetColor();
 	TChain* GetChain();
+	bool PassSelections();
 
 	void SetNiceName(std::string name);
 	void SetColor(short int color);
@@ -38,6 +41,7 @@ private:
 	sampleType myType;
 	short int hist_color;
 	TChain chain;
+	std::vector<selectionBase*> selections;
 
 };
 

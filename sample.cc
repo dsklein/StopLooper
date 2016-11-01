@@ -47,6 +47,7 @@ sample::sample(std::string myLabel, std::string tabName, std::string legName, sh
 // Get or set various properties
 
 void    sample::AddFile( TString filename ) { chain.Add(filename); }
+void    sample::AddSelections( std::vector<selectionBase*> newselections ) { selections.insert( selections.end(), newselections.begin(), newselections.end() ); }
 TString sample::GetLabel()     { return static_cast<TString>(storage_label); }
 TString sample::GetTableName() { return static_cast<TString>(name_table);   }
 TString sample::GetLegName()   { return static_cast<TString>(name_legend);  }
@@ -55,6 +56,11 @@ bool    sample::IsSignal()     { return (myType==kSignal);     }
 bool    sample::IsBkg()        { return (myType==kBackground); }
 short int sample::GetColor()   { return hist_color;   }
 TChain* sample::GetChain()     { return &chain; }
+
+bool    sample::PassSelections() {
+	for( selectionBase* thisSelection : selections ) if( !thisSelection->Pass() ) return false;
+	return true;
+}
 
 void sample::SetNiceName(std::string name) { name_table=name; name_legend=name; }
 void sample::SetColor(short int color)     { hist_color=color; }
