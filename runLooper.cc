@@ -2,7 +2,6 @@
 #include "sample.h"
 #include "runLooper.h"
 #include "sigRegion.h"
-#include "sigRegion.cc"
 #include "sfHelper.h"
 #include "systematic.h"
 

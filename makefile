@@ -6,8 +6,8 @@ ROOTCFLAGS  = $(shell root-config --cflags --libs)
 
 
 
-runLooper: runLooper.cc runLooper.h ScanChain.o looperCR2lep.o looperCR0b.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o make1lWEstimate.o libdataMCplotMaker.so libCMS3.so libsample.so libanalysis.so sigRegion.cc libsfHelper.so libsystematic.so
-	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runLooper.cc ScanChain.o looperCR2lep.o looperCR0b.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o make1lWEstimate.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lCMS3 -lsample -lanalysis -lsfHelper -lsystematic -o runLooper
+runLooper: runLooper.cc runLooper.h ScanChain.o looperCR2lep.o looperCR0b.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o make1lWEstimate.o libdataMCplotMaker.so libCMS3.so libsample.so libanalysis.so sigRegion.cc libsfHelper.so libsigRegion.so libsystematic.so
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runLooper.cc ScanChain.o looperCR2lep.o looperCR0b.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o make1lWEstimate.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lCMS3 -lsample -lanalysis -lsfHelper -lsigRegion -lsystematic -o runLooper
 #GenVector seems to be necessary to take a LorentzVector invariant mass. The error was "undefined reference to Math::GenVector::Throw()"
 
 
@@ -49,6 +49,9 @@ libanalysis.so: analysis.cc analysis.h
 
 libsfHelper.so: sfHelper.cc sfHelper.h
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared sfHelper.cc -o libsfHelper.so
+
+libsigRegion.so: sigRegion.cc sigRegion.h
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared sigRegion.cc -o libsigRegion.so
 
 libsystematic.so: systematic.cc systematic.h
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared systematic.cc -o libsystematic.so

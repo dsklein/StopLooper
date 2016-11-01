@@ -1,5 +1,15 @@
 #include "sigRegion.h"
 
+
+// Instantiate some templates ahead of time.
+// Allows us to make a .so library out of a templated class without producing a linker error.
+template class selection<int>;
+template class selection<float>;
+template class selection<double>;
+template class selection<bool>;
+
+
+
 //////////////////////////////////////////////////////
 // Function definitions for generic "selection" class
 
