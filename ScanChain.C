@@ -54,7 +54,9 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 
 	/////////////////////////////////////////////////////////
 	// Histograms
-	TDirectory *rootdir = gDirectory->GetDirectory("Rint:");
+	TDirectory *rootdir = gDirectory->GetDirectory("Rint:");  // Use TDirectories to assist in memory management
+	TDirectory *histdir = new TDirectory( "histdir", "histdir", "", rootdir );
+	TDirectory *systdir = new TDirectory( "systdir", "systdir", "", rootdir );
 
 	TH1::SetDefaultSumw2();
 
@@ -86,10 +88,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	for( int i=0; i<nSigRegs; i++ ) {
 
 		TString plotLabel = sampleName + "_" + regNames.at(i);
-
-		h_bkgtype[i][0]   = new TH1D( "bkgtype_" + plotLabel, "Yield by background type",  5, 0.5, 5.5);
-		h_evttype[i][0]   = new TH1D( "evttype_" + regNames.at(i), "Yield by event type",  6, 0.5, 6.5);
-		h_sigyields[i][0] = new TH2D( "sigyields_" + regNames.at(i), "Signal yields by mass point", 37,99,1024, 19,-1,474 );
+		systdir->cd();
 
 		for( int j=1; j<=nVariations; j++ ) {
 			TString varName = variations.at(j-1)->GetNameLong();
@@ -97,6 +96,12 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 			h_evttype[i][j]   = new TH1D( "evttype_" + regNames.at(i) + "_" + varName, "Yield by event type",  6, 0.5, 6.5);
 			h_sigyields[i][j] = new TH2D( "sigyields_" + regNames.at(i) + "_" + varName, "Signal yields by mass point", 37,99,1024, 19,-1,474 );
 		}
+
+		histdir->cd();
+
+		h_bkgtype[i][0]   = new TH1D( "bkgtype_" + plotLabel, "Yield by background type",  5, 0.5, 5.5);
+		h_evttype[i][0]   = new TH1D( "evttype_" + regNames.at(i), "Yield by event type",  6, 0.5, 6.5);
+		h_sigyields[i][0] = new TH2D( "sigyields_" + regNames.at(i), "Signal yields by mass point", 37,99,1024, 19,-1,474 );
 
 		h_mt[i]       = new TH1D(  "mt_"      + plotLabel, "Transverse mass",          80, 0, 800);
 		h_met[i]      = new TH1D(  "met_"     + plotLabel, "MET",                      40, 0, 1000);
@@ -115,27 +120,8 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 		h_j1btag[i]   = new TH1D(  "j1btag_"  + plotLabel, "Is leading jet b-tagged?",  2, -0.5, 1.5);
 		h_modtop[i]   = new TH1D(  "modtop_"  + plotLabel, "Modified topness",         30, -15., 15.);
 
-		h_mt[i]->SetDirectory(rootdir);
-		h_met[i]->SetDirectory(rootdir);
-		h_mt2w[i]->SetDirectory(rootdir);
-		h_chi2[i]->SetDirectory(rootdir);
-		h_htratio[i]->SetDirectory(rootdir);
-		h_mindphi[i]->SetDirectory(rootdir);
-		h_ptb1[i]->SetDirectory(rootdir);
-		h_drlb1[i]->SetDirectory(rootdir);
-		h_ptlep[i]->SetDirectory(rootdir);
-		h_metht[i]->SetDirectory(rootdir);
-		h_dphilw[i]->SetDirectory(rootdir);
-		h_njets[i]->SetDirectory(rootdir);
-		h_nbtags[i]->SetDirectory(rootdir);
-		h_ptj1[i]->SetDirectory(rootdir);
-		h_j1btag[i]->SetDirectory(rootdir);
-		h_modtop[i]->SetDirectory(rootdir);
 
 		for( int j=0; j<=nVariations; j++ ) {
-			h_bkgtype[i][j]->SetDirectory(rootdir);
-			h_evttype[i][j]->SetDirectory(rootdir);
-			h_sigyields[i][j]->SetDirectory(rootdir);
 
 			TAxis* axis = h_bkgtype[i][j]->GetXaxis();
 			axis->SetBinLabel( 1, "ZtoNuNu" );
@@ -157,7 +143,6 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 
 	TH1D *h_yields = new TH1D( Form("srYields_%s", sampleName.Data()), "Yield by signal region", nSigRegs, 0.5, float(nSigRegs)+0.5);
 	for( int i=0; i<nSigRegs; i++ ) h_yields->GetXaxis()->SetBinLabel( i+1, regNames.at(i) );
-	h_yields->SetDirectory(rootdir);
 
 
 	double yield_total = 0;
@@ -469,8 +454,8 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 
 				h_mt[i]->Fill(      mt_met_lep(),                  evtWeight );
 				h_met[i]->Fill(     pfmet(),                       evtWeight );
-				h_mt2w[i]->Fill(  MT2W(),                          evtWeight );
-				h_chi2[i]->Fill(  hadronic_top_chi2(),             evtWeight );
+				h_mt2w[i]->Fill(    MT2W(),                        evtWeight );
+				h_chi2[i]->Fill(    hadronic_top_chi2(),           evtWeight );
 				h_htratio[i]->Fill( ak4_htratiom(),                evtWeight );
 				h_mindphi[i]->Fill( mindphi_met_j1_j2(),           evtWeight );
 				h_ptb1[i]->Fill( ak4pfjets_leadMEDbjet_p4().pt(),  evtWeight );
@@ -556,92 +541,46 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 		}
 	}
 
+
+	///////////////////////////////////////////////////////////////////////////////
 	// Store histograms and clean them up
 	TFile* plotfile = new TFile( myAnalysis->GetPlotFileName(), "UPDATE");
+	TFile* systfile = new TFile( myAnalysis->GetSystFileName(), "UPDATE");
+	TFile* sourcefile;
+
+	// Certain histograms are cumulative across multiple samples. For those histograms, add what the
+	// looper has just collected to the cumulative version stored in our output files
+	for( int j=0; j<=nVariations; j++ ) {
+
+		if( j==0 ) sourcefile = plotfile;
+		else       sourcefile = systfile;
+
+		for( int i=0; i<nSigRegs; i++ ) {
+
+			// Build up cumulative histo of SUSY scan yields
+			TH2D* hTemp2 = (TH2D*)sourcefile->Get( h_sigyields[i][j]->GetName() );
+			if( hTemp2 != 0 ) h_sigyields[i][j]->Add( hTemp2 );
+
+			// Build up cumulative histo of yields by signal/background type
+			TH1D* hTemp = (TH1D*)sourcefile->Get( h_evttype[i][j]->GetName() );
+			if( hTemp != 0 ) h_evttype[i][j]->Add( hTemp );
+		}
+	}
+
+	// Take all histograms in histdir and write them to plotfile
 	plotfile->cd();
+	histdir->GetList()->Write( "", TObject::kOverwrite );
 
-	for( int i=0; i<nSigRegs; i++ ) {
-		h_bkgtype[i][0]->Write();
-		h_mt[i]->Write();
-		h_met[i]->Write();
-		h_mt2w[i]->Write();
-		h_chi2[i]->Write();
-		h_htratio[i]->Write();
-		h_mindphi[i]->Write();
-		h_ptb1[i]->Write();
-		h_drlb1[i]->Write();
-		h_ptlep[i]->Write();
-		h_metht[i]->Write();
-		h_dphilw[i]->Write();
-		h_njets[i]->Write();
-		h_nbtags[i]->Write();
-		h_ptj1[i]->Write();
-		h_j1btag[i]->Write();
-		h_modtop[i]->Write();
+	// Take all histograms in systdir and write them to histfile
+	systfile->cd();
+	systdir->GetList()->Write( "", TObject::kOverwrite );
 
-		// Build up histo of signal yields
-		if( mySample->IsSignal() ) {
-			TH2D* hTemp2 = (TH2D*)plotfile->Get( h_sigyields[i][0]->GetName() );
-			if( hTemp2 != 0 ) h_sigyields[i][0]->Add( hTemp2 );
-			h_sigyields[i][0]->Write( "", TObject::kOverwrite );
-		}
-
-		// Build up histo of yields by bkg type
-		TH1D* hTemp = (TH1D*)plotfile->Get( h_evttype[i][0]->GetName() );
-		if( hTemp != 0 ) h_evttype[i][0]->Add( hTemp );
-		h_evttype[i][0]->Write( "", TObject::kOverwrite );
-	}
-	h_yields->Write();
-
-	plotfile->Close();
-
-	// Do similarly for the systematic variation histograms, but put them in a different file
-	if( nVariations > 0 ) {
-		TFile* systFile = new TFile(myAnalysis->GetSystFileName(), "UPDATE");
-		systFile->cd();
-		for( int i=0; i< nSigRegs; i++ ) {
-			for( int j=1; j<=nVariations; j++ ) {
-				h_bkgtype[i][j]->Write();
-
-				if( mySample->IsSignal() ) {
-					TH2D* hTemp2 = (TH2D*)systFile->Get( h_sigyields[i][j]->GetName() );
-					if( hTemp2 != 0 ) h_sigyields[i][j]->Add( hTemp2 );
-					h_sigyields[i][j]->Write( "", TObject::kOverwrite );
-				}
-
-				TH1D* hTemp = (TH1D*)systFile->Get( h_evttype[i][j]->GetName() );
-				if( hTemp != 0 ) h_evttype[i][j]->Add( hTemp );
-				h_evttype[i][j]->Write( "", TObject::kOverwrite );
-			}
-		}
-		systFile->Close();
-	}
 
 	// Cleanup
-	for( int i=0; i<nSigRegs; i++ ) {
-		for( int j=0; j<=nVariations; j++ ) {
-			delete h_bkgtype[i][j];
-			delete h_evttype[i][j];
-			delete h_sigyields[i][j];
-		}
-		delete h_mt[i];
-		delete h_met[i];
-		delete h_mt2w[i];
-		delete h_chi2[i];
-		delete h_htratio[i];
-		delete h_mindphi[i];
-		delete h_ptb1[i];
-		delete h_drlb1[i];
-		delete h_ptlep[i];
-		delete h_metht[i];
-		delete h_dphilw[i];
-		delete h_njets[i];
-		delete h_nbtags[i];
-		delete h_ptj1[i];
-		delete h_j1btag[i];
-		delete h_modtop[i];
-	}
-	delete h_yields;
+	plotfile->Close();
+	histdir->Close();
+	systfile->Close();
+	systdir->Close();
 
 	// return
 	bmark->Stop("benchmark");
