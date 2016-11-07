@@ -34,23 +34,23 @@ void makeTables( analysis* myAnalysis ) {
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	for( vector<sigRegion> regList : myAnalysis->GetSigRegions() ) {
+	for( vector<sigRegion*> regList : myAnalysis->GetSigRegions() ) {
 
 		double yield, error;
 
 		// Retrieve histograms for the total bkg yields by decay type
 		uint nRegions = regList.size();
 		vector<TH1D*> yieldsByDecayType;
-		for( uint i=0; i<nRegions; i++ ) yieldsByDecayType.push_back( (TH1D*)infile->Get("evttype_" + regList.at(i).GetLabel()) );
+		for( uint i=0; i<nRegions; i++ ) yieldsByDecayType.push_back( (TH1D*)infile->Get("evttype_" + regList.at(i)->GetLabel()) );
 
 		// Begin LaTeX table
 		cout << "\\begin{tabular}{ l | ";
-		for( sigRegion sReg : regList ) cout << "c ";
+		for( sigRegion* sReg : regList ) cout << "c ";
 		cout << "}" << endl;
 
 		// Print column headers
 		cout << " Sample  ";
-		for( sigRegion sReg : regList ) cout << "  &  " << sReg.GetTableName();
+		for( sigRegion* sReg : regList ) cout << "  &  " << sReg->GetTableName();
 		cout << " \\\\ \\hline" << endl;
 
 

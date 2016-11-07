@@ -292,47 +292,47 @@ int main( int argc, char* argv[] ) {
 
 	// Finally, store all these signal/control regions in our "analysis" objects.
 	// Each {vector of "sigRegions"} will give rise to its own yield table, so structure matters here!
-	srAnalysis->AddSigRegs( {compr250, compr350, compr450} );
-	srAnalysis->AddSigRegs( {boost250, boost350, boost450, boost550} );
-	srAnalysis->AddSigRegs( {low250,  low350, low450} );
-	srAnalysis->AddSigRegs( {high250, high350, high450, high550, high650} );
-	srAnalysis->AddSigRegs( {inclusive} );
-	srAnalysis->AddSigRegs( {corridor250, corridor350, corridor450} );
+	srAnalysis->AddSigRegs( {&compr250, &compr350, &compr450} );
+	srAnalysis->AddSigRegs( {&boost250, &boost350, &boost450, &boost550} );
+	srAnalysis->AddSigRegs( {&low250, & low350, &low450} );
+	srAnalysis->AddSigRegs( {&high250, &high350, &high450, &high550, &high650} );
+	srAnalysis->AddSigRegs( {&inclusive} );
+	srAnalysis->AddSigRegs( {&corridor250, &corridor350, &corridor450} );
 
-	crLostLep->AddSigRegs( {compr250CR, compr350CR, compr450CR} );
-	crLostLep->AddSigRegs( {boost250CR, boost350CR, boost450CR, boost550CR} );
-	crLostLep->AddSigRegs( {low250CR,  low350CR, low450CR} );
-	crLostLep->AddSigRegs( {high250CR, high350CR, high450CR, high550CR, high650CR} );
-	crLostLep->AddSigRegs( {inclusive} );
-	crLostLep->AddSigRegs( {corridor250CR, corridor350CR, corridor450CR} );
+	crLostLep->AddSigRegs( {&compr250CR, &compr350CR, &compr450CR} );
+	crLostLep->AddSigRegs( {&boost250CR, &boost350CR, &boost450CR, &boost550CR} );
+	crLostLep->AddSigRegs( {&low250CR, & low350CR, &low450CR} );
+	crLostLep->AddSigRegs( {&high250CR, &high350CR, &high450CR, &high550CR, &high650CR} );
+	crLostLep->AddSigRegs( {&inclusive} );
+	crLostLep->AddSigRegs( {&corridor250CR, &corridor350CR, &corridor450CR} );
 
-	sr_jesup->AddSigRegs( {compr250, compr350, compr450} );
-	sr_jesup->AddSigRegs( {boost250, boost350, boost450, boost550} );
-	sr_jesup->AddSigRegs( {low250,  low350, low450} );
-	sr_jesup->AddSigRegs( {high250, high350, high450, high550, high650} );
-	sr_jesup->AddSigRegs( {inclusive} );
-	sr_jesup->AddSigRegs( {corridor250, corridor350, corridor450} );
+	sr_jesup->AddSigRegs( {&compr250, &compr350, &compr450} );
+	sr_jesup->AddSigRegs( {&boost250, &boost350, &boost450, &boost550} );
+	sr_jesup->AddSigRegs( {&low250, & low350, &low450} );
+	sr_jesup->AddSigRegs( {&high250, &high350, &high450, &high550, &high650} );
+	sr_jesup->AddSigRegs( {&inclusive} );
+	sr_jesup->AddSigRegs( {&corridor250, &corridor350, &corridor450} );
 
-	cr2l_jesup->AddSigRegs( {compr250CR, compr350CR, compr450CR} );
-	cr2l_jesup->AddSigRegs( {boost250CR, boost350CR, boost450CR, boost550CR} );
-	cr2l_jesup->AddSigRegs( {low250CR,  low350CR, low450CR} );
-	cr2l_jesup->AddSigRegs( {high250CR, high350CR, high450CR, high550CR, high650CR} );
-	cr2l_jesup->AddSigRegs( {inclusive} );
-	cr2l_jesup->AddSigRegs( {corridor250CR, corridor350CR, corridor450CR} );
+	cr2l_jesup->AddSigRegs( {&compr250CR, &compr350CR, &compr450CR} );
+	cr2l_jesup->AddSigRegs( {&boost250CR, &boost350CR, &boost450CR, &boost550CR} );
+	cr2l_jesup->AddSigRegs( {&low250CR, & low350CR, &low450CR} );
+	cr2l_jesup->AddSigRegs( {&high250CR, &high350CR, &high450CR, &high550CR, &high650CR} );
+	cr2l_jesup->AddSigRegs( {&inclusive} );
+	cr2l_jesup->AddSigRegs( {&corridor250CR, &corridor350CR, &corridor450CR} );
 
-	sr_jesdn->AddSigRegs( {compr250, compr350, compr450} );
-	sr_jesdn->AddSigRegs( {boost250, boost350, boost450, boost550} );
-	sr_jesdn->AddSigRegs( {low250,  low350, low450} );
-	sr_jesdn->AddSigRegs( {high250, high350, high450, high550, high650} );
-	sr_jesdn->AddSigRegs( {inclusive} );
-	sr_jesdn->AddSigRegs( {corridor250, corridor350, corridor450} );
+	sr_jesdn->AddSigRegs( {&compr250, &compr350, &compr450} );
+	sr_jesdn->AddSigRegs( {&boost250, &boost350, &boost450, &boost550} );
+	sr_jesdn->AddSigRegs( {&low250, & low350, &low450} );
+	sr_jesdn->AddSigRegs( {&high250, &high350, &high450, &high550, &high650} );
+	sr_jesdn->AddSigRegs( {&inclusive} );
+	sr_jesdn->AddSigRegs( {&corridor250, &corridor350, &corridor450} );
 
-	cr2l_jesdn->AddSigRegs( {compr250CR, compr350CR, compr450CR} );
-	cr2l_jesdn->AddSigRegs( {boost250CR, boost350CR, boost450CR, boost550CR} );
-	cr2l_jesdn->AddSigRegs( {low250CR,  low350CR, low450CR} );
-	cr2l_jesdn->AddSigRegs( {high250CR, high350CR, high450CR, high550CR, high650CR} );
-	cr2l_jesdn->AddSigRegs( {inclusive} );
-	cr2l_jesdn->AddSigRegs( {corridor250CR, corridor350CR, corridor450CR} );
+	cr2l_jesdn->AddSigRegs( {&compr250CR, &compr350CR, &compr450CR} );
+	cr2l_jesdn->AddSigRegs( {&boost250CR, &boost350CR, &boost450CR, &boost550CR} );
+	cr2l_jesdn->AddSigRegs( {&low250CR, & low350CR, &low450CR} );
+	cr2l_jesdn->AddSigRegs( {&high250CR, &high350CR, &high450CR, &high550CR, &high650CR} );
+	cr2l_jesdn->AddSigRegs( {&inclusive} );
+	cr2l_jesdn->AddSigRegs( {&corridor250CR, &corridor350CR, &corridor450CR} );
 
 
 

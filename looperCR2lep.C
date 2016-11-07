@@ -82,7 +82,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	TH1D *h_modtop[nSigRegs];
 
 	vector<TString> regNames = myAnalysis->GetSigRegionLabelsAll();
-	vector<sigRegion> sigRegions = myAnalysis->GetSigRegionsAll();
+	vector<sigRegion*> sigRegions = myAnalysis->GetSigRegionsAll();
 	vector<systematic*> variations = myAnalysis->GetSystematics(false);
 
 	for( int i=0; i<nSigRegs; i++ ) {
@@ -475,7 +475,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 			// If the event passes the SR cuts, store which background type this event is, and fill histograms
 			for( int i=0; i<nSigRegs; i++ ) {
 
-				if( !sigRegions.at(i).PassAllCuts() ) continue;
+				if( !sigRegions.at(i)->PassAllCuts() ) continue;
 
 				h_bkgtype[i][0]->Fill( category,                   evtWeight );
 				h_evttype[i][0]->Fill( evtType,                    evtWeight );

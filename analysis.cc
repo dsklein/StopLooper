@@ -54,7 +54,7 @@ sample* analysis::AddSample(std::string myLabel, std::string tabName, std::strin
 	return myPointer;
 }
 
-void analysis::AddSigRegs( std::vector<sigRegion> regions ) { sigRegions.push_back(regions); }
+void analysis::AddSigRegs( std::vector<sigRegion*> regions ) { sigRegions.push_back(regions); }
 
 void analysis::AddSystematics( std::vector<systematic*> systs ) { syst_vars.insert( syst_vars.end(), systs.begin(), systs.end() ); }
 
@@ -147,20 +147,20 @@ bool analysis::HasData() {
 	else return false;
 }
 
-std::vector<std::vector<sigRegion> > analysis::GetSigRegions() { return sigRegions; }
+std::vector<std::vector<sigRegion*> > analysis::GetSigRegions() { return sigRegions; }
 
-std::vector<sigRegion> analysis::GetSigRegionsAll() {
-	std::vector<sigRegion> output;
-	for( std::vector<sigRegion> SRset : sigRegions ) output.insert( output.end(), SRset.begin(), SRset.end() );
+std::vector<sigRegion*> analysis::GetSigRegionsAll() {
+	std::vector<sigRegion*> output;
+	for( std::vector<sigRegion*> SRset : sigRegions ) output.insert( output.end(), SRset.begin(), SRset.end() );
 	return output;
 }
 
 std::vector<std::vector<TString> > analysis::GetSigRegionLabels() {
 	std::vector<std::vector<TString> > output;
 
-	for( std::vector<sigRegion> regList : sigRegions ) {
+	for( std::vector<sigRegion*> regList : sigRegions ) {
 		std::vector<TString> labels;
-		for( sigRegion myReg : regList ) labels.push_back( myReg.GetLabel() );
+		for( sigRegion* myReg : regList ) labels.push_back( myReg->GetLabel() );
 		output.push_back( labels );
 	}
 	return output;
@@ -168,8 +168,8 @@ std::vector<std::vector<TString> > analysis::GetSigRegionLabels() {
 
 std::vector<TString> analysis::GetSigRegionLabelsAll() {
 	std::vector<TString> output;
-	for( std::vector<sigRegion> regList : sigRegions ) {
-		for( sigRegion myReg : regList ) output.push_back( myReg.GetLabel() );
+	for( std::vector<sigRegion*> regList : sigRegions ) {
+		for( sigRegion* myReg : regList ) output.push_back( myReg->GetLabel() );
 	}
 	return output;
 }

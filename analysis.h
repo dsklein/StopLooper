@@ -25,7 +25,7 @@ public:
 	sample* AddSample( std::string myLabel, std::string niceName, short int color, sample::sampleType type );
 	sample* AddSample( std::string myLabel, std::string tabName, std::string legName );
 	sample* AddSample( std::string myLabel, std::string tabName, std::string legName, short int color, sample::sampleType type );
-	void AddSigRegs( std::vector<sigRegion> regions );
+	void AddSigRegs( std::vector<sigRegion*> regions );
 	void AddSystematics( std::vector<systematic*> systs );
 	std::vector<short int> GetBkgColors();
 	std::vector<TString> GetBkgLabels();
@@ -39,8 +39,8 @@ public:
 	std::vector<sample*> GetSignals();
 	sample* GetData();
 	std::vector<short int> GetColors();
-	std::vector<std::vector<sigRegion> > GetSigRegions();
-	std::vector<sigRegion> GetSigRegionsAll();
+	std::vector<std::vector<sigRegion*> > GetSigRegions();
+	std::vector<sigRegion*> GetSigRegionsAll();
 	std::vector<std::vector<TString> > GetSigRegionLabels();
 	std::vector<TString> GetSigRegionLabelsAll();
 	std::vector<systematic*> GetSystematics( bool includeSkips );
@@ -62,7 +62,7 @@ private:
 	sample* data;
 	std::vector<sample*> backgrounds;
 	std::vector<sample*> signals;
-	std::vector<std::vector<sigRegion> > sigRegions;
+	std::vector<std::vector<sigRegion*> > sigRegions;
 	std::vector<systematic*> syst_vars;
 	float luminosity;
 	TString plotfilename;

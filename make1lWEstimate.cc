@@ -21,7 +21,7 @@ static uint nSRegions;
 static uint nCRegions;
 static TH1D* h_crData = NULL;
 static bool crHasSignal = false;
-static vector< vector<sigRegion> > sigRegionList;
+static vector< vector<sigRegion*> > sigRegionList;
 
 
 
@@ -215,15 +215,15 @@ void do1lWestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 
 	// Loop through signal regions and print out table rows
 	uint binOffset = 1;
-	for( vector<sigRegion> sigRegs : sigRegionList ) {
+	for( vector<sigRegion*> sigRegs : sigRegionList ) {
 		for( uint i=0; i<sigRegs.size(); i++ ) {
 
-			if( sigRegs.at(i).GetLabel().Contains("low") ) {
-				printf( "%32s &        N/A        &         N/A         &  %6.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i).GetTableName().Data(),
+			if( sigRegs.at(i)->GetLabel().Contains("low") ) {
+				printf( "%32s &        N/A        &         N/A         &  %6.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i)->GetTableName().Data(),
 				        h_bkgEstimate->GetBinContent(i+binOffset), h_bkgEstimate->GetBinError(i+binOffset) );
 			}
 			else {
-				printf( "%32s & %4d $\\pm$ %6.3f &  %5.3f $\\pm$ %5.3f  &  %6.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i).GetTableName().Data(),
+				printf( "%32s & %4d $\\pm$ %6.3f &  %5.3f $\\pm$ %5.3f  &  %6.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i)->GetTableName().Data(),
 				        int(h_crData->GetBinContent(i+binOffset)), h_crData->GetBinError(i+binOffset), h_mcRatio->GetBinContent(i+binOffset),
 				        h_mcRatio->GetBinError(i+binOffset), h_bkgEstimate->GetBinContent(i+binOffset), h_bkgEstimate->GetBinError(i+binOffset) );
 			}
