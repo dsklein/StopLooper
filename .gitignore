@@ -10,12 +10,8 @@
 # Ignore executables
 runLooper
 
-# Ignore plots, and root files
+# Ignore root files
 *.root
-*.pdf
-*.png
-*.gif
-*.svg
 
 #Ignore plotmaking scripts
 PlotMakingTools.h
