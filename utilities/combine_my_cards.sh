@@ -5,9 +5,6 @@
 # Run this from inside your CMSSW/src/HiggsAnalysis/CombinedLimit/ directory.
 # Right now, the script assumes the existence of two subdirectories: cards_uncombined and cards_combined.
 
-reglist1='boost250,boost350,boost450,boost550,compr250,compr350,compr450,low250,low350,low450,high250,high350,high450,high550,high650'
-reglist2='corridor250,corridor350,corridor450'
-
 for susymass in `ls -1 cards_uncombined/ | grep -o 'T2tt_[[:digit:]]\+_[[:digit:]]\+' | sort | uniq`
 do
 	argstring_base=''

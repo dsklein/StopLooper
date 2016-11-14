@@ -7,6 +7,8 @@ Check out the [cmstas/Software](https://github.com/cmstas/Software) repository s
 
 I'm not the author or maintainer of these plotmaking scripts, so I can't promise that every single version will compile in g++ without errors. The latest version I can _guarantee_ to compile correctly is [commit 758ce41](https://github.com/cmstas/Software/tree/758ce412d19d7b482129f6291168878d2a620a04/dataMCplotMaker), from August 16, 2016.
 
+You'll probably also need to edit the "includes" in the loopers (`ScanChain.C`, `looperCR2lep.C`, `looperCR0b.C`) to point to a local CORE repository so that they can use the DorkyEventIdentifier and the BadEventFilter.
+
 To compile all the code, simply type `make`.
 
 ###Running

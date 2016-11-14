@@ -39,7 +39,7 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 	systMap_sr = srAnalysis->GetSystMap();
 	if( lostlepAnalysis ) {
 		nVars_ll  = lostlepAnalysis->GetSystematics(true).size();
-	  systMap_ll = lostlepAnalysis->GetSystMap();
+		systMap_ll = lostlepAnalysis->GetSystMap();
 	}
 	if( onelepwAnalysis ) {
 		nVars_1lw   = onelepwAnalysis->GetSystematics(true).size();
