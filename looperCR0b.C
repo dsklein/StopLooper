@@ -544,8 +544,8 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Store histograms and clean them up
-	TFile* plotfile = new TFile( myAnalysis->GetPlotFileName(), "UPDATE");
-	TFile* systfile = new TFile( myAnalysis->GetSystFileName(), "UPDATE");
+	TFile* plotfile = new TFile( myAnalysis->GetPlotFileName(), "READ");
+	TFile* systfile = new TFile( myAnalysis->GetSystFileName(), "READ");
 	TFile* sourcefile;
 
 	// Certain histograms are cumulative across multiple samples. For those histograms, add what the
@@ -566,20 +566,23 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 			if( hTemp != 0 ) h_evttype[i][j]->Add( hTemp );
 		}
 	}
+	delete plotfile;
+	delete systfile;
 
 	// Take all histograms in histdir and write them to plotfile
+	plotfile = new TFile( myAnalysis->GetPlotFileName(), "UPDATE");
 	plotfile->cd();
 	histdir->GetList()->Write( "", TObject::kOverwrite );
+	delete plotfile;
 
 	// Take all histograms in systdir and write them to histfile
+	systfile = new TFile( myAnalysis->GetSystFileName(), "UPDATE");
 	systfile->cd();
 	systdir->GetList()->Write( "", TObject::kOverwrite );
-
+	delete systfile;
 
 	// Cleanup
-	plotfile->Close();
 	histdir->Close();
-	systfile->Close();
 	systdir->Close();
 
 	// return
