@@ -25,6 +25,7 @@ public:
 	sample* AddSample( std::string myLabel, std::string niceName, short int color, sample::sampleType type );
 	sample* AddSample( std::string myLabel, std::string tabName, std::string legName );
 	sample* AddSample( std::string myLabel, std::string tabName, std::string legName, short int color, sample::sampleType type );
+	void AddSamples( std::vector<sample*> samples );
 	void AddSigRegs( std::vector<sigRegion*> regions );
 	void AddSystematics( std::vector<systematic*> systs );
 	std::vector<short int> GetBkgColors();

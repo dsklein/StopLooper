@@ -54,6 +54,8 @@ sample* analysis::AddSample(std::string myLabel, std::string tabName, std::strin
 	return myPointer;
 }
 
+void analysis::AddSamples( std::vector<sample*> samples ) { for( sample* thisSample : samples ) AddSample( thisSample ); }
+
 void analysis::AddSigRegs( std::vector<sigRegion*> regions ) { sigRegions.push_back(regions); }
 
 void analysis::AddSystematics( std::vector<systematic*> systs ) { syst_vars.insert( syst_vars.end(), systs.begin(), systs.end() ); }

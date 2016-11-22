@@ -142,29 +142,13 @@ int main( int argc, char* argv[] ) {
 
 	// srAnalysis->AddSample( data );   // Uncomment this line to unblind
 	crLostLep->AddSample( data );
-	srAnalysis->AddSample( signal );   crLostLep->AddSample( signal );
-	srAnalysis->AddSample( tt2l );     crLostLep->AddSample( tt2l );
-	srAnalysis->AddSample( tt1l );     crLostLep->AddSample( tt1l );
-	srAnalysis->AddSample( singtop );  crLostLep->AddSample( singtop );
-	srAnalysis->AddSample( wjets );    crLostLep->AddSample( wjets );
-	srAnalysis->AddSample( dy );       crLostLep->AddSample( dy );
-	srAnalysis->AddSample( rare );     crLostLep->AddSample( rare );
+	srAnalysis->AddSamples( {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
+	crLostLep->AddSamples(  {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
 
-	sr_jesup->AddSample( signal_jesup );   cr2l_jesup->AddSample( signal_jesup );
-	sr_jesup->AddSample( tt2l_jesup );     cr2l_jesup->AddSample( tt2l_jesup );
-	sr_jesup->AddSample( tt1l_jesup );     cr2l_jesup->AddSample( tt1l_jesup );
-	sr_jesup->AddSample( singtop_jesup );  cr2l_jesup->AddSample( singtop_jesup );
-	sr_jesup->AddSample( wjets_jesup );    cr2l_jesup->AddSample( wjets_jesup );
-	sr_jesup->AddSample( dy_jesup );       cr2l_jesup->AddSample( dy_jesup );
-	sr_jesup->AddSample( rare_jesup );     cr2l_jesup->AddSample( rare_jesup );
-
-	sr_jesdn->AddSample( signal_jesdn );   cr2l_jesdn->AddSample( signal_jesdn );
-	sr_jesdn->AddSample( tt2l_jesdn );     cr2l_jesdn->AddSample( tt2l_jesdn );
-	sr_jesdn->AddSample( tt1l_jesdn );     cr2l_jesdn->AddSample( tt1l_jesdn );
-	sr_jesdn->AddSample( singtop_jesdn );  cr2l_jesdn->AddSample( singtop_jesdn );
-	sr_jesdn->AddSample( wjets_jesdn );    cr2l_jesdn->AddSample( wjets_jesdn );
-	sr_jesdn->AddSample( dy_jesdn );       cr2l_jesdn->AddSample( dy_jesdn );
-	sr_jesdn->AddSample( rare_jesdn );     cr2l_jesdn->AddSample( rare_jesdn );
+	sr_jesup->AddSamples(   {signal_jesup, tt2l_jesup, tt1l_jesup, singtop_jesup, wjets_jesup, dy_jesup, rare_jesup} );
+	cr2l_jesup->AddSamples( {signal_jesup, tt2l_jesup, tt1l_jesup, singtop_jesup, wjets_jesup, dy_jesup, rare_jesup} );
+	sr_jesdn->AddSamples(   {signal_jesdn, tt2l_jesdn, tt1l_jesdn, singtop_jesdn, wjets_jesdn, dy_jesdn, rare_jesdn} );
+	cr2l_jesdn->AddSamples( {signal_jesdn, tt2l_jesdn, tt1l_jesdn, singtop_jesdn, wjets_jesdn, dy_jesdn, rare_jesdn} );
 
 	/////////////////////////////////////////////////////////////////////////
 	// Create "systematic" objects to store all our systematic variations
