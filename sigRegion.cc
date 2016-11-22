@@ -53,14 +53,14 @@ template <class T> selection<T>::selection( T* myCutVar, T eqval ) {
 // Generic template function to evaluate if the current event passes this selection
 template <class T> bool selection<T>::Pass() {
 	if( cms3Function != NULL ) {
-		if( cms3Function() > minimum &&
-		    cms3Function() <= maximum ) return true;
+		if( cms3Function() >= minimum &&
+		    cms3Function() < maximum ) return true;
 		if( cms3Function() == equal_val ) return true;
 		return false;
 	}
 	else if( cutVar != NULL ) {
-		if( *cutVar > minimum &&
-		    *cutVar <= maximum ) return true;
+		if( *cutVar >= minimum &&
+		    *cutVar < maximum ) return true;
 		if( *cutVar == equal_val ) return true;
 		return false;
 	}
