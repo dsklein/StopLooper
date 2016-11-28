@@ -271,6 +271,9 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 			if(      sampleName == "tt2l"  && gen_nfromtleps_() != 2 ) continue;  //Require 2 leps from top in "tt2l" events
 			else if( sampleName == "tt1l"  && gen_nfromtleps_() != 1 ) continue;  //Require 1 lep from top in "tt1l" events
 
+			// Stitch W+NJets samples together by removing the MET<200 events from the non-nupT samples
+			if( sampleName.Contains("wjets") && TString(file.GetTitle()).Contains("JetsToLNu_madgraph") && genmet()>200. ) continue;
+
 			//FastSim anomalous event filter
 			if( isFastsim && filt_fastsimjets() ) continue;
 

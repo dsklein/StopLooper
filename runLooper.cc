@@ -104,13 +104,13 @@ int main( int argc, char* argv[] ) {
 	// Define the "sample" and "analysis" objects that will do much of our bookkeeping
 
 	//                     new analysis( lumi, "histogram storage file", "systematic storage file" )
-	analysis* srAnalysis = new analysis( 12.9, "plots.root", "systVariations.root" );
-	analysis* crLostLep  = new analysis( 12.9, "plotsLL.root", "systVariationsLL.root" );
+	analysis* srAnalysis = new analysis( 29.53, "plots.root", "systVariations.root" );
+	analysis* crLostLep  = new analysis( 29.53, "plotsLL.root", "systVariationsLL.root" );
 	analysis* cr0bjets;     // Will be defined later
-	analysis* sr_jesup   = new analysis( 12.9, "jes_sr.root", "jes_sr.root" );
-	analysis* sr_jesdn   = new analysis( 12.9, "jes_sr.root", "jes_sr.root" );
-	analysis* cr2l_jesup = new analysis( 12.9, "jes_cr2l.root", "jes_cr2l.root" );
-	analysis* cr2l_jesdn = new analysis( 12.9, "jes_cr2l.root", "jes_cr2l.root" );
+	analysis* sr_jesup   = new analysis( 29.53, "jes_sr.root", "jes_sr.root" );
+	analysis* sr_jesdn   = new analysis( 29.53, "jes_sr.root", "jes_sr.root" );
+	analysis* cr2l_jesup = new analysis( 29.53, "jes_cr2l.root", "jes_cr2l.root" );
+	analysis* cr2l_jesdn = new analysis( 29.53, "jes_cr2l.root", "jes_cr2l.root" );
 	analysis* cr0b_jesup;
 	analysis* cr0b_jesdn;
 
@@ -354,8 +354,8 @@ int main( int argc, char* argv[] ) {
 	// For each "sample" object defined earlier, chain up the baby files that make up that sample
 
 	TString sigPath  = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/Nominal/";
-	TString bkgPath  = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/Nominal/";
-	TString dataPath = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/Nominal/";
+	TString bkgPath  = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v11/skim/";
+	TString dataPath = "/nfs-7/userdata/jgwood/tupler_babies/merged/Stop_1l/v12/skim/";
 
 	TString sigPath_jesup = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/JESup/";
 	TString bkgPath_jesup = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/JESup/";
@@ -379,25 +379,25 @@ int main( int argc, char* argv[] ) {
 		tt1l->AddFile( bkgPath + "ttbar_singleLeptFromT_madgraph_pythia8_*.root" );
 		tt1l->AddFile( bkgPath + "ttbar_singleLeptFromTbar_madgraph_pythia8_ext1*.root" );
 
-		wjets->AddFile( bkgPath + "WJetsToLNu_HT100To200_madgraph_pythia8_ext1_25ns*.root" );
-		wjets->AddFile( bkgPath + "WJetsToLNu_HT200To400_madgraph_pythia8_ext1_25ns*.root" );
-		wjets->AddFile( bkgPath + "WJetsToLNu_HT400To600_madgraph_pythia8_25ns.root" ); // extended sample available
-		wjets->AddFile( bkgPath + "WJetsToLNu_HT600To800_madgraph_pythia8_25ns.root" ); // extended sample available
-		wjets->AddFile( bkgPath + "WJetsToLNu_HT800To1200_madgraph_pythia8_ext1_25ns*.root" );
-		wjets->AddFile( bkgPath + "WJetsToLNu_HT1200To2500_madgraph_pythia8_25ns.root" );
-		wjets->AddFile( bkgPath + "WJetsToLNu_HT2500ToInf_madgraph_pythia8_25ns.root" ); // extended sample available
+		wjets->AddFile( bkgPath + "W1JetsToLNu_madgraph_pythia8_25ns.root" );
+		wjets->AddFile( bkgPath + "W2JetsToLNu_madgraph_pythia8_25ns.root" ); // Cut out genmet < 200 section from these
+		wjets->AddFile( bkgPath + "W3JetsToLNu_madgraph_pythia8_25ns.root" );
+		wjets->AddFile( bkgPath + "W4JetsToLNu_madgraph_pythia8_25ns.root" );
+		wjets->AddFile( bkgPath + "W1JetsToLNu_nupT200_madgraph_pythia8_25ns*.root" );
+		wjets->AddFile( bkgPath + "W2JetsToLNu_nupT200_madgraph_pythia8_25ns*.root" );
+		wjets->AddFile( bkgPath + "W3JetsToLNu_nupT200_madgraph_pythia8_25ns*.root" );
+		wjets->AddFile( bkgPath + "W4JetsToLNu_nupT200_madgraph_pythia8_25ns*.root" );
 
 		dy->AddFile( bkgPath + "DYJetsToLL_m10To50_amcnlo_pythia8_25ns.root" );
 		dy->AddFile( bkgPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns.root" );
 
 		singtop->AddFile( bkgPath + "t_sch_4f_amcnlo_pythia8_25ns.root" );
 		// singtop->AddFile( bkgPath + "t_tch_4f_powheg_pythia8_25ns.root" );
-		// singtop->AddFile( bkgPath + "tbar_tch_4f_powheg_pythia8_25ns.root" );
-		singtop->AddFile( bkgPath + "t_tW_5f_powheg_pythia8_25ns.root" );
+		// singtop->AddFile( dataPath + "tbar_tch_4f_powheg_pythia8_25ns.root" );   // Take this one from John's directory
+		singtop->AddFile( dataPath + "t_tW_5f_powheg_pythia8_25ns.root" );       // This one too
 		singtop->AddFile( bkgPath + "t_tbarW_5f_powheg_pythia8_25ns.root" );
 
-		rare->AddFile( bkgPath + "TTWJetsToLNu_amcnlo_pythia8_25ns.root" );
-		rare->AddFile( bkgPath + "TTWJetsToQQ_amcnlo_pythia8_25ns.root" );
+		rare->AddFile( bkgPath + "ttWJets_13TeV_madgraphMLM.root" );
 		rare->AddFile( bkgPath + "ttZJets_13TeV_madgraphMLM*.root" );
 		// rare->AddFile( bkgPath + "tZq_ll_4f_amcnlo_pythia8_25ns.root" );
 		// rare->AddFile( bkgPath + "tZq_nunu_4f_amcnlo_pythia8_25ns.root" );
@@ -484,10 +484,10 @@ int main( int argc, char* argv[] ) {
 	}
 
 	// Make the 0-bjet control region "analyses" by copying the signal region "analyses" and changing a few properties
-	cr0bjets = srAnalysis->Copy( 12.9, "plots0b.root", "systVariations0b.root" );
-	cr0b_jesup = sr_jesup->Copy( 12.9, "jes_cr0b.root", "jes_cr0b.root" );
-	cr0b_jesdn = sr_jesdn->Copy( 12.9, "jes_cr0b.root", "jes_cr0b.root" );
-	cr0bjets->AddSample( data );
+	cr0bjets = srAnalysis->Copy( 29.53, "plots0b.root", "systVariations0b.root" );
+	cr0b_jesup = sr_jesup->Copy( 29.53, "jes_cr0b.root", "jes_cr0b.root" );
+	cr0b_jesdn = sr_jesdn->Copy( 29.53, "jes_cr0b.root", "jes_cr0b.root" );
+	if( !srAnalysis->HasData() ) cr0bjets->AddSample( data );
 	cr0bjets->ResetSystematics();
 	cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn} );
 	cr0bjets->AddSystematics( {&qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &metresup, &metresdn, &contam1lwup, &contam1lwdn } );
