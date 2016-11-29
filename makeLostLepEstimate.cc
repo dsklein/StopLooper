@@ -139,7 +139,7 @@ void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 	h_extrapolation->SetTitle( "MET extrapolation factor" );
 	h_extrap_denom->SetTitle(  "MET extrapolation denominator" );
 
-	vector< vector<TString> > binmerge_list = { {"boost450", "boost550"}, {"high550", "high650"} };  // Merge certain sets of bins in the denominator
+	vector< vector<TString> > binmerge_list = { {"j23himlb450", "j23himlb550"}, {"j4hitmodhimlb400", "j4hitmodhimlb650"} };  // Merge certain sets of bins in the denominator
 	for( vector<TString> bins : binmerge_list ) {
 		double content = 0.;
 		double errorsq = 0.;

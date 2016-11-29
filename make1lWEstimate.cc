@@ -148,13 +148,13 @@ void do1lWestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 	h_bkgEstimate->SetTitle( "1l-from-W background estimate" );
 	h_bkgEstimate->Multiply( h_mcRatio );
 
-	// In low MT2W regions, take bkg estimate directly from MC
-	for( uint i=0; i<nSRegions; i++ ) {
-		if( srnames.at(i).Contains("low") ) {
-			h_bkgEstimate->SetBinContent( i+1, h_srMC->GetBinContent(i+1) );
-			h_bkgEstimate->SetBinError(   i+1, h_srMC->GetBinError(i+1) );
-		}
-	}
+	// // In low MT2W regions, take bkg estimate directly from MC
+	// for( uint i=0; i<nSRegions; i++ ) {
+	// 	if( srnames.at(i).Contains("low") ) {
+	// 		h_bkgEstimate->SetBinContent( i+1, h_srMC->GetBinContent(i+1) );
+	// 		h_bkgEstimate->SetBinError(   i+1, h_srMC->GetBinError(i+1) );
+	// 	}
+	// }
 
 	// Write everything to a file
 	h_mcRatio->Write();
@@ -218,15 +218,9 @@ void do1lWestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 	for( vector<sigRegion*> sigRegs : sigRegionList ) {
 		for( uint i=0; i<sigRegs.size(); i++ ) {
 
-			if( sigRegs.at(i)->GetLabel().Contains("low") ) {
-				printf( "%32s &        N/A        &         N/A         &  %6.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i)->GetTableName().Data(),
-				        h_bkgEstimate->GetBinContent(i+binOffset), h_bkgEstimate->GetBinError(i+binOffset) );
-			}
-			else {
-				printf( "%32s & %4d $\\pm$ %6.3f &  %5.3f $\\pm$ %5.3f  &  %6.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i)->GetTableName().Data(),
-				        int(h_crData->GetBinContent(i+binOffset)), h_crData->GetBinError(i+binOffset), h_mcRatio->GetBinContent(i+binOffset),
-				        h_mcRatio->GetBinError(i+binOffset), h_bkgEstimate->GetBinContent(i+binOffset), h_bkgEstimate->GetBinError(i+binOffset) );
-			}
+			printf( "%32s & %4d $\\pm$ %6.3f &  %5.3f $\\pm$ %5.3f  &  %6.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i)->GetTableName().Data(),
+			        int(h_crData->GetBinContent(i+binOffset)), h_crData->GetBinError(i+binOffset), h_mcRatio->GetBinContent(i+binOffset),
+			        h_mcRatio->GetBinError(i+binOffset), h_bkgEstimate->GetBinContent(i+binOffset), h_bkgEstimate->GetBinError(i+binOffset) );
 
 		}
 		binOffset += sigRegs.size();

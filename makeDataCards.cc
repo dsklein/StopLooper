@@ -151,7 +151,7 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 		// Make a similar template for the rows that store all the uncertainties
 
 		// Generate a row for the statistical uncertainty on each sample
-		//  (except signal, which is handled later, and 1l-from-top, which is covered by the 100% uncertainty)
+		//  (except signal, which is handled later per-mass-point, and 1l-from-top, which is covered by the 100% uncertainty)
 		uncertlines.push_back( "### Placeholder line. Stat uncertainty on signal yield will go here." );
 		for( int sampleIdx=1; sampleIdx<nSamples; sampleIdx++ ) {
 
@@ -164,6 +164,8 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 			double statErr = 1.0 + (h_bkgYield->GetBinError(sampleIdx+2) / h_bkgYield->GetBinContent(sampleIdx+2) );
 			if(      sampleIdx==2 ) statErr = 1.0 + ( h_lostLep->GetBinError(reg) / h_lostLep->GetBinContent(reg) );  // Pull 2l stat error from lostLepton estimate histogram
 			else if( sampleIdx==4 ) statErr = 1.0 + ( h_onelepw->GetBinError(reg) / h_onelepw->GetBinContent(reg) );  // Pull 1lw stat error from 1l-from-w estimate histogram
+
+			if( std::isnan(statErr) ) statErr = 1.0; // Protection against nan
 
 			for( int j=0; j<nSamples; j++ ) {
 				if( j == sampleIdx )  tmpstr += Form( "  %8.6f  ", statErr);
@@ -214,6 +216,7 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 		// Calculate the lost lepton systematics, and populate the datacard and the printable systematic tables
 		if( nVars_ll > 0 ) {
 			double nominal = h_lostLep->GetBinContent(reg);
+			if( nominal < 0.0000000001 ) nominal = 0.0000000001;  // Protection for when yields are zero or negative
 			for( auto& iter : systMap_ll ) {                      // Loop over all systematics for the ll background
 				double maxdiff = calculateMaxdiff( reg, lostlepFile, nominal, iter.second ); // Calculate the biggest variation
 				syst_holder[iter.first].at(2) = Form( "  %8.6f  ", 1.0 + maxdiff/nominal );  // Populate the appropriate cell in the datacard systematics table
@@ -224,6 +227,7 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 		// Same with 1l-from-W systematics
 		if( nVars_1lw > 0 ) {
 			double nominal = h_onelepw->GetBinContent(reg);
+			if( nominal < 0.0000000001 ) nominal = 0.0000000001;
 			for( auto& iter : systMap_1lw ) {
 				double maxdiff = calculateMaxdiff( reg, onelepwFile, nominal, iter.second );
 				syst_holder[iter.first].at(4) = Form( "  %8.6f  ", 1.0 + maxdiff/nominal );
@@ -261,8 +265,8 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 				if( sigYield < 0. ) {
 					// cout << "Warning in makeDataCards: Mass point (" << stopmass << "," << lspmass
 					// 	   << ") has negative signal yield after subtracting contamination. Setting yield to zero." << endl;
-					sigYield = 0.00000001;
-					sigError = 0.00000000000001;
+					sigYield = 0.000000001;
+					sigError = 0.;
 				}
 
 				// Generate the second line of the datacard, with the susy masses
@@ -334,6 +338,7 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 
 double calculateMaxdiff( int bin, TFile* histfile, const double& nominal, vector<TString> varNames ) {
 
+	if( nominal < 0.00000001 ) return 0.;
 	double maxdiff = 0.;
 
 	for( TString varName : varNames ) {
