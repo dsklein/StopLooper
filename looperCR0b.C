@@ -38,6 +38,7 @@ extern bool j1_isBtag;
 extern double j1pt;
 extern double dphilmet;
 extern double lep1pt;
+extern int nTightTags;
 
 
 int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fast = true) {
@@ -449,6 +450,8 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 
 			dphilmet  = fabs( lepVec.DeltaPhi(metVec) );
 			lep1pt = lep1_p4().Pt();
+
+			nTightTags = 99; // We're looking at the zero-btag region, so bypass the nTightTags cuts
 
 			///////////////////////////////////////////
 			// Signal region cuts and histo filling

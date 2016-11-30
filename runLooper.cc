@@ -17,11 +17,13 @@ extern bool j1_isBtag;
 extern double j1pt;
 extern double dphilmet;
 extern double lep1pt;
+extern int nTightTags;
 
 bool j1_isBtag;
 double j1pt;
 double dphilmet;
 double lep1pt;
+int nTightTags;
 
 // Help with program options
 void printHelp() {
@@ -232,6 +234,8 @@ int main( int argc, char* argv[] ) {
 	selection<int> nJetsGe4( (*tas::ngoodjets), 4, 9999999 ); // NJets bins
 	selection<int> nJetsGe5( (*tas::ngoodjets), 5, 9999999 );
 
+	selection<int> oneTightB( &nTightTags, 1, 9999999 ); // At least one tight b-tag
+
 	selection<float> modTopNeg(   (*tas::topnessMod), -9999999., 0. );
 	selection<float> modTopLow(   (*tas::topnessMod),  0., 10. );
 	selection<float> modTopHigh(  (*tas::topnessMod), 10., 9999999. );   // Modified topness bins
@@ -254,31 +258,31 @@ int main( int argc, char* argv[] ) {
 	sigRegion j23lowmlb350( "j23lowmlb350", "2-3 jets, high tmod, low Mlb, MET350-450",  {&nJets23, &modTopHigh, &mlbLt175, &MET_350_450} );
 	sigRegion j23lowmlb450( "j23lowmlb450", "2-3 jets, high tmod, low Mlb, MET450-550",  {&nJets23, &modTopHigh, &mlbLt175, &MET_450_550} );
 	sigRegion j23lowmlb550( "j23lowmlb550", "2-3 jets, high tmod, low Mlb, MET550-inf",  {&nJets23, &modTopHigh, &mlbLt175, &MET_550_inf} );
-	sigRegion j23himlb250(  "j23himlb250",  "2-3 jets, high tmod, hi Mlb, MET250-350",   {&nJets23, &modTopHigh, &mlbGe175, &MET_250_350} ); // B
-	sigRegion j23himlb350(  "j23himlb350",  "2-3 jets, high tmod, hi Mlb, MET350-450",   {&nJets23, &modTopHigh, &mlbGe175, &MET_350_450} );
-	sigRegion j23himlb450(  "j23himlb450",  "2-3 jets, high tmod, hi Mlb, MET450-550",   {&nJets23, &modTopHigh, &mlbGe175, &MET_450_550} );
-	sigRegion j23himlb550(  "j23himlb550",  "2-3 jets, high tmod, hi Mlb, MET550-inf",   {&nJets23, &modTopHigh, &mlbGe175, &MET_550_inf} );
+	sigRegion j23himlb250(  "j23himlb250",  "2-3 jets, high tmod, hi Mlb, MET250-350",   {&nJets23, &modTopHigh, &mlbGe175, &MET_250_350, &oneTightB} ); // B
+	sigRegion j23himlb350(  "j23himlb350",  "2-3 jets, high tmod, hi Mlb, MET350-450",   {&nJets23, &modTopHigh, &mlbGe175, &MET_350_450, &oneTightB} );
+	sigRegion j23himlb450(  "j23himlb450",  "2-3 jets, high tmod, hi Mlb, MET450-550",   {&nJets23, &modTopHigh, &mlbGe175, &MET_450_550, &oneTightB} );
+	sigRegion j23himlb550(  "j23himlb550",  "2-3 jets, high tmod, hi Mlb, MET550-inf",   {&nJets23, &modTopHigh, &mlbGe175, &MET_550_inf, &oneTightB} );
 	sigRegion j4negtmodlowmlb250( "j4negtmodlowmlb250", "4 jets, neg tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_250_350} ); // C
 	sigRegion j4negtmodlowmlb350( "j4negtmodlowmlb350", "4 jets, neg tmod, low Mlb, MET350-450",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_350_450} );
 	sigRegion j4negtmodlowmlb450( "j4negtmodlowmlb450", "4 jets, neg tmod, low Mlb, MET450-550",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_450_550} );
 	sigRegion j4negtmodlowmlb550( "j4negtmodlowmlb550", "4 jets, neg tmod, low Mlb, MET550-650",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_550_650} );
 	sigRegion j4negtmodlowmlb650( "j4negtmodlowmlb650", "4 jets, neg tmod, low Mlb, MET650-inf",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_650_inf} );
-	sigRegion j4negtmodhimlb250(  "j4negtmodhimlb250",  "4 jets, neg tmod, hi Mlb, MET250-350",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_350} ); // D
-	sigRegion j4negtmodhimlb350(  "j4negtmodhimlb350",  "4 jets, neg tmod, hi Mlb, MET350-450",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_350_450} );
-	sigRegion j4negtmodhimlb450(  "j4negtmodhimlb450",  "4 jets, neg tmod, hi Mlb, MET450-550",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_450_550} );
-	sigRegion j4negtmodhimlb550(  "j4negtmodhimlb550",  "4 jets, neg tmod, hi Mlb, MET550-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_550_inf} );
+	sigRegion j4negtmodhimlb250(  "j4negtmodhimlb250",  "4 jets, neg tmod, hi Mlb, MET250-350",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_350, &oneTightB} ); // D
+	sigRegion j4negtmodhimlb350(  "j4negtmodhimlb350",  "4 jets, neg tmod, hi Mlb, MET350-450",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_350_450, &oneTightB} );
+	sigRegion j4negtmodhimlb450(  "j4negtmodhimlb450",  "4 jets, neg tmod, hi Mlb, MET450-550",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_450_550, &oneTightB} );
+	sigRegion j4negtmodhimlb550(  "j4negtmodhimlb550",  "4 jets, neg tmod, hi Mlb, MET550-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_550_inf, &oneTightB} );
 	sigRegion j4lowtmodlowmlb250( "j4lowtmodlowmlb250", "4 jets, low tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_250_350} ); // E
 	sigRegion j4lowtmodlowmlb350( "j4lowtmodlowmlb350", "4 jets, low tmod, low Mlb, MET350-450",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_350_450} );
 	sigRegion j4lowtmodlowmlb450( "j4lowtmodlowmlb450", "4 jets, low tmod, low Mlb, MET450-inf",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_450_inf} );
-	sigRegion j4lowtmodhimlb250(  "j4lowtmodhimlb250",  "4 jets, low tmod, hi Mlb, MET250-400",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_400} ); // F
-	sigRegion j4lowtmodhimlb400(  "j4lowtmodhimlb400",  "4 jets, low tmod, hi Mlb, MET400-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_400_inf} );
+	sigRegion j4lowtmodhimlb250(  "j4lowtmodhimlb250",  "4 jets, low tmod, hi Mlb, MET250-400",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_400, &oneTightB} ); // F
+	sigRegion j4lowtmodhimlb400(  "j4lowtmodhimlb400",  "4 jets, low tmod, hi Mlb, MET400-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_400_inf, &oneTightB} );
 	sigRegion j4hitmodlowmlb250( "j4hitmodlowmlb250", "4 jets, high tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_250_350} ); // G
 	sigRegion j4hitmodlowmlb350( "j4hitmodlowmlb350", "4 jets, high tmod, low Mlb, MET350-450",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_350_450} );
 	sigRegion j4hitmodlowmlb450( "j4hitmodlowmlb450", "4 jets, high tmod, low Mlb, MET450-600",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_450_600} );
 	sigRegion j4hitmodlowmlb600( "j4hitmodlowmlb600", "4 jets, high tmod, low Mlb, MET600-inf",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_600_inf} );
-	sigRegion j4hitmodhimlb250(  "j4hitmodhimlb250",  "4 jets, high tmod, hi Mlb, MET250-400",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_400} ); // H
-	sigRegion j4hitmodhimlb400(  "j4hitmodhimlb400",  "4 jets, high tmod, hi Mlb, MET400-650",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_400_650} );
-	sigRegion j4hitmodhimlb650(  "j4hitmodhimlb650",  "4 jets, high tmod, hi Mlb, MET650-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_650_inf} );
+	sigRegion j4hitmodhimlb250(  "j4hitmodhimlb250",  "4 jets, high tmod, hi Mlb, MET250-400",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_400, &oneTightB} ); // H
+	sigRegion j4hitmodhimlb400(  "j4hitmodhimlb400",  "4 jets, high tmod, hi Mlb, MET400-650",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_400_650, &oneTightB} );
+	sigRegion j4hitmodhimlb650(  "j4hitmodhimlb650",  "4 jets, high tmod, hi Mlb, MET650-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_650_inf, &oneTightB} );
 	sigRegion inclusive(   "inclusive",   "Inclusive" );
 	sigRegion corridor250( "corridor250", "Corridor, low MET",  {&nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag} );
 	sigRegion corridor350( "corridor350", "Corridor, mid MET",  {&nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag} );
@@ -294,31 +298,31 @@ int main( int argc, char* argv[] ) {
 	sigRegion j23lowmlb350CR( "j23lowmlb350CR", "CR 2-3 jets, high tmod, low Mlb, MET350-450",  {&nJets23, &modTopHigh, &mlbLt175, &MET_350_450} );
 	sigRegion j23lowmlb450CR( "j23lowmlb450CR", "CR 2-3 jets, high tmod, low Mlb, MET450-550",  {&nJets23, &modTopHigh, &mlbLt175, &MET_450_550} );
 	sigRegion j23lowmlb550CR( "j23lowmlb550CR", "CR 2-3 jets, high tmod, low Mlb, MET550-inf",  {&nJets23, &modTopHigh, &mlbLt175, &MET_550_inf} );
-	sigRegion j23himlb250CR(  "j23himlb250CR",  "CR 2-3 jets, high tmod, hi Mlb, MET250-350",   {&nJets23, &modTopHigh, &mlbGe175, &MET_250_350} ); // B
-	sigRegion j23himlb350CR(  "j23himlb350CR",  "CR 2-3 jets, high tmod, hi Mlb, MET350-450",   {&nJets23, &modTopHigh, &mlbGe175, &MET_350_450} );
-	sigRegion j23himlb450CR(  "j23himlb450CR",  "CR 2-3 jets, high tmod, hi Mlb, MET450-550",   {&nJets23, &modTopHigh, &mlbGe175, &MET_450_550} );
-	sigRegion j23himlb550CR(  "j23himlb550CR",  "CR 2-3 jets, high tmod, hi Mlb, MET550-inf",   {&nJets23, &modTopHigh, &mlbGe175, &MET_550_inf} );
+	sigRegion j23himlb250CR(  "j23himlb250CR",  "CR 2-3 jets, high tmod, hi Mlb, MET250-350",   {&nJets23, &modTopHigh, &mlbGe175, &MET_250_350, &oneTightB} ); // B
+	sigRegion j23himlb350CR(  "j23himlb350CR",  "CR 2-3 jets, high tmod, hi Mlb, MET350-450",   {&nJets23, &modTopHigh, &mlbGe175, &MET_350_450, &oneTightB} );
+	sigRegion j23himlb450CR(  "j23himlb450CR",  "CR 2-3 jets, high tmod, hi Mlb, MET450-550",   {&nJets23, &modTopHigh, &mlbGe175, &MET_450_550, &oneTightB} );
+	sigRegion j23himlb550CR(  "j23himlb550CR",  "CR 2-3 jets, high tmod, hi Mlb, MET550-inf",   {&nJets23, &modTopHigh, &mlbGe175, &MET_550_inf, &oneTightB} );
 	sigRegion j4negtmodlowmlb250CR( "j4negtmodlowmlb250CR", "CR 4 jets, neg tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_250_350} ); // C
 	sigRegion j4negtmodlowmlb350CR( "j4negtmodlowmlb350CR", "CR 4 jets, neg tmod, low Mlb, MET350-450",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_350_450} );
 	sigRegion j4negtmodlowmlb450CR( "j4negtmodlowmlb450CR", "CR 4 jets, neg tmod, low Mlb, MET450-550",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_450_550} );
 	sigRegion j4negtmodlowmlb550CR( "j4negtmodlowmlb550CR", "CR 4 jets, neg tmod, low Mlb, MET550-650",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_550_650} );
 	sigRegion j4negtmodlowmlb650CR( "j4negtmodlowmlb650CR", "CR 4 jets, neg tmod, low Mlb, MET650-inf",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_650_inf} );
-	sigRegion j4negtmodhimlb250CR(  "j4negtmodhimlb250CR",  "CR 4 jets, neg tmod, hi Mlb, MET250-350",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_350} ); // D
-	sigRegion j4negtmodhimlb350CR(  "j4negtmodhimlb350CR",  "CR 4 jets, neg tmod, hi Mlb, MET350-450",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_350_450} );
-	sigRegion j4negtmodhimlb450CR(  "j4negtmodhimlb450CR",  "CR 4 jets, neg tmod, hi Mlb, MET450-550",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_450_550} );
-	sigRegion j4negtmodhimlb550CR(  "j4negtmodhimlb550CR",  "CR 4 jets, neg tmod, hi Mlb, MET550-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_550_inf} );
+	sigRegion j4negtmodhimlb250CR(  "j4negtmodhimlb250CR",  "CR 4 jets, neg tmod, hi Mlb, MET250-350",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_350, &oneTightB} ); // D
+	sigRegion j4negtmodhimlb350CR(  "j4negtmodhimlb350CR",  "CR 4 jets, neg tmod, hi Mlb, MET350-450",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_350_450, &oneTightB} );
+	sigRegion j4negtmodhimlb450CR(  "j4negtmodhimlb450CR",  "CR 4 jets, neg tmod, hi Mlb, MET450-550",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_450_550, &oneTightB} );
+	sigRegion j4negtmodhimlb550CR(  "j4negtmodhimlb550CR",  "CR 4 jets, neg tmod, hi Mlb, MET550-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_550_inf, &oneTightB} );
 	sigRegion j4lowtmodlowmlb250CR( "j4lowtmodlowmlb250CR", "CR 4 jets, low tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_250_350} ); // E
 	sigRegion j4lowtmodlowmlb350CR( "j4lowtmodlowmlb350CR", "CR 4 jets, low tmod, low Mlb, MET350-450",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_350_450} );
 	sigRegion j4lowtmodlowmlb450CR( "j4lowtmodlowmlb450CR", "CR 4 jets, low tmod, low Mlb, MET450-inf",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_450_inf} );
-	sigRegion j4lowtmodhimlb250CR(  "j4lowtmodhimlb250CR",  "CR 4 jets, low tmod, hi Mlb, MET250-400",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_400} ); // F
-	sigRegion j4lowtmodhimlb400CR(  "j4lowtmodhimlb400CR",  "CR 4 jets, low tmod, hi Mlb, MET400-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_400_inf} );
+	sigRegion j4lowtmodhimlb250CR(  "j4lowtmodhimlb250CR",  "CR 4 jets, low tmod, hi Mlb, MET250-400",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_400, &oneTightB} ); // F
+	sigRegion j4lowtmodhimlb400CR(  "j4lowtmodhimlb400CR",  "CR 4 jets, low tmod, hi Mlb, MET400-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_400_inf, &oneTightB} );
 	sigRegion j4hitmodlowmlb250CR( "j4hitmodlowmlb250CR", "CR 4 jets, high tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_250_350} ); // G
 	sigRegion j4hitmodlowmlb350CR( "j4hitmodlowmlb350CR", "CR 4 jets, high tmod, low Mlb, MET350-450",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_350_450} );
 	sigRegion j4hitmodlowmlb450CR( "j4hitmodlowmlb450CR", "CR 4 jets, high tmod, low Mlb, MET450-600",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_450_600} );
 	sigRegion j4hitmodlowmlb600CR( "j4hitmodlowmlb600CR", "CR 4 jets, high tmod, low Mlb, MET600-inf",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_600_inf} );
-	sigRegion j4hitmodhimlb250CR(  "j4hitmodhimlb250CR",  "CR 4 jets, high tmod, hi Mlb, MET250-400",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_400} ); // H
-	sigRegion j4hitmodhimlb400CR(  "j4hitmodhimlb400CR",  "CR 4 jets, high tmod, hi Mlb, MET400-650",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_400_650} );
-	sigRegion j4hitmodhimlb650CR(  "j4hitmodhimlb650CR",  "CR 4 jets, high tmod, hi Mlb, MET650-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_650_inf} );
+	sigRegion j4hitmodhimlb250CR(  "j4hitmodhimlb250CR",  "CR 4 jets, high tmod, hi Mlb, MET250-400",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_400, &oneTightB} ); // H
+	sigRegion j4hitmodhimlb400CR(  "j4hitmodhimlb400CR",  "CR 4 jets, high tmod, hi Mlb, MET400-650",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_400_650, &oneTightB} );
+	sigRegion j4hitmodhimlb650CR(  "j4hitmodhimlb650CR",  "CR 4 jets, high tmod, hi Mlb, MET650-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_650_inf, &oneTightB} );
 	// sigRegion inclusive(   "inclusive",   "Inclusive" );
 	sigRegion corridor250CR( "corridor250CR", "CR Corridor, low MET",  {&nJetsGe5, &CR_MET_250_350, &j1Pt200, &j1NoTag} );
 	sigRegion corridor350CR( "corridor350CR", "CR Corridor, mid MET",  {&nJetsGe5, &CR_MET_350_450, &j1Pt200, &j1NoTag} );
