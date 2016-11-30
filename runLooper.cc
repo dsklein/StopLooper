@@ -15,9 +15,13 @@
 // Global variables, for use in defining signal regions
 extern bool j1_isBtag;
 extern double j1pt;
+extern double dphilmet;
+extern double lep1pt;
 
 bool j1_isBtag;
 double j1pt;
+double dphilmet;
+double lep1pt;
 
 // Help with program options
 void printHelp() {
@@ -240,6 +244,8 @@ int main( int argc, char* argv[] ) {
 
 	selection<double> j1Pt200( &j1pt, 200., 9999999. ); // Special selections for the corridor regions
 	selection<bool>   j1NoTag( &j1_isBtag, false );
+	selection<double> dPhilepmet(&dphilmet, 0., 1.5 );
+	selection<double> lep1ptLt100( &lep1pt, 0., 100. );
 
 
 	// Create the "sigRegion" objects that will store the definitions of our signal/control regions
@@ -277,6 +283,11 @@ int main( int argc, char* argv[] ) {
 	sigRegion corridor250( "corridor250", "Corridor, low MET",  {&nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag} );
 	sigRegion corridor350( "corridor350", "Corridor, mid MET",  {&nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag} );
 	sigRegion corridor450( "corridor450", "Corridor, high MET", {&nJetsGe5, &MET_450_inf, &j1Pt200, &j1NoTag} );
+	sigRegion corr250combo( "corr250combo", "Corridor 250 combo", {&nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+	sigRegion corr350combo( "corr350combo", "Corridor 350 combo", {&nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+	sigRegion corr450combo( "corr450combo", "Corridor 450 combo", {&nJetsGe5, &MET_450_550, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+	sigRegion corr550combo( "corr550combo", "Corridor 550 combo", {&nJetsGe5, &MET_550_inf, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+	sigRegion corrAllcombo( "corrAllcombo", "Corridor All combo", {&nJetsGe5,               &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
 
 	// Equivalents for the diLepton control regions
 	sigRegion j23lowmlb250CR( "j23lowmlb250CR", "CR 2-3 jets, high tmod, low Mlb, MET250-350",  {&nJets23, &modTopHigh, &mlbLt175, &MET_250_350} ); // A
@@ -312,10 +323,15 @@ int main( int argc, char* argv[] ) {
 	sigRegion corridor250CR( "corridor250CR", "CR Corridor, low MET",  {&nJetsGe5, &CR_MET_250_350, &j1Pt200, &j1NoTag} );
 	sigRegion corridor350CR( "corridor350CR", "CR Corridor, mid MET",  {&nJetsGe5, &CR_MET_350_450, &j1Pt200, &j1NoTag} );
 	sigRegion corridor450CR( "corridor450CR", "CR Corridor, high MET", {&nJetsGe5, &CR_MET_450_inf, &j1Pt200, &j1NoTag} );
+	sigRegion corr250comboCR( "corr250comboCR", "CR Corridor 250 combo", {&nJetsGe5, &CR_MET_250_350, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+	sigRegion corr350comboCR( "corr350comboCR", "CR Corridor 350 combo", {&nJetsGe5, &CR_MET_350_450, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+	sigRegion corr450comboCR( "corr450comboCR", "CR Corridor 450 combo", {&nJetsGe5, &CR_MET_450_550, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+	sigRegion corr550comboCR( "corr550comboCR", "CR Corridor 550 combo", {&nJetsGe5, &CR_MET_550_inf, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+	// sigRegion corrAllcomboCR( "corrAllcomboCR", "CR Corridor All combo", {&nJetsGe5,                  &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
 
 
 	// Finally, store all these signal/control regions in our "analysis" objects.
-	// Each {vector of "sigRegions"} will give rise to its own yield table, so structure matters here!
+	// Regions grouped together here will also be grouped together in various tables down the road (yields, systematics, etc.)
 	srAnalysis->AddSigRegs( {&j23lowmlb250, &j23lowmlb350, &j23lowmlb450, &j23lowmlb550} );
 	srAnalysis->AddSigRegs( {&j23himlb250, &j23himlb350, &j23himlb450, &j23himlb550} );
 	srAnalysis->AddSigRegs( {&j4negtmodlowmlb250, &j4negtmodlowmlb350, &j4negtmodlowmlb450, &j4negtmodlowmlb550, &j4negtmodlowmlb650} );
@@ -326,6 +342,8 @@ int main( int argc, char* argv[] ) {
 	srAnalysis->AddSigRegs( {&j4hitmodhimlb250, &j4hitmodhimlb400, &j4hitmodhimlb650} );
 	srAnalysis->AddSigRegs( {&inclusive} );
 	srAnalysis->AddSigRegs( {&corridor250, &corridor350, &corridor450} );
+	srAnalysis->AddSigRegs( {&corr250combo, &corr350combo, &corr450combo, &corr550combo} );
+	srAnalysis->AddSigRegs( {&corrAllcombo} );
 
 	crLostLep->AddSigRegs( {&j23lowmlb250CR, &j23lowmlb350CR, &j23lowmlb450CR, &j23lowmlb550CR} );
 	crLostLep->AddSigRegs( {&j23himlb250CR, &j23himlb350CR, &j23himlb450CR, &j23himlb550CR} );
@@ -337,6 +355,8 @@ int main( int argc, char* argv[] ) {
 	crLostLep->AddSigRegs( {&j4hitmodhimlb250CR, &j4hitmodhimlb400CR, &j4hitmodhimlb650CR} );
 	crLostLep->AddSigRegs( {&inclusive} );
 	crLostLep->AddSigRegs( {&corridor250CR, &corridor350CR, &corridor450CR} );
+	crLostLep->AddSigRegs( {&corr250comboCR, &corr350comboCR, &corr450comboCR, &corr550comboCR} );
+	crLostLep->AddSigRegs( {&corrAllcombo} );
 
 	// Copy signal regions to JES up and down "analysis" objects
 	for( vector<sigRegion*> srList : srAnalysis->GetSigRegions() ) {
