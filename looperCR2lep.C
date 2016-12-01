@@ -21,8 +21,8 @@
 
 // CMS3 and CORE
 #include "CMS3.h"
-#include "../StopAnalysis_74x/CORE/Tools/badEventFilter.h"
 #include "../StopAnalysis_74x/CORE/Tools/dorky/dorky.h"
+#include "../StopAnalysis_74x/CORE/Tools/goodrun.h"
 
 // Custom
 #include "analysis.h"
@@ -185,45 +185,10 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	int yGen_chi2 = 0;
 
 	////////////////////////////////////////////////////////////////////
-	// Bad event filters and such for data
+	// Set up data-specific filters
 
-	eventFilter badEventFilter;
 	if( mySample->IsData() ) {
-		cout << "Loading bad event files..." << endl;
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_DoubleEG_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_DoubleMuon_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_HTMHT_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_JetHT_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_MET_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_MuonEG_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_SingleElectron_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_SingleMuon_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/eventlist_SinglePhoton_csc2015.txt");
-		// new lists: supposed to include above but do not always
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/DoubleEG_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/DoubleMuon_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/HTMHT_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/JetHT_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/MET_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/MuonEG_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/SingleElectron_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/SingleMuon_csc2015.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/SinglePhoton_csc2015.txt");
-		// not all samples have events which failed the ecal SC filter
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/DoubleEG_ecalscn1043093.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/HTMHT_ecalscn1043093.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/JetHT_ecalscn1043093.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/MET_ecalscn1043093.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/SinglePhoton_ecalscn1043093.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/SingleElectron_ecalscn1043093.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/SingleMuon_ecalscn1043093.txt");
-		// Some new filters pointed out by HJ on Feb-2
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/csc2015_Dec01.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/ecalscn1043093_Dec01.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/badResolutionTrack_Jan13.txt");
-		badEventFilter.loadBadEventList("/nfs-6/userdata/mt2utils/muonBadTrack_Jan13.txt");
-		cout << " ... finished!" << endl;
-
+		set_goodrun_file_json( "reference-files/Cert_271036-282037_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt" );
 		duplicate_removal::clear_list();
 	}
 
@@ -323,10 +288,11 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 				evtWeight *= weight_btagsf() * btagNorm;
 				if( isFastsim ) evtWeight *= weight_lepSF_fastSim() * lepNorm_FS;
 				if( mySample->IsSignal()  ) evtWeight *= weight_ISR() * isrNorm;
-				if( !mySample->IsSignal() ) {
+				if( mySample->GetLabel() == "tt2l" || TString(file.GetTitle()).Contains("W_5f_powheg_pythia8") ){
 					evtWeight *= myHelper.MetResSF();
 					evtWeight *= myHelper.TopSystPtSF();
 				}
+				else if( mySample->GetLabel() == "tt1l" || mySample->GetLabel() == "wjets" ) evtWeight *= myHelper.MetResSF();
 
 				evtWeight *= myHelper.TrigEff2l();
 			}
@@ -346,8 +312,10 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 			// MET filters, bad event filters, and triggers for data
 			if( is_data() ) {
-				if( badEventFilter.eventFails( run(), ls(), evt() ) ) continue;
+				if( !goodrun( run(), ls() ) ) continue;
 				if( !filt_met() ) continue;
+				if( !filt_badChargedCandidateFilter() ) continue;
+				if( !filt_badMuonFilter() ) continue;
 				if( !HLT_SingleEl() && !HLT_SingleMu() && !HLT_MET() ) continue;
 				yield_filter += evtWeight;
 				yGen_filter++;
@@ -432,17 +400,17 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 			j1_isBtag = ak4pfjets_passMEDbtag().at(0);
 
 			// Baseline MET cut (with 2nd lepton pT added to MET)
-			if( pfmet_rl() <= 250. ) continue;
+			if( pfmet_rl() < 250. ) continue;
 			yield_METcut += evtWeight;
 			yGen_METcut++;
 
 			// MT cut (with 2nd lepton pT added to MET)
-			if( mt_met_lep_rl() <= 150. ) continue;
+			if( mt_met_lep_rl() < 150. ) continue;
 			yield_MTcut += evtWeight;
 			yGen_MTcut++;
 
 			// Min delta-phi between MET and j1/j2 (with 2nd lepton pT added to MET)
-			if( mindphi_met_j1_j2_rl() <= 0.8 ) continue;
+			if( mindphi_met_j1_j2_rl() < 0.8 ) continue;
 			yield_dPhi += evtWeight;
 			yGen_dPhi++;
 

@@ -12,12 +12,12 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > LorentzVector;
 // Constructor and destructor
 sfHelper::sfHelper()
 {
-	TFile trigeffFile( "reference-data/triggerefficiency_2lCR.root" );
+	TFile trigeffFile( "reference-files/triggerefficiency_2lCR.root" );
 	h_trigeff_cr2l = (TH2F*)trigeffFile.Get("twoDefficiencypass_gapsfilled")->Clone("trigeff_cr2l");
 	h_trigeff_cr2l->SetDirectory(0);
 	trigeffFile.Close();
 
-	TFile topptFile( "reference-data/sf_top_system_pt.root" );
+	TFile topptFile( "reference-files/sf_top_system_pt.root" );
 	h_sf_toppt = (TH1D*)topptFile.Get("topsyst_pt_sf")->Clone("top_system_pt_sf");
 	h_sf_toppt->SetDirectory(0);
 	topptFile.Close();
@@ -252,24 +252,26 @@ double sfHelper::MetResSF() {
 	double mymet = isCR2l ? tas::pfmet_rl() : tas::pfmet();
 	double mymt2w = isCR2l ? tas::MT2W_rl() : tas::MT2W();
 
+	//Only apply to WJets, ttbar, and st_tW
+
 	if( tas::ngoodjets() == 2) {
-		if(      mymet >= 450. ) return 0.776;
-		else if( mymet >= 350. ) return 0.910;
-		else if( mymet >= 250. ) return 1.048;
+		if(      mymet >= 450. ) return 0.679;
+		else if( mymet >= 350. ) return 0.895;
+		else if( mymet >= 250. ) return 1.080;
 	}
 	else if( tas::ngoodjets() == 3 ) {
-		if(      mymet >= 550. ) return 0.658;
-		else if( mymet >= 450. ) return 0.808;
-		else if( mymet >= 350. ) return 0.928;
-		else if( mymet >= 250. ) return 1.076;
+		if(      mymet >= 550. ) return 0.664;
+		else if( mymet >= 450. ) return 0.784;
+		else if( mymet >= 350. ) return 0.976;
+		else if( mymet >= 250. ) return 1.066;
 	}
 	else if( tas::ngoodjets() >= 4 ) {
-		if( mymt2w < 200. && mymet >= 450. ) return 0.740;
-		else if( mymet >= 650. ) return 0.564;
-		else if( mymet >= 550. ) return 0.747;
-		else if( mymet >= 450. ) return 0.873;
-		else if( mymet >= 350. ) return 0.939;
-		else if( mymet >= 250. ) return 1.076;
+		if( mymt2w < 200. && mymet >= 450. ) return 0.766;
+		else if( mymet >= 650. ) return 0.590;
+		else if( mymet >= 550. ) return 0.766;
+		else if( mymet >= 450. ) return 0.866;
+		else if( mymet >= 350. ) return 0.935;
+		else if( mymet >= 250. ) return 1.080;
 	}
 
 	return 1.0;
