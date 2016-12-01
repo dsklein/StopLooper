@@ -298,20 +298,15 @@ double sfHelper::TopSystPtSF() {
 	int nTops = 0;
 	int nWs = 0;
 
-	for( uint i=0; i<tas::genqs_p4().size(); i++ ) {
-		if( abs(tas::genqs_id().at(i)) == 6 && tas::genqs_isLastCopy().at(i) )	{
-			topsystem_p4 += tas::genqs_p4().at(i);
-			nTops++;
-		}
+	for( uint i=0; i<tas::genqs_p4().size(); i++ ) {  // Count top quarks
+		if( abs(tas::genqs_id().at(i)) == 6 && tas::genqs_isLastCopy().at(i) ) nTops++;
 	}
-	if( nTops > 2 ) return 1.0;
 
-	for( uint i=0; i<tas::genbosons_p4().size(); i++ ) {
+	for( uint i=0; i<tas::genbosons_p4().size(); i++ ) { // Count W bosons
 		if( abs(tas::genbosons_id().at(i)) == 24 &&
 		    // tas::genbosons_isHardProcess().at(i) &&
 		    abs(tas::genbosons_motherid().at(i)) != 6 &&
 		    tas::genbosons_isLastCopy().at(i) ) {
-			topsystem_p4 += tas::genbosons_p4().at(i);
 			nWs++;
 		}
 	}
@@ -319,6 +314,35 @@ double sfHelper::TopSystPtSF() {
 	// This will pick out only tt2l and tW events
 	if( nWs > 1 ) return 1.0;
 	else if( (nTops + nWs) > 2 ) return 1.0;
+
+	topsystem_p4 += tas::lep1_p4();
+	if( tas::nvetoleps() > 1 ) topsystem_p4 += tas::lep2_p4();
+
+	int idx1 = -1;
+	int idx2 = -1;
+	double csv1 = -99.9;
+	double csv2 = -99.9;
+	double csv_new;
+
+	// Find the two highest-CSV jet indices
+	for( uint i=0; i<tas::ak4pfjets_CSV().size(); i++ ) {
+		csv_new = tas::ak4pfjets_CSV().at(i);
+		if( csv_new > csv1 ) {
+			csv2 = csv1;
+			idx2 = idx1;
+			csv1 = csv_new;
+			idx1 = i;
+		}
+		else if( csv_new > csv2 ) {
+			csv2 = csv_new;
+			idx2 = i;
+		}
+	}
+	if( idx1 >= 0 ) topsystem_p4 += tas::ak4pfjets_p4().at(idx1);
+	if( idx2 >= 0 ) topsystem_p4 += tas::ak4pfjets_p4().at(idx2);
+
+	LorentzVector met_p4( tas::pfmet()*cos(tas::pfmet_phi()), tas::pfmet()*sin(tas::pfmet_phi()), 0.0, tas::pfmet() );
+	topsystem_p4 += met_p4;
 
 	double system_pt = topsystem_p4.Pt();
 	topptBin = h_sf_toppt->FindBin(system_pt);
