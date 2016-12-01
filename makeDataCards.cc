@@ -33,7 +33,8 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 	vector<TString> sigRegions = srAnalysis->GetSigRegionLabelsAll();
 	const int nSigRegs = sigRegions.size();
 
-	int nVars_ll, nVars_1lw;
+	int nVars_ll = 0;
+	int nVars_1lw = 0;
 	map<TString,vector<TString> > systMap_sr, systMap_ll, systMap_1lw;
 
 	systMap_sr = srAnalysis->GetSystMap();
