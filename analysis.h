@@ -56,6 +56,7 @@ public:
 	const TString GetSystFileName();
 	void SetPlotFileName( TString fname );
 	void SetSystFileName( TString fname );
+	void ResetSamples();
 	void ResetSigRegions();
 	void ResetSystematics();
 
