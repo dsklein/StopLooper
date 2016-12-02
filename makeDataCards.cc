@@ -38,8 +38,8 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 
 	int nVars_ll = 0;
 	int nVars_1lw = 0;
-	TFile* lostlepFile, onelepwFile;
-	TH1D* h_lostLep, h_onelepw;
+	TFile* lostlepFile, *onelepwFile;
+	TH1D* h_lostLep, *h_onelepw;
 
 	TFile* yieldFile   = new TFile( srAnalysis->GetPlotFileName(), "READ" );
 	systMap_sr = srAnalysis->GetSystMap();
