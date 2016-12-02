@@ -16,15 +16,14 @@ void printSystTable( vector<TString> sigRegions, map<TString,vector<double> > un
 
 void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, analysis* onelepwAnalysis = NULL ) {
 
-	// Do the basic setup stuff
-
-	vector<TString> bkgs = { "zNuNu", "dilep", "top1l", "W1l" }; // Eventually pull this from the analysis object
-	const int nBkgs = bkgs.size();
-
 	if( srAnalysis->GetNsignals() < 1 ) {
 		cout << "\nError in makeDataCards.cc: Need at least one signal sample!" << endl;
 		return;
 	}
+
+	// Do some basic setup stuff
+	vector<TString> bkgs = { "zNuNu", "dilep", "top1l", "W1l" }; // Eventually pull this from the analysis object
+	const int nBkgs = bkgs.size();
 
 	vector<TString> samples = bkgs;
 	samples.insert( samples.begin(), "signal" );
@@ -33,35 +32,44 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 	vector<TString> sigRegions = srAnalysis->GetSigRegionLabelsAll();
 	const int nSigRegs = sigRegions.size();
 
+	map<TString,vector<TString> > systMap_sr, systMap_ll, systMap_1lw;
+	map<TString,vector<double> > lostlep_uncert, onelepw_uncert;
+	vector<TFile*> filesToCheck;
+
 	int nVars_ll = 0;
 	int nVars_1lw = 0;
-	map<TString,vector<TString> > systMap_sr, systMap_ll, systMap_1lw;
+	TFile* lostlepFile, onelepwFile;
+	TH1D* h_lostLep, h_onelepw;
 
+	TFile* yieldFile   = new TFile( srAnalysis->GetPlotFileName(), "READ" );
 	systMap_sr = srAnalysis->GetSystMap();
+	filesToCheck.push_back( yieldFile );
+
+	// Get info about the background estimates
 	if( lostlepAnalysis ) {
 		nVars_ll  = lostlepAnalysis->GetSystematics(true).size();
 		systMap_ll = lostlepAnalysis->GetSystMap();
+		lostlepFile = new TFile( "lostlepEstimates.root", "READ" );
+		h_lostLep = (TH1D*)lostlepFile->Get("lostLepBkg");
+		filesToCheck.push_back( lostlepFile );
 	}
 	if( onelepwAnalysis ) {
 		nVars_1lw   = onelepwAnalysis->GetSystematics(true).size();
 		systMap_1lw = onelepwAnalysis->GetSystMap();
+		onelepwFile = new TFile( "onelepwEstimates.root", "READ" );
+		h_onelepw = (TH1D*)onelepwFile->Get("onelepwBkg");
+		filesToCheck.push_back( onelepwFile );
 	}
 
-	map<TString,vector<double> > lostlep_uncert, onelepw_uncert;
 
-	// Open files containing background yields and uncertainties
-	TFile* yieldFile   = new TFile( srAnalysis->GetPlotFileName(), "READ" );
-	TFile* lostlepFile = new TFile( "lostlepEstimates.root", "READ" );
-	TFile* onelepwFile = new TFile( "onelepwEstimates.root", "READ" );
-	for( TFile* thisFile : {yieldFile, lostlepFile, onelepwFile} ) {
+	// Check for bad files
+	for( TFile* thisFile : filesToCheck ) {
 		if( thisFile->IsZombie() ) {
 			cout << "Error in makeDataCards! Couldn't open file" << thisFile->GetName() << "!" << endl;
 			return;
 		}
 	}
 
-	TH1D* h_lostLep = (TH1D*)lostlepFile->Get("lostLepBkg");
-	TH1D* h_onelepw = (TH1D*)onelepwFile->Get("onelepwBkg");
 
 	//////////////////////////////////////////////////////////////////////////////
 	// Loop over signal regions, making a datacard for each SR and each mass point
@@ -73,11 +81,13 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 
 		TH1D* h_bkgYield  = (TH1D*)yieldFile->Get( "evttype_"+sigRegions.at(reg-1) );
 		TH2D* h_sigYield  = (TH2D*)yieldFile->Get( "sigyields_"+sigRegions.at(reg-1) );
-		TH2D* h_sigContam = (TH2D*)lostlepFile->Get( "sigContam_"+sigRegions.at(reg-1) );
 
 		// Subtract signal contamination from signal MC prediction.
 		// Had a LONG discussion with John and FKW about why they want us to do it this way
-		h_sigYield->Add( h_sigContam, -1. );
+		if( lostlepFile ) {
+			TH2D* h_sigContam = (TH2D*)lostlepFile->Get( "sigContam_"+sigRegions.at(reg-1) );
+			h_sigYield->Add( h_sigContam, -1. );
+		}
 
 		// Get bin sizes for the signal yield histogram
 		double binwidthX = h_sigYield->GetXaxis()->GetBinWidth(1);
@@ -129,15 +139,16 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 		cardlines.push_back( tmpstr );
 
 
-		// Precalculate the yields for each background process
+		// Retrieve the yields for each background process
 
 		double yield;
 		TString bkgRates;
 
 		for( int i=1; i<nSamples; i++ ) {
-			if(      i==2 ) yield = h_lostLep->GetBinContent(reg); // Pull 2l yield from lostLepton estimate histogram
-			else if( i==4 ) yield = h_onelepw->GetBinContent(reg); // Pull 1lw yield from 1l-from-w estimate histogram
-			else            yield = h_bkgYield->GetBinContent(i+2);
+
+			if(      i==2 && lostlepAnalysis!=NULL ) yield = h_lostLep->GetBinContent(reg); // Pull 2l yield from lostLepton estimate histogram
+			else if( i==4 && onelepwAnalysis!=NULL ) yield = h_onelepw->GetBinContent(reg); // Pull 1lw yield from 1l-from-w estimate histogram
+			else                                     yield = h_bkgYield->GetBinContent(i+2);
 			bkgRates += Form( " %10f", yield );
 		}
 		bkgRates += "\n";
@@ -162,9 +173,10 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 			sprintf( statname, "Stat%s%d", samples.at(sampleIdx).Data(), reg );
 			tmpstr = Form( "%-18s  lnN ", statname );
 
-			double statErr = 1.0 + (h_bkgYield->GetBinError(sampleIdx+2) / h_bkgYield->GetBinContent(sampleIdx+2) );
-			if(      sampleIdx==2 ) statErr = 1.0 + ( h_lostLep->GetBinError(reg) / h_lostLep->GetBinContent(reg) );  // Pull 2l stat error from lostLepton estimate histogram
-			else if( sampleIdx==4 ) statErr = 1.0 + ( h_onelepw->GetBinError(reg) / h_onelepw->GetBinContent(reg) );  // Pull 1lw stat error from 1l-from-w estimate histogram
+			double statErr;
+			if(      sampleIdx==2 && lostlepAnalysis != NULL ) statErr = 1.0 + ( h_lostLep->GetBinError(reg) / h_lostLep->GetBinContent(reg) );  // Pull 2l stat error from lostLepton estimate histogram
+			else if( sampleIdx==4 && onelepwAnalysis != NULL ) statErr = 1.0 + ( h_onelepw->GetBinError(reg) / h_onelepw->GetBinContent(reg) );  // Pull 1lw stat error from 1l-from-w estimate histogram
+			else 		                                           statErr = 1.0 + ( h_bkgYield->GetBinError(sampleIdx+2) / h_bkgYield->GetBinContent(sampleIdx+2) );
 
 			if( std::isnan(statErr) ) statErr = 1.0; // Protection against nan
 
@@ -178,7 +190,7 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 
 
 		// Write out a dummy systematic uncertainty for each of the backgrounds that doesn't have an actual systematic calculation
-		//   For now, skip the signal sample (don't give it a systematic uncertainty)
+		// For now, skip the signal sample (don't give it a systematic uncertainty)
 		for( int sampleIdx = 1; sampleIdx<nSamples; sampleIdx++ ) {
 
 			double systErr = 0.;
@@ -326,14 +338,11 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 	}
 
 
-	lostlepFile->Close();
-	onelepwFile->Close();
-	yieldFile->Close();
 	delete lostlepFile;
 	delete onelepwFile;
 	delete yieldFile;
 }
-
+// End of function makeDataCards
 
 
 
