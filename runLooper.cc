@@ -394,24 +394,24 @@ int main( int argc, char* argv[] ) {
 		// Background samples
 		tt2l->AddFile( bkgPath + "ttbar_diLept_madgraph_pythia8_ext1_25ns*.root" );
 
-		tt1l->AddFile( bkgPath + "ttbar_singleLeptFromT_madgraph_pythia8_*.root" );
+		tt1l->AddFile( bkgPath + "ttbar_singleLeptFromT_madgraph_pythia8_ext1*.root" );
 		tt1l->AddFile( bkgPath + "ttbar_singleLeptFromTbar_madgraph_pythia8_ext1*.root" );
 
 		wjets->AddFile( bkgPath + "W1JetsToLNu_madgraph_pythia8_25ns.root" );
 		wjets->AddFile( bkgPath + "W2JetsToLNu_madgraph_pythia8_25ns.root" ); // Cut out genmet < 200 section from these
 		wjets->AddFile( bkgPath + "W3JetsToLNu_madgraph_pythia8_25ns.root" );
 		wjets->AddFile( bkgPath + "W4JetsToLNu_madgraph_pythia8_25ns.root" );
-		wjets->AddFile( bkgPath + "W1JetsToLNu_nupT200_madgraph_pythia8_25ns*.root" );
-		wjets->AddFile( bkgPath + "W2JetsToLNu_nupT200_madgraph_pythia8_25ns*.root" );
-		wjets->AddFile( bkgPath + "W3JetsToLNu_nupT200_madgraph_pythia8_25ns*.root" );
-		wjets->AddFile( bkgPath + "W4JetsToLNu_nupT200_madgraph_pythia8_25ns*.root" );
+		wjets->AddFile( bkgPath + "W1JetsToLNu_nupT200_madgraph_pythia8_25ns.root" );
+		wjets->AddFile( bkgPath + "W2JetsToLNu_nupT200_madgraph_pythia8_25ns.root" );
+		wjets->AddFile( bkgPath + "W3JetsToLNu_nupT200_madgraph_pythia8_25ns.root" );
+		wjets->AddFile( bkgPath + "W4JetsToLNu_nupT200_madgraph_pythia8_25ns.root" );
 
 		dy->AddFile( bkgPath + "DYJetsToLL_m10To50_amcnlo_pythia8_25ns.root" );
 		dy->AddFile( bkgPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns.root" );
 
 		singtop->AddFile( bkgPath + "t_sch_4f_amcnlo_pythia8_25ns.root" );
-		// singtop->AddFile( bkgPath + "t_tch_4f_powheg_pythia8_25ns.root" );
-		// singtop->AddFile( dataPath + "tbar_tch_4f_powheg_pythia8_25ns.root" );   // Take this one from John's directory
+		singtop->AddFile( bkgPath + "t_tch_4f_powheg_pythia8_25ns.root" );
+		singtop->AddFile( dataPath + "tbar_tch_4f_powheg_pythia8_25ns*.root" );   // Take this one from John's directory
 		singtop->AddFile( dataPath + "t_tW_5f_powheg_pythia8_25ns.root" );       // This one too
 		singtop->AddFile( bkgPath + "t_tbarW_5f_powheg_pythia8_25ns.root" );
 
@@ -425,7 +425,7 @@ int main( int argc, char* argv[] ) {
 		rare->AddFile( bkgPath + "WZTo2L2Q_amcnlo_pythia8_25ns.root" );
 		rare->AddFile( bkgPath + "WZTo1LNu2Q_amcnlo_pythia8_25ns*.root" );
 		rare->AddFile( bkgPath + "WZTo1L3Nu_amcnlo_pythia8_25ns.root" );
-		// rare->AddFile( bkgPath + "ZZTo4L_powheg_pythia8_25ns.root" );
+		rare->AddFile( bkgPath + "ZZTo4L_powheg_pythia8_25ns.root" );
 		rare->AddFile( bkgPath + "ZZTo2L2Q_amcnlo_pythia8_25ns.root" );
 		rare->AddFile( bkgPath + "ZZTo2L2Nu_powheg_pythia8_25ns.root" );
 		rare->AddFile( bkgPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns.root" );
