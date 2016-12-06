@@ -197,7 +197,7 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 			char systname[25];
 
 			if(      sampleIdx == 2 && nVars_ll  > 0 ) continue; // Don't use dummy systematic for ll background if we have actual systematics
-			else if( sampleIdx == 4 && nVars_1lw > 0 ) continue; // Same with 1l-from-W background
+			else if( sampleIdx == 4 && nVars_1lw > 0 && !(sigRegions.at(reg-1).Contains("combo")) ) continue; // Same with 1l-from-W background
 			else if( sampleIdx == 3 ) {
 				systErr = 2.0; // 100% systematic on 1l from top
 				sprintf( systname, "Flat%s%d", samples.at(sampleIdx).Data(), reg );
@@ -238,7 +238,7 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 		}
 
 		// Same with 1l-from-W systematics
-		if( nVars_1lw > 0 ) {
+		if( nVars_1lw > 0 && !(sigRegions.at(reg-1).Contains("combo")) ) {
 			double nominal = h_onelepw->GetBinContent(reg);
 			if( nominal < 0.0000000001 ) nominal = 0.0000000001;
 			for( auto& iter : systMap_1lw ) {
