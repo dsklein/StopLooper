@@ -60,12 +60,16 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	TDirectory *rootdir = gDirectory->GetDirectory("Rint:");  // Use TDirectories to assist in memory management
 	TDirectory *histdir = new TDirectory( "histdir", "histdir", "", rootdir );
 	TDirectory *systdir = new TDirectory( "systdir", "systdir", "", rootdir );
+	TDirectory *zerodir = new TDirectory( "zerodir", "zerodir", "", rootdir );
 
 	TH1::SetDefaultSumw2();
 
-	TH1D* h_bkgtype[nSigRegs][nVariations+1];
-	TH1D* h_evttype[nSigRegs][nVariations+1];
+	TH1D* h_bkgtype_sum[nSigRegs][nVariations+1];
+	TH1D* h_evttype_sum[nSigRegs][nVariations+1];
 	TH2D* h_sigyields[nSigRegs][nVariations+1];
+
+	TH1D* h_bkgtype[nSigRegs][nVariations+1]; // per-file versions for zeroing
+	TH1D* h_evttype[nSigRegs][nVariations+1];
 
 	TH1D *h_mt[nSigRegs];
 	TH1D *h_met[nSigRegs];
@@ -96,15 +100,15 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 		for( int j=1; j<=nVariations; j++ ) {
 			TString varName = variations.at(j-1)->GetNameLong();
-			h_bkgtype[i][j]   = new TH1D( "bkgtype_" + plotLabel + "_" + varName, "Yield by background type",  5, 0.5, 5.5);
-			h_evttype[i][j]   = new TH1D( "evttype_" + regNames.at(i) + "_" + varName, "Yield by event type",  6, 0.5, 6.5);
+			h_bkgtype_sum[i][j] = new TH1D( "bkgtype_" + plotLabel + "_" + varName, "Yield by background type",  5, 0.5, 5.5);
+			h_evttype_sum[i][j] = new TH1D( "evttype_" + regNames.at(i) + "_" + varName, "Yield by event type",  6, 0.5, 6.5);
 			h_sigyields[i][j] = new TH2D( "sigyields_" + regNames.at(i) + "_" + varName, "Signal yields by mass point", 37,99,1024, 19,-1,474 );
 		}
 
 		histdir->cd();
 
-		h_bkgtype[i][0]   = new TH1D( "bkgtype_" + plotLabel, "Yield by background type",  5, 0.5, 5.5);
-		h_evttype[i][0]   = new TH1D( "evttype_" + regNames.at(i), "Yield by event type",  6, 0.5, 6.5);
+		h_bkgtype_sum[i][0] = new TH1D( "bkgtype_" + plotLabel, "Yield by background type",  5, 0.5, 5.5);
+		h_evttype_sum[i][0] = new TH1D( "evttype_" + regNames.at(i), "Yield by event type",  6, 0.5, 6.5);
 		h_sigyields[i][0] = new TH2D( "sigyields_" + regNames.at(i), "Signal yields by mass point", 37,99,1024, 19,-1,474 );
 
 		h_mt[i]       = new TH1D(  "mt_"      + plotLabel, "Transverse mass",          80, 0, 800);
@@ -128,14 +132,14 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 		for( int j=0; j<=nVariations; j++ ) {
 
-			TAxis* axis = h_bkgtype[i][j]->GetXaxis();
+			TAxis* axis = h_bkgtype_sum[i][j]->GetXaxis();
 			axis->SetBinLabel( 1, "ZtoNuNu" );
 			axis->SetBinLabel( 2, "2+lep" );
 			axis->SetBinLabel( 3, "1lepTop" );
 			axis->SetBinLabel( 4, "1lepW" );
 			axis->SetBinLabel( 5, "Other" );
 
-			axis = h_evttype[i][j]->GetXaxis();
+			axis = h_evttype_sum[i][j]->GetXaxis();
 			axis->SetBinLabel( 1, "Data" );
 			axis->SetBinLabel( 2, "Signals" );
 			axis->SetBinLabel( 3, "ZtoNuNu" );
@@ -146,10 +150,21 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 	}
 
-	TH1D *h_yields = new TH1D( Form("srYields_%s", sampleName.Data()), "Yield by signal region", nSigRegs, 0.5, float(nSigRegs)+0.5);
-	for( int i=0; i<nSigRegs; i++ ) h_yields->GetXaxis()->SetBinLabel( i+1, regNames.at(i) );
+	TH1D *h_yields_sum = new TH1D( Form("srYields_%s", sampleName.Data()), "Yield by signal region", nSigRegs, 0.5, float(nSigRegs)+0.5);
+	for( int i=0; i<nSigRegs; i++ ) h_yields_sum->GetXaxis()->SetBinLabel( i+1, regNames.at(i) );
 
+	// Set up copies of histograms, in order to zero out negative yields
+	zerodir->cd();
+	TH1D* h_yields = (TH1D*)h_yields_sum->Clone( "tmp_" + TString(h_yields_sum->GetName()) );
 
+	for( int i=0; i<nSigRegs; i++ ) {
+		for( int j=0; j<=nVariations; j++ ) {
+			h_bkgtype[i][j] = (TH1D*)h_bkgtype_sum[i][j]->Clone( "tmp_" + TString(h_bkgtype_sum[i][j]->GetName()) );
+			h_evttype[i][j] = (TH1D*)h_evttype_sum[i][j]->Clone( "tmp_" + TString(h_evttype_sum[i][j]->GetName()) );
+		}
+	}
+
+	// Set up cutflow variables
 	double yield_total = 0;
 	double yield_unique = 0;
 	double yield_filter = 0;
@@ -219,6 +234,15 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		TH1D* hCounter = (TH1D*)file.Get("h_counter");
 		myHelper.Setup( isFastsim, true, hCounter, hNEvts, hCounterSMS );
 
+		// Reset zeroing histograms
+		for( int i=0; i<nSigRegs; i++ ) {
+			for( int j=0; j<=nVariations; j++ ) {
+				h_bkgtype[i][j]->Reset();
+				h_evttype[i][j]->Reset();
+			}
+		}
+		h_yields->Reset();
+
 		// Loop over Events in current file
 		if( nEventsTotal >= nEventsChain ) continue;
 		unsigned int nEventsTree = tree->GetEntriesFast();
@@ -244,7 +268,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 			else if( sampleName == "tt1l"  && gen_nfromtleps_() != 1 ) continue;  //Require 1 lep from top in "tt1l" events
 
 			// Stitch W+NJets samples together by removing the MET<200 events from the non-nupT samples
-			if( sampleName.Contains("wjets") && TString(currentFile->GetTitle()).Contains("JetsToLNu_madgraph") && genmet()>200. ) continue;
+			if( sampleName.Contains("wjets") && TString(currentFile->GetTitle()).Contains("JetsToLNu_madgraph") && genmet()>=200. ) continue;
 
 			//FastSim anomalous event filter
 			if( isFastsim && filt_fastsimjets() ) continue;
@@ -494,12 +518,44 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 			// ---------------------------------------------------------------------------------------------------//
 			////////////////////////////////////////////////////////////////////////////////////////////////////////
-		} //End of loop over events
+		} //End of loop over events in file
 
 		// Clean Up
 		delete tree;
 		file.Close();
-	}
+
+		// Zero negative values in each signal region
+		for( int i=0; i<nSigRegs; i++ ) {
+			for( int j=0; j<=nVariations; j++ ) {
+				bool negsFound = false;
+
+				// First zero any decay modes with negative yields
+				for( int k=1; k<= h_bkgtype[i][j]->GetNbinsX(); k++ ) {
+					if( h_bkgtype[i][j]->GetBinContent(k) < 0.0 ) {
+						h_bkgtype[i][j]->SetBinContent(k, 0.);
+						h_bkgtype[i][j]->SetBinError(k, 0.);
+						negsFound = true;
+					}
+					if( h_evttype[i][j]->GetBinContent(k+2) < 0.0 ) {
+						h_evttype[i][j]->SetBinContent(k+2, 0.);
+						h_evttype[i][j]->SetBinError(k+2, 0.);
+					}
+				}
+				// If any negative yields were found in any decay mode, recalculate the total yield
+				if( j==0 && negsFound ) {
+					double newYield, newErr;
+					newYield = h_bkgtype[i][0]->IntegralAndError( 0, -1, newErr );
+					h_yields->SetBinContent(i+1, newYield);
+					h_yields->SetBinError(i+1, newErr);
+				}
+				// Add zeroed histograms to total histograms
+				h_bkgtype_sum[i][j]->Add( h_bkgtype[i][j] );
+				h_evttype_sum[i][j]->Add( h_evttype[i][j] );
+			}
+		}
+		h_yields_sum->Add( h_yields );
+
+	} // End loop over files in the chain
 
 	cout << "Cutflow yields:                        (yield)  (gen evts)" << endl;
 
@@ -529,33 +585,6 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		cout << Form( "ERROR: number of events from files (%d) is not equal to total number of events (%d)", nEventsChain, nEventsTotal ) << endl;
 	}
 
-	// Zero negative values in each signal region
-	for( int i=0; i<nSigRegs; i++ ) {
-		for( int j=0; j<=nVariations; j++ ) {
-			bool negsFound = false;
-
-			// First zero any decay modes with negative yields
-			for( int k=1; k<= h_bkgtype[i][j]->GetNbinsX(); k++ ) {
-				if( h_bkgtype[i][j]->GetBinContent(k) < 0.0 ) {
-					h_bkgtype[i][j]->SetBinContent(k, 0.);
-					h_bkgtype[i][j]->SetBinError(k, 0.);
-					negsFound = true;
-				}
-				if( h_evttype[i][j]->GetBinContent(k+2) < 0.0 ) {
-					h_evttype[i][j]->SetBinContent(k+2, 0.);
-					h_evttype[i][j]->SetBinError(k+2, 0.);
-				}
-			}
-			// If any negative yields were found in any decay mode, recalculate the total yield
-			if( j==0 && negsFound ) {
-				double newYield, newErr;
-				newYield = h_bkgtype[i][0]->IntegralAndError( 0, -1, newErr );
-				h_yields->SetBinContent(i+1, newYield);
-				h_yields->SetBinError(i+1, newErr);
-			}
-		}
-	}
-
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Store histograms and clean them up
@@ -577,8 +606,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 			if( hTemp2 != 0 ) h_sigyields[i][j]->Add( hTemp2 );
 
 			// Build up cumulative histo of yields by signal/background type
-			TH1D* hTemp = (TH1D*)sourcefile->Get( h_evttype[i][j]->GetName() );
-			if( hTemp != 0 ) h_evttype[i][j]->Add( hTemp );
+			TH1D* hTemp = (TH1D*)sourcefile->Get( h_evttype_sum[i][j]->GetName() );
+			if( hTemp != 0 ) h_evttype_sum[i][j]->Add( hTemp );
 		}
 	}
 	delete plotfile;
@@ -590,13 +619,14 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	histdir->GetList()->Write( "", TObject::kOverwrite );
 	delete plotfile;
 
-	// Take all histograms in systdir and write them to histfile
+	// Take all histograms in systdir and write them to systfile
 	systfile = new TFile( myAnalysis->GetSystFileName(), "UPDATE");
 	systfile->cd();
 	systdir->GetList()->Write( "", TObject::kOverwrite );
 	delete systfile;
 
 	// Cleanup
+	zerodir->Close();
 	histdir->Close();
 	systdir->Close();
 
