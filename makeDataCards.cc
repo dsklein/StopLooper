@@ -174,8 +174,8 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 			tmpstr = Form( "%-18s  lnN ", statname );
 
 			double statErr;
-			if(      sampleIdx==2 && lostlepAnalysis != NULL ) statErr = 1.0 + ( h_lostLep->GetBinError(reg) / h_lostLep->GetBinContent(reg) );  // Pull 2l stat error from lostLepton estimate histogram
-			else if( sampleIdx==4 && onelepwAnalysis != NULL ) statErr = 1.0 + ( h_onelepw->GetBinError(reg) / h_onelepw->GetBinContent(reg) );  // Pull 1lw stat error from 1l-from-w estimate histogram
+			if(      sampleIdx==2 && lostlepAnalysis != NULL ) statErr = 1.0 + ( h_lostLep->GetBinError(reg) / h_lostLep->GetBinContent(reg) );  // Pull 2l stats from ll estimate histogram
+			else if( sampleIdx==4 && onelepwAnalysis != NULL ) statErr = 1.0 + ( h_onelepw->GetBinError(reg) / h_onelepw->GetBinContent(reg) );  // Pull 1lw stats from 1lW estimate histogram
 			else 		                                           statErr = 1.0 + ( h_bkgYield->GetBinError(sampleIdx+2) / h_bkgYield->GetBinContent(sampleIdx+2) );
 
 			if( std::isnan(statErr) ) statErr = 1.0; // Protection against nan
@@ -238,13 +238,16 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 		}
 
 		// Same with 1l-from-W systematics
-		if( nVars_1lw > 0 && !(sigRegions.at(reg-1).Contains("combo")) ) {
+		if( nVars_1lw > 0 ) {
 			double nominal = h_onelepw->GetBinContent(reg);
 			if( nominal < 0.0000000001 ) nominal = 0.0000000001;
 			for( auto& iter : systMap_1lw ) {
-				double maxdiff = calculateMaxdiff( reg, onelepwFile, nominal, iter.second );
-				syst_holder[iter.first].at(4) = Form( "  %8.6f  ", 1.0 + maxdiff/nominal );
-				onelepw_uncert[iter.first].push_back( maxdiff/nominal );
+				if( sigRegions.at(reg-1).Contains("combo") ) onelepw_uncert[iter.first].push_back( 0. );
+				else {
+					double maxdiff = calculateMaxdiff( reg, onelepwFile, nominal, iter.second );
+					syst_holder[iter.first].at(4) = Form( "  %8.6f  ", 1.0 + maxdiff/nominal );
+					onelepw_uncert[iter.first].push_back( maxdiff/nominal );
+				}
 			}
 		}
 
