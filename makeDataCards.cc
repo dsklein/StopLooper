@@ -186,6 +186,22 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 			}
 			tmpstr += "\n";
 			uncertlines.push_back( tmpstr );
+
+			// Add data and MC stats to systematics table
+			TH1D *datastats, *mcstats;
+			if(      sampleIdx==2 && lostlepAnalysis != NULL ) {
+				datastats = (TH1D*)lostlepFile->Get("estimate_datastats");
+				mcstats   = (TH1D*)lostlepFile->Get("estimate_mcstats");
+				lostlep_uncert["DataStats"].push_back( datastats->GetBinError(reg) / datastats->GetBinContent(reg) );
+				lostlep_uncert["MCstats"].push_back(   mcstats->GetBinError(reg)   / mcstats->GetBinContent(reg) );
+			}
+			else if( sampleIdx==4 && onelepwAnalysis != NULL ) {
+				datastats = (TH1D*)onelepwFile->Get("estimate_datastats");
+				mcstats   = (TH1D*)onelepwFile->Get("estimate_mcstats");
+				onelepw_uncert["DataStats"].push_back( datastats->GetBinError(reg) / datastats->GetBinContent(reg) );
+				onelepw_uncert["MCstats"].push_back(   mcstats->GetBinError(reg)   / mcstats->GetBinContent(reg) );
+			}
+			else continue;
 		}
 
 
@@ -378,11 +394,24 @@ void printSystTable( vector<TString> sigRegions, map<TString,vector<double> > un
 	for( TString regName : sigRegions ) printf( "& %s ", regName.Data() );
 	printf( " \\\\ \\hline\n" );
 
+	uint nSigRegs = sigRegions.size();
+	double totalUncertSq[nSigRegs] = {0.};
+
 	for( auto& iter : uncertainties ) {
 		printf( "%10s ", iter.first.Data() );
-		for( double uncert : iter.second ) printf( "& %4.1f\\%% ", uncert*100. );
+		for( uint i=0; i<iter.second.size(); i++ ) {
+			double uncert = iter.second.at(i);
+			if( std::isnan(uncert) ) uncert = 0.;
+			printf( "& %4.1f\\%% ", uncert*100. );
+			totalUncertSq[i] += uncert*uncert;
+		}
 		printf( " \\\\\n" );
 	}
+
+	printf( "\\hline\n" );
+	printf( "Total      " );
+	for( double uncertSq : totalUncertSq ) printf( "& %4.1f\\%% ", 100.*sqrt(uncertSq) );
+	printf( "\\\\\n" );
 
 	printf( "\\hline\n" );
 	printf( "\\end{tabular}\n\n" );
