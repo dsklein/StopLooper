@@ -88,6 +88,10 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 			TH2D* h_sigContam = (TH2D*)lostlepFile->Get( "sigContam_"+sigRegions.at(reg-1) );
 			h_sigYield->Add( h_sigContam, -1. );
 		}
+		if( onelepwFile && !(sigRegions.at(reg-1).Contains("combo")) ) {
+			TH2D* h_sigContam = (TH2D*)onelepwFile->Get( "sigContam_"+sigRegions.at(reg-1) );
+			h_sigYield->Add( h_sigContam, -1. );
+		}
 
 		// Get bin sizes for the signal yield histogram
 		double binwidthX = h_sigYield->GetXaxis()->GetBinWidth(1);
@@ -192,14 +196,14 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 			if(      sampleIdx==2 && lostlepAnalysis != NULL ) {
 				datastats = (TH1D*)lostlepFile->Get("estimate_datastats");
 				mcstats   = (TH1D*)lostlepFile->Get("estimate_mcstats");
-				lostlep_uncert["DataStats"].push_back( datastats->GetBinError(reg) / datastats->GetBinContent(reg) );
-				lostlep_uncert["MCstats"].push_back(   mcstats->GetBinError(reg)   / mcstats->GetBinContent(reg) );
+				lostlep_uncert[" DataStats"].push_back( datastats->GetBinError(reg) / datastats->GetBinContent(reg) );
+				lostlep_uncert[" MCstats"].push_back(   mcstats->GetBinError(reg)   / mcstats->GetBinContent(reg) );
 			}
 			else if( sampleIdx==4 && onelepwAnalysis != NULL ) {
 				datastats = (TH1D*)onelepwFile->Get("estimate_datastats");
 				mcstats   = (TH1D*)onelepwFile->Get("estimate_mcstats");
-				onelepw_uncert["DataStats"].push_back( datastats->GetBinError(reg) / datastats->GetBinContent(reg) );
-				onelepw_uncert["MCstats"].push_back(   mcstats->GetBinError(reg)   / mcstats->GetBinContent(reg) );
+				onelepw_uncert[" DataStats"].push_back( datastats->GetBinError(reg) / datastats->GetBinContent(reg) );
+				onelepw_uncert[" MCstats"].push_back(   mcstats->GetBinError(reg)   / mcstats->GetBinContent(reg) );
 			}
 			else continue;
 		}
