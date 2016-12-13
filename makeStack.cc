@@ -36,6 +36,7 @@ void makeStack( analysis* myAnalysis) {
 	varNames.push_back("j1btag" );  axisLabels.push_back("b-tagged?");
 	varNames.push_back("modtop" );  axisLabels.push_back("Modified topness");
 	varNames.push_back("dphilmet"); axisLabels.push_back("#Delta#phi (lep1, MET)");
+	varNames.push_back("mlb"    );  axisLabels.push_back("M_{lb}");
 
 
 	// Get the signal region names

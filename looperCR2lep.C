@@ -89,6 +89,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	TH1D *h_j1btag[nSigRegs];
 	TH1D *h_modtop[nSigRegs];
 	TH1D *h_dphilmet[nSigRegs];
+	TH1D *h_mlb[nSigRegs];
 
 	vector<TString> regNames = myAnalysis->GetSigRegionLabelsAll();
 	vector<sigRegion*> sigRegions = myAnalysis->GetSigRegionsAll();
@@ -129,6 +130,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		h_j1btag[i]   = new TH1D(  "j1btag_"  + plotLabel, "Is leading jet b-tagged?",  2, -0.5, 1.5);
 		h_modtop[i]   = new TH1D(  "modtop_"  + plotLabel, "Modified topness",         30, -15., 15.);
 		h_dphilmet[i] = new TH1D(  "dphilmet_"+ plotLabel, "#Delta#phi (lep1, MET)",   63, 0., 3.15);
+		h_mlb[i]      = new TH1D(  "mlb_"     + plotLabel, "M_{lb}",                   50, 0., 500.);
 
 
 		for( int j=0; j<=nVariations; j++ ) {
@@ -506,6 +508,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 				h_j1btag[i]->Fill(  j1_isBtag,                     evtWeight );
 				h_modtop[i]->Fill(  topnessMod_rl(),               evtWeight );
 				h_dphilmet[i]->Fill( dphilmet,                     evtWeight );
+				h_mlb[i]->Fill(     myMlb,                         evtWeight );
 
 				h_yields->Fill(     double(i+1),                   evtWeight );
 
