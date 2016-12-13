@@ -297,25 +297,8 @@ double sfHelper::TopSystPtSF() {
 	if( !tas::is2lep() ) return 1.0;
 
 	LorentzVector topsystem_p4( 0., 0., 0., 0. );
-	int nTops = 0;
-	int nWs = 0;
 
-	for( uint i=0; i<tas::genqs_p4().size(); i++ ) {  // Count top quarks
-		if( abs(tas::genqs_id().at(i)) == 6 && tas::genqs_isLastCopy().at(i) ) nTops++;
-	}
-
-	for( uint i=0; i<tas::genbosons_p4().size(); i++ ) { // Count W bosons
-		if( abs(tas::genbosons_id().at(i)) == 24 &&
-		    // tas::genbosons_isHardProcess().at(i) &&
-		    abs(tas::genbosons_motherid().at(i)) != 6 &&
-		    tas::genbosons_isLastCopy().at(i) ) {
-			nWs++;
-		}
-	}
-
-	// This will pick out only tt2l and tW events
-	if( nWs > 1 ) return 1.0;
-	else if( (nTops + nWs) > 2 ) return 1.0;
+	// We pick out which samples should receive this SF at looper level
 
 	topsystem_p4 += tas::lep1_p4();
 	if( tas::nvetoleps() > 1 ) topsystem_p4 += tas::lep2_p4();
