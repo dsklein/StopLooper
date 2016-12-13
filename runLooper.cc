@@ -17,13 +17,16 @@ extern bool j1_isBtag;
 extern double j1pt;
 extern double dphilmet;
 extern double lep1pt;
+extern double myMlb;
 extern int nTightTags;
 
 bool j1_isBtag;
 double j1pt;
 double dphilmet;
 double lep1pt;
+double myMlb;
 int nTightTags;
+
 
 // Help with program options
 void printHelp() {
@@ -241,8 +244,8 @@ int main( int argc, char* argv[] ) {
 	selection<float> CR_modTopLow(   (*tas::topnessMod_rl),  0., 10. );
 	selection<float> CR_modTopHigh(  (*tas::topnessMod_rl), 10., 9999999. );
 
-	selection<float> mlbLt175( (*tas::Mlb_closestb), -9999999., 175. );
-	selection<float> mlbGe175( (*tas::Mlb_closestb),  175., 9999999. );  // M_lb bins
+	selection<double> mlbLt175( &myMlb,    0., 175. );
+	selection<double> mlbGe175( &myMlb,  175., 9999999. );  // M_lb bins
 
 	selection<double> j1Pt200( &j1pt, 200., 9999999. ); // Special selections for the corridor regions
 	selection<bool>   j1NoTag( &j1_isBtag, false );

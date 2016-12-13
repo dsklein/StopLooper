@@ -38,6 +38,7 @@ extern bool j1_isBtag;
 extern double j1pt;
 extern double dphilmet;
 extern double lep1pt;
+extern double myMlb;
 extern int nTightTags;
 
 
@@ -388,7 +389,12 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 			j1pt = ak4pfjets_p4().at(0).pt();
 
 			// B-tag requirement
-			if( ngoodbtags() != 0 ) continue;
+			// if( ngoodbtags() != 0 ) continue;
+			int countTightTags = 0;
+			for( float CSV : ak4pfjets_CSV() ) if( CSV >= 0.935 ) countTightTags++;
+			if( countTightTags > 0 ) continue; // Veto events with a tight tag
+			if( ngoodbtags() > 0 && Mlb_closestb() >= 0. && Mlb_closestb() < 175. ) continue; // Also veto events that belong in low-Mlb SRs
+			nTightTags = 99; // Bypass the nTightTags cut in the signal region definitions
 			yield_0bjet += evtWeight;
 			yGen_0bjet++;
 
@@ -443,7 +449,8 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 			dphilmet  = fabs( lepVec.DeltaPhi(metVec) );
 			lep1pt = lep1_p4().Pt();
 
-			nTightTags = 99; // We're looking at the zero-btag region, so bypass the nTightTags cuts
+			if( Mlb_closestb() > 0. ) myMlb = Mlb_closestb();
+			else myMlb = ( lep1_p4() + ak4pfjets_leadbtag_p4() ).M();
 
 			///////////////////////////////////////////
 			// Signal region cuts and histo filling

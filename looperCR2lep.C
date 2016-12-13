@@ -38,6 +38,7 @@ extern bool j1_isBtag;
 extern double j1pt;
 extern double dphilmet;
 extern double lep1pt;
+extern double myMlb;
 extern int nTightTags;
 
 
@@ -472,6 +473,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 			dphilmet  = fabs( lepVec.DeltaPhi(metVec) );
 			lep1pt = lep1_p4().Pt();
 
+			myMlb = Mlb_closestb();
 			nTightTags = 0;
 			for( float CSV : ak4pfjets_CSV() ) if( CSV >= 0.935 ) nTightTags++;
 
