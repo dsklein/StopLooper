@@ -115,13 +115,14 @@ int main( int argc, char* argv[] ) {
 	//                     new analysis( lumi, "histogram storage file", "systematic storage file" )
 	analysis* srAnalysis = new analysis( 29.53, "plots.root", "systVariations.root" );
 	analysis* crLostLep  = new analysis( 29.53, "plotsLL.root", "systVariationsLL.root" );
-	analysis* cr0bjets;     // Will be defined later
+	analysis* cr0bjets   = new analysis( 29.53, "plots0b.root", "systVariations0b.root" );
 	analysis* sr_jesup   = new analysis( 29.53, "jes_sr.root", "jes_sr.root" );
 	analysis* sr_jesdn   = new analysis( 29.53, "jes_sr.root", "jes_sr.root" );
 	analysis* cr2l_jesup = new analysis( 29.53, "jes_cr2l.root", "jes_cr2l.root" );
 	analysis* cr2l_jesdn = new analysis( 29.53, "jes_cr2l.root", "jes_cr2l.root" );
-	analysis* cr0b_jesup;
-	analysis* cr0b_jesdn;
+	analysis* cr0b_jesup = new analysis( 29.53, "jes_cr0b.root", "jes_cr0b.root" );
+	analysis* cr0b_jesdn = new analysis( 29.53, "jes_cr0b.root", "jes_cr0b.root" );
+
 
 	//                new sample( "Label",  "Display name(s)", TColor,    sampleType )
 	sample* data    = new sample( "data",    "Data",           kBlack,    sample::kData );
@@ -151,13 +152,17 @@ int main( int argc, char* argv[] ) {
 
 	// srAnalysis->AddSample( data );   // Uncomment this line to unblind
 	crLostLep->AddSample( data );
+	cr0bjets->AddSample(  data );
 	srAnalysis->AddSamples( {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
 	crLostLep->AddSamples(  {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
+	cr0bjets->AddSamples(   {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
 
 	sr_jesup->AddSamples(   {signal_jesup, tt2l_jesup, tt1l_jesup, singtop_jesup, wjets_jesup, dy_jesup, rare_jesup} );
 	cr2l_jesup->AddSamples( {signal_jesup, tt2l_jesup, tt1l_jesup, singtop_jesup, wjets_jesup, dy_jesup, rare_jesup} );
+	cr0b_jesup->AddSamples( {signal_jesup, tt2l_jesup, tt1l_jesup, singtop_jesup, wjets_jesup, dy_jesup, rare_jesup} );
 	sr_jesdn->AddSamples(   {signal_jesdn, tt2l_jesdn, tt1l_jesdn, singtop_jesdn, wjets_jesdn, dy_jesdn, rare_jesdn} );
 	cr2l_jesdn->AddSamples( {signal_jesdn, tt2l_jesdn, tt1l_jesdn, singtop_jesdn, wjets_jesdn, dy_jesdn, rare_jesdn} );
+	cr0b_jesdn->AddSamples( {signal_jesdn, tt2l_jesdn, tt1l_jesdn, singtop_jesdn, wjets_jesdn, dy_jesdn, rare_jesdn} );
 
 	/////////////////////////////////////////////////////////////////////////
 	// Create "systematic" objects to store all our systematic variations
@@ -192,6 +197,8 @@ int main( int argc, char* argv[] ) {
 	srAnalysis->AddSystematics( {&eff2lup_dummy, &eff2ldn_dummy, &metresup, &metresdn, &topptup, &topptdn, &contamup_dummy, &contamdn_dummy } );
 	crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn} );
 	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, &topptup, &topptdn } );
+	cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn} );
+	cr0bjets->AddSystematics( {&qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &metresup, &metresdn, &contam1lwup, &contam1lwdn } );
 
 	// A sneaky trick to make JES systematics work with existing code
 	systematic jesup_dummy( "JES", systematic::kUp,   (*sfhelp::Unity) );
@@ -200,6 +207,8 @@ int main( int argc, char* argv[] ) {
 	sr_jesdn->AddSystematics( {&jesdn_dummy} );
 	cr2l_jesup->AddSystematics( {&jesup_dummy} );
 	cr2l_jesdn->AddSystematics( {&jesdn_dummy} );
+	cr0b_jesup->AddSystematics( {&jesup_dummy} );
+	cr0b_jesdn->AddSystematics( {&jesdn_dummy} );
 
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -219,30 +228,32 @@ int main( int argc, char* argv[] ) {
 	selection<float> MET_450_600( (*tas::pfmet), 450., 600. );
 	selection<float> MET_600_inf( (*tas::pfmet), 600., 9999999. );
 
-	selection<float> CR_MET_250_350( (*tas::pfmet_rl), 250., 350. );
-	selection<float> CR_MET_350_450( (*tas::pfmet_rl), 350., 450. );
-	selection<float> CR_MET_450_550( (*tas::pfmet_rl), 450., 550. );
-	selection<float> CR_MET_550_650( (*tas::pfmet_rl), 550., 650. );
-	selection<float> CR_MET_450_inf( (*tas::pfmet_rl), 450., 9999999. ); // (MET+lep2) bins for the 2-lep control regions
-	selection<float> CR_MET_550_inf( (*tas::pfmet_rl), 550., 9999999. );
-	selection<float> CR_MET_650_inf( (*tas::pfmet_rl), 650., 9999999. );
-	selection<float> CR_MET_250_450( (*tas::pfmet_rl), 250., 450. );
-	selection<float> CR_MET_350_550( (*tas::pfmet_rl), 350., 550. );
-	selection<float> CR_MET_450_600( (*tas::pfmet_rl), 450., 600. );
-	selection<float> CR_MET_600_inf( (*tas::pfmet_rl), 600., 9999999. );
+	selection<float> CR2L_MET_250_350( (*tas::pfmet_rl), 250., 350. );
+	selection<float> CR2L_MET_350_450( (*tas::pfmet_rl), 350., 450. );
+	selection<float> CR2L_MET_450_550( (*tas::pfmet_rl), 450., 550. );
+	selection<float> CR2L_MET_550_650( (*tas::pfmet_rl), 550., 650. );
+	selection<float> CR2L_MET_450_inf( (*tas::pfmet_rl), 450., 9999999. ); // (MET+lep2) bins for the 2-lep control regions
+	selection<float> CR2L_MET_550_inf( (*tas::pfmet_rl), 550., 9999999. );
+	selection<float> CR2L_MET_650_inf( (*tas::pfmet_rl), 650., 9999999. );
+	selection<float> CR2L_MET_250_450( (*tas::pfmet_rl), 250., 450. );
+	selection<float> CR2L_MET_350_550( (*tas::pfmet_rl), 350., 550. );
+	selection<float> CR2L_MET_450_600( (*tas::pfmet_rl), 450., 600. );
+	selection<float> CR2L_MET_600_inf( (*tas::pfmet_rl), 600., 9999999. );
 
 	selection<int> nJets23(  (*tas::ngoodjets), 2, 3 );
 	selection<int> nJetsGe4( (*tas::ngoodjets), 4, 9999999 ); // NJets bins
 	selection<int> nJetsGe5( (*tas::ngoodjets), 5, 9999999 );
 
-	selection<int> oneTightB( &nTightTags, 1, 9999999 ); // At least one tight b-tag
+	selection<int> oneTightB( &nTightTags, 1, 9999999 ); // Various requirements on the number of tight or medium b-tags
+	selection<int> noTightBs( &nTightTags, 0 );
+	selection<int> noMediumBs( (*tas::ngoodbtags), 0 );
 
 	selection<float> modTopNeg(   (*tas::topnessMod), -9999999., 0. );
 	selection<float> modTopLow(   (*tas::topnessMod),  0., 10. );
 	selection<float> modTopHigh(  (*tas::topnessMod), 10., 9999999. );   // Modified topness bins
-	selection<float> CR_modTopNeg(   (*tas::topnessMod_rl), -9999999., 0. );
-	selection<float> CR_modTopLow(   (*tas::topnessMod_rl),  0., 10. );
-	selection<float> CR_modTopHigh(  (*tas::topnessMod_rl), 10., 9999999. );
+	selection<float> CR2L_modTopNeg(   (*tas::topnessMod_rl), -9999999., 0. );
+	selection<float> CR2L_modTopLow(   (*tas::topnessMod_rl),  0., 10. );
+	selection<float> CR2L_modTopHigh(  (*tas::topnessMod_rl), 10., 9999999. );
 
 	selection<double> mlbLt175( &myMlb,    0., 175. );
 	selection<double> mlbGe175( &myMlb,  175., 9999999. );  // M_lb bins
@@ -293,42 +304,80 @@ int main( int argc, char* argv[] ) {
 	sigRegion corrAllcombo( "corrAllcombo", "Corridor All combo", {&nJetsGe5,               &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
 
 	// Equivalents for the diLepton control regions
-	sigRegion j23lowmlb250CR( "j23lowmlb250CR", "CR 2-3 jets, high tmod, low Mlb, MET250-350",  {&nJets23, &CR_modTopHigh, &mlbLt175, &CR_MET_250_350} ); // A
-	sigRegion j23lowmlb350CR( "j23lowmlb350CR", "CR 2-3 jets, high tmod, low Mlb, MET350-450",  {&nJets23, &CR_modTopHigh, &mlbLt175, &CR_MET_350_450} );
-	sigRegion j23lowmlb450CR( "j23lowmlb450CR", "CR 2-3 jets, high tmod, low Mlb, MET450-600",  {&nJets23, &CR_modTopHigh, &mlbLt175, &CR_MET_450_600} );
-	sigRegion j23lowmlb600CR( "j23lowmlb600CR", "CR 2-3 jets, high tmod, low Mlb, MET600-inf",  {&nJets23, &CR_modTopHigh, &mlbLt175, &CR_MET_600_inf} );
-	sigRegion j23himlb250CR(  "j23himlb250CR",  "CR 2-3 jets, high tmod, hi Mlb, MET250-450",   {&nJets23, &CR_modTopHigh, &mlbGe175, &CR_MET_250_450, &oneTightB} ); // B
-	sigRegion j23himlb450CR(  "j23himlb450CR",  "CR 2-3 jets, high tmod, hi Mlb, MET450-600",   {&nJets23, &CR_modTopHigh, &mlbGe175, &CR_MET_450_600, &oneTightB} );
-	sigRegion j23himlb600CR(  "j23himlb600CR",  "CR 2-3 jets, high tmod, hi Mlb, MET600-inf",   {&nJets23, &CR_modTopHigh, &mlbGe175, &CR_MET_600_inf, &oneTightB} );
-	sigRegion j4negtmodlowmlb250CR( "j4negtmodlowmlb250CR", "CR 4 jets, neg tmod, low Mlb, MET250-350",  {&nJetsGe4, &CR_modTopNeg, &mlbLt175, &CR_MET_250_350} ); // C
-	sigRegion j4negtmodlowmlb350CR( "j4negtmodlowmlb350CR", "CR 4 jets, neg tmod, low Mlb, MET350-450",  {&nJetsGe4, &CR_modTopNeg, &mlbLt175, &CR_MET_350_450} );
-	sigRegion j4negtmodlowmlb450CR( "j4negtmodlowmlb450CR", "CR 4 jets, neg tmod, low Mlb, MET450-550",  {&nJetsGe4, &CR_modTopNeg, &mlbLt175, &CR_MET_450_550} );
-	sigRegion j4negtmodlowmlb550CR( "j4negtmodlowmlb550CR", "CR 4 jets, neg tmod, low Mlb, MET550-650",  {&nJetsGe4, &CR_modTopNeg, &mlbLt175, &CR_MET_550_650} );
-	sigRegion j4negtmodlowmlb650CR( "j4negtmodlowmlb650CR", "CR 4 jets, neg tmod, low Mlb, MET650-inf",  {&nJetsGe4, &CR_modTopNeg, &mlbLt175, &CR_MET_650_inf} );
-	sigRegion j4negtmodhimlb250CR(  "j4negtmodhimlb250CR",  "CR 4 jets, neg tmod, hi Mlb, MET250-350",   {&nJetsGe4, &CR_modTopNeg, &mlbGe175, &CR_MET_250_350, &oneTightB} ); // D
-	sigRegion j4negtmodhimlb350CR(  "j4negtmodhimlb350CR",  "CR 4 jets, neg tmod, hi Mlb, MET350-450",   {&nJetsGe4, &CR_modTopNeg, &mlbGe175, &CR_MET_350_450, &oneTightB} );
-	sigRegion j4negtmodhimlb450CR(  "j4negtmodhimlb450CR",  "CR 4 jets, neg tmod, hi Mlb, MET450-550",   {&nJetsGe4, &CR_modTopNeg, &mlbGe175, &CR_MET_450_550, &oneTightB} );
-	sigRegion j4negtmodhimlb550CR(  "j4negtmodhimlb550CR",  "CR 4 jets, neg tmod, hi Mlb, MET550-inf",   {&nJetsGe4, &CR_modTopNeg, &mlbGe175, &CR_MET_550_inf, &oneTightB} );
-	sigRegion j4lowtmodlowmlb250CR( "j4lowtmodlowmlb250CR", "CR 4 jets, low tmod, low Mlb, MET250-350",  {&nJetsGe4, &CR_modTopLow, &mlbLt175, &CR_MET_250_350} ); // E
-	sigRegion j4lowtmodlowmlb350CR( "j4lowtmodlowmlb350CR", "CR 4 jets, low tmod, low Mlb, MET350-550",  {&nJetsGe4, &CR_modTopLow, &mlbLt175, &CR_MET_350_550} );
-	sigRegion j4lowtmodlowmlb550CR( "j4lowtmodlowmlb550CR", "CR 4 jets, low tmod, low Mlb, MET550-inf",  {&nJetsGe4, &CR_modTopLow, &mlbLt175, &CR_MET_550_inf} );
-	sigRegion j4lowtmodhimlb250CR(  "j4lowtmodhimlb250CR",  "CR 4 jets, low tmod, hi Mlb, MET250-450",   {&nJetsGe4, &CR_modTopLow, &mlbGe175, &CR_MET_250_450, &oneTightB} ); // F
-	sigRegion j4lowtmodhimlb450CR(  "j4lowtmodhimlb450CR",  "CR 4 jets, low tmod, hi Mlb, MET450-inf",   {&nJetsGe4, &CR_modTopLow, &mlbGe175, &CR_MET_450_inf, &oneTightB} );
-	sigRegion j4hitmodlowmlb250CR( "j4hitmodlowmlb250CR", "CR 4 jets, high tmod, low Mlb, MET250-350",  {&nJetsGe4, &CR_modTopHigh, &mlbLt175, &CR_MET_250_350} ); // G
-	sigRegion j4hitmodlowmlb350CR( "j4hitmodlowmlb350CR", "CR 4 jets, high tmod, low Mlb, MET350-450",  {&nJetsGe4, &CR_modTopHigh, &mlbLt175, &CR_MET_350_450} );
-	sigRegion j4hitmodlowmlb450CR( "j4hitmodlowmlb450CR", "CR 4 jets, high tmod, low Mlb, MET450-600",  {&nJetsGe4, &CR_modTopHigh, &mlbLt175, &CR_MET_450_600} );
-	sigRegion j4hitmodlowmlb600CR( "j4hitmodlowmlb600CR", "CR 4 jets, high tmod, low Mlb, MET600-inf",  {&nJetsGe4, &CR_modTopHigh, &mlbLt175, &CR_MET_600_inf} );
-	sigRegion j4hitmodhimlb250CR(  "j4hitmodhimlb250CR",  "CR 4 jets, high tmod, hi Mlb, MET250-450",   {&nJetsGe4, &CR_modTopHigh, &mlbGe175, &CR_MET_250_450, &oneTightB} ); // H
-	sigRegion j4hitmodhimlb450CR(  "j4hitmodhimlb450CR",  "CR 4 jets, high tmod, hi Mlb, MET450-inf",   {&nJetsGe4, &CR_modTopHigh, &mlbGe175, &CR_MET_450_inf, &oneTightB} );
+	sigRegion j23lowmlb250CR2L( "j23lowmlb250CR2L", "CR2L 2-3 jets, high tmod, low Mlb, MET250-350",  {&nJets23, &CR2L_modTopHigh, &mlbLt175, &CR2L_MET_250_350} ); // A
+	sigRegion j23lowmlb350CR2L( "j23lowmlb350CR2L", "CR2L 2-3 jets, high tmod, low Mlb, MET350-450",  {&nJets23, &CR2L_modTopHigh, &mlbLt175, &CR2L_MET_350_450} );
+	sigRegion j23lowmlb450CR2L( "j23lowmlb450CR2L", "CR2L 2-3 jets, high tmod, low Mlb, MET450-600",  {&nJets23, &CR2L_modTopHigh, &mlbLt175, &CR2L_MET_450_600} );
+	sigRegion j23lowmlb600CR2L( "j23lowmlb600CR2L", "CR2L 2-3 jets, high tmod, low Mlb, MET600-inf",  {&nJets23, &CR2L_modTopHigh, &mlbLt175, &CR2L_MET_600_inf} );
+	sigRegion j23himlb250CR2L(  "j23himlb250CR2L",  "CR2L 2-3 jets, high tmod, hi Mlb, MET250-450",   {&nJets23, &CR2L_modTopHigh, &mlbGe175, &CR2L_MET_250_450, &oneTightB} ); // B
+	sigRegion j23himlb450CR2L(  "j23himlb450CR2L",  "CR2L 2-3 jets, high tmod, hi Mlb, MET450-600",   {&nJets23, &CR2L_modTopHigh, &mlbGe175, &CR2L_MET_450_600, &oneTightB} );
+	sigRegion j23himlb600CR2L(  "j23himlb600CR2L",  "CR2L 2-3 jets, high tmod, hi Mlb, MET600-inf",   {&nJets23, &CR2L_modTopHigh, &mlbGe175, &CR2L_MET_600_inf, &oneTightB} );
+	sigRegion j4negtmodlowmlb250CR2L( "j4negtmodlowmlb250CR2L", "CR2L 4 jets, neg tmod, low Mlb, MET250-350",  {&nJetsGe4, &CR2L_modTopNeg, &mlbLt175, &CR2L_MET_250_350} ); // C
+	sigRegion j4negtmodlowmlb350CR2L( "j4negtmodlowmlb350CR2L", "CR2L 4 jets, neg tmod, low Mlb, MET350-450",  {&nJetsGe4, &CR2L_modTopNeg, &mlbLt175, &CR2L_MET_350_450} );
+	sigRegion j4negtmodlowmlb450CR2L( "j4negtmodlowmlb450CR2L", "CR2L 4 jets, neg tmod, low Mlb, MET450-550",  {&nJetsGe4, &CR2L_modTopNeg, &mlbLt175, &CR2L_MET_450_550} );
+	sigRegion j4negtmodlowmlb550CR2L( "j4negtmodlowmlb550CR2L", "CR2L 4 jets, neg tmod, low Mlb, MET550-650",  {&nJetsGe4, &CR2L_modTopNeg, &mlbLt175, &CR2L_MET_550_650} );
+	sigRegion j4negtmodlowmlb650CR2L( "j4negtmodlowmlb650CR2L", "CR2L 4 jets, neg tmod, low Mlb, MET650-inf",  {&nJetsGe4, &CR2L_modTopNeg, &mlbLt175, &CR2L_MET_650_inf} );
+	sigRegion j4negtmodhimlb250CR2L(  "j4negtmodhimlb250CR2L",  "CR2L 4 jets, neg tmod, hi Mlb, MET250-350",   {&nJetsGe4, &CR2L_modTopNeg, &mlbGe175, &CR2L_MET_250_350, &oneTightB} ); // D
+	sigRegion j4negtmodhimlb350CR2L(  "j4negtmodhimlb350CR2L",  "CR2L 4 jets, neg tmod, hi Mlb, MET350-450",   {&nJetsGe4, &CR2L_modTopNeg, &mlbGe175, &CR2L_MET_350_450, &oneTightB} );
+	sigRegion j4negtmodhimlb450CR2L(  "j4negtmodhimlb450CR2L",  "CR2L 4 jets, neg tmod, hi Mlb, MET450-550",   {&nJetsGe4, &CR2L_modTopNeg, &mlbGe175, &CR2L_MET_450_550, &oneTightB} );
+	sigRegion j4negtmodhimlb550CR2L(  "j4negtmodhimlb550CR2L",  "CR2L 4 jets, neg tmod, hi Mlb, MET550-inf",   {&nJetsGe4, &CR2L_modTopNeg, &mlbGe175, &CR2L_MET_550_inf, &oneTightB} );
+	sigRegion j4lowtmodlowmlb250CR2L( "j4lowtmodlowmlb250CR2L", "CR2L 4 jets, low tmod, low Mlb, MET250-350",  {&nJetsGe4, &CR2L_modTopLow, &mlbLt175, &CR2L_MET_250_350} ); // E
+	sigRegion j4lowtmodlowmlb350CR2L( "j4lowtmodlowmlb350CR2L", "CR2L 4 jets, low tmod, low Mlb, MET350-550",  {&nJetsGe4, &CR2L_modTopLow, &mlbLt175, &CR2L_MET_350_550} );
+	sigRegion j4lowtmodlowmlb550CR2L( "j4lowtmodlowmlb550CR2L", "CR2L 4 jets, low tmod, low Mlb, MET550-inf",  {&nJetsGe4, &CR2L_modTopLow, &mlbLt175, &CR2L_MET_550_inf} );
+	sigRegion j4lowtmodhimlb250CR2L(  "j4lowtmodhimlb250CR2L",  "CR2L 4 jets, low tmod, hi Mlb, MET250-450",   {&nJetsGe4, &CR2L_modTopLow, &mlbGe175, &CR2L_MET_250_450, &oneTightB} ); // F
+	sigRegion j4lowtmodhimlb450CR2L(  "j4lowtmodhimlb450CR2L",  "CR2L 4 jets, low tmod, hi Mlb, MET450-inf",   {&nJetsGe4, &CR2L_modTopLow, &mlbGe175, &CR2L_MET_450_inf, &oneTightB} );
+	sigRegion j4hitmodlowmlb250CR2L( "j4hitmodlowmlb250CR2L", "CR2L 4 jets, high tmod, low Mlb, MET250-350",  {&nJetsGe4, &CR2L_modTopHigh, &mlbLt175, &CR2L_MET_250_350} ); // G
+	sigRegion j4hitmodlowmlb350CR2L( "j4hitmodlowmlb350CR2L", "CR2L 4 jets, high tmod, low Mlb, MET350-450",  {&nJetsGe4, &CR2L_modTopHigh, &mlbLt175, &CR2L_MET_350_450} );
+	sigRegion j4hitmodlowmlb450CR2L( "j4hitmodlowmlb450CR2L", "CR2L 4 jets, high tmod, low Mlb, MET450-600",  {&nJetsGe4, &CR2L_modTopHigh, &mlbLt175, &CR2L_MET_450_600} );
+	sigRegion j4hitmodlowmlb600CR2L( "j4hitmodlowmlb600CR2L", "CR2L 4 jets, high tmod, low Mlb, MET600-inf",  {&nJetsGe4, &CR2L_modTopHigh, &mlbLt175, &CR2L_MET_600_inf} );
+	sigRegion j4hitmodhimlb250CR2L(  "j4hitmodhimlb250CR2L",  "CR2L 4 jets, high tmod, hi Mlb, MET250-450",   {&nJetsGe4, &CR2L_modTopHigh, &mlbGe175, &CR2L_MET_250_450, &oneTightB} ); // H
+	sigRegion j4hitmodhimlb450CR2L(  "j4hitmodhimlb450CR2L",  "CR2L 4 jets, high tmod, hi Mlb, MET450-inf",   {&nJetsGe4, &CR2L_modTopHigh, &mlbGe175, &CR2L_MET_450_inf, &oneTightB} );
 	// sigRegion inclusive(   "inclusive",   "Inclusive" );
-	sigRegion corridor250CR( "corridor250CR", "CR Corridor, low MET",  {&nJetsGe5, &CR_MET_250_350, &j1Pt200, &j1NoTag} );
-	sigRegion corridor350CR( "corridor350CR", "CR Corridor, mid MET",  {&nJetsGe5, &CR_MET_350_450, &j1Pt200, &j1NoTag} );
-	sigRegion corridor450CR( "corridor450CR", "CR Corridor, high MET", {&nJetsGe5, &CR_MET_450_inf, &j1Pt200, &j1NoTag} );
-	sigRegion corr250comboCR( "corr250comboCR", "CR Corridor 250 combo", {&nJetsGe5, &CR_MET_250_350, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
-	sigRegion corr350comboCR( "corr350comboCR", "CR Corridor 350 combo", {&nJetsGe5, &CR_MET_350_450, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
-	sigRegion corr450comboCR( "corr450comboCR", "CR Corridor 450 combo", {&nJetsGe5, &CR_MET_450_550, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
-	sigRegion corr550comboCR( "corr550comboCR", "CR Corridor 550 combo", {&nJetsGe5, &CR_MET_550_inf, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
-	// sigRegion corrAllcomboCR( "corrAllcomboCR", "CR Corridor All combo", {&nJetsGe5,                  &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+	sigRegion corridor250CR2L( "corridor250CR2L", "CR2L Corridor, low MET",  {&nJetsGe5, &CR2L_MET_250_350, &j1Pt200, &j1NoTag} );
+	sigRegion corridor350CR2L( "corridor350CR2L", "CR2L Corridor, mid MET",  {&nJetsGe5, &CR2L_MET_350_450, &j1Pt200, &j1NoTag} );
+	sigRegion corridor450CR2L( "corridor450CR2L", "CR2L Corridor, high MET", {&nJetsGe5, &CR2L_MET_450_inf, &j1Pt200, &j1NoTag} );
+	sigRegion corr250comboCR2L( "corr250comboCR2L", "CR2L Corridor 250 combo", {&nJetsGe5, &CR2L_MET_250_350, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+	sigRegion corr350comboCR2L( "corr350comboCR2L", "CR2L Corridor 350 combo", {&nJetsGe5, &CR2L_MET_350_450, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+	sigRegion corr450comboCR2L( "corr450comboCR2L", "CR2L Corridor 450 combo", {&nJetsGe5, &CR2L_MET_450_550, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+	sigRegion corr550comboCR2L( "corr550comboCR2L", "CR2L Corridor 550 combo", {&nJetsGe5, &CR2L_MET_550_inf, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+	// sigRegion corrAllcomboCR2L( "corrAllcomboCR2L", "CR2L Corridor All combo", {&nJetsGe5,                  &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+
+	// Equivalents for the 0-btag control regions
+	sigRegion j23lowmlb250CR0b( "j23lowmlb250CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET250-350",  {&nJets23, &modTopHigh, &mlbLt175, &MET_250_350, &noMediumBs} ); // A
+	sigRegion j23lowmlb350CR0b( "j23lowmlb350CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET350-450",  {&nJets23, &modTopHigh, &mlbLt175, &MET_350_450, &noMediumBs} );
+	sigRegion j23lowmlb450CR0b( "j23lowmlb450CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET450-600",  {&nJets23, &modTopHigh, &mlbLt175, &MET_450_600, &noMediumBs} );
+	sigRegion j23lowmlb600CR0b( "j23lowmlb600CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET600-inf",  {&nJets23, &modTopHigh, &mlbLt175, &MET_600_inf, &noMediumBs} );
+	sigRegion j23himlb250CR0b(  "j23himlb250CR0b",  "CR0b 2-3 jets, high tmod, hi Mlb, MET250-450",   {&nJets23, &modTopHigh, &mlbGe175, &MET_250_450, &noTightBs} ); // B
+	sigRegion j23himlb450CR0b(  "j23himlb450CR0b",  "CR0b 2-3 jets, high tmod, hi Mlb, MET450-600",   {&nJets23, &modTopHigh, &mlbGe175, &MET_450_600, &noTightBs} );
+	sigRegion j23himlb600CR0b(  "j23himlb600CR0b",  "CR0b 2-3 jets, high tmod, hi Mlb, MET600-inf",   {&nJets23, &modTopHigh, &mlbGe175, &MET_600_inf, &noTightBs} );
+	sigRegion j4negtmodlowmlb250CR0b( "j4negtmodlowmlb250CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_250_350, &noMediumBs} ); // C
+	sigRegion j4negtmodlowmlb350CR0b( "j4negtmodlowmlb350CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET350-450",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_350_450, &noMediumBs} );
+	sigRegion j4negtmodlowmlb450CR0b( "j4negtmodlowmlb450CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET450-550",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_450_550, &noMediumBs} );
+	sigRegion j4negtmodlowmlb550CR0b( "j4negtmodlowmlb550CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET550-650",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_550_650, &noMediumBs} );
+	sigRegion j4negtmodlowmlb650CR0b( "j4negtmodlowmlb650CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET650-inf",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_650_inf, &noMediumBs} );
+	sigRegion j4negtmodhimlb250CR0b(  "j4negtmodhimlb250CR0b",  "CR0b 4 jets, neg tmod, hi Mlb, MET250-350",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_350, &noTightBs} ); // D
+	sigRegion j4negtmodhimlb350CR0b(  "j4negtmodhimlb350CR0b",  "CR0b 4 jets, neg tmod, hi Mlb, MET350-450",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_350_450, &noTightBs} );
+	sigRegion j4negtmodhimlb450CR0b(  "j4negtmodhimlb450CR0b",  "CR0b 4 jets, neg tmod, hi Mlb, MET450-550",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_450_550, &noTightBs} );
+	sigRegion j4negtmodhimlb550CR0b(  "j4negtmodhimlb550CR0b",  "CR0b 4 jets, neg tmod, hi Mlb, MET550-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_550_inf, &noTightBs} );
+	sigRegion j4lowtmodlowmlb250CR0b( "j4lowtmodlowmlb250CR0b", "CR0b 4 jets, low tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopLow, &mlbLt175, &MET_250_350, &noMediumBs} ); // E
+	sigRegion j4lowtmodlowmlb350CR0b( "j4lowtmodlowmlb350CR0b", "CR0b 4 jets, low tmod, low Mlb, MET350-550",  {&nJetsGe4, &modTopLow, &mlbLt175, &MET_350_550, &noMediumBs} );
+	sigRegion j4lowtmodlowmlb550CR0b( "j4lowtmodlowmlb550CR0b", "CR0b 4 jets, low tmod, low Mlb, MET550-inf",  {&nJetsGe4, &modTopLow, &mlbLt175, &MET_550_inf, &noMediumBs} );
+	sigRegion j4lowtmodhimlb250CR0b(  "j4lowtmodhimlb250CR0b",  "CR0b 4 jets, low tmod, hi Mlb, MET250-450",   {&nJetsGe4, &modTopLow, &mlbGe175, &MET_250_450, &noTightBs} ); // F
+	sigRegion j4lowtmodhimlb450CR0b(  "j4lowtmodhimlb450CR0b",  "CR0b 4 jets, low tmod, hi Mlb, MET450-inf",   {&nJetsGe4, &modTopLow, &mlbGe175, &MET_450_inf, &noTightBs} );
+	sigRegion j4hitmodlowmlb250CR0b( "j4hitmodlowmlb250CR0b", "CR0b 4 jets, high tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopHigh, &mlbLt175, &MET_250_350, &noMediumBs} ); // G
+	sigRegion j4hitmodlowmlb350CR0b( "j4hitmodlowmlb350CR0b", "CR0b 4 jets, high tmod, low Mlb, MET350-450",  {&nJetsGe4, &modTopHigh, &mlbLt175, &MET_350_450, &noMediumBs} );
+	sigRegion j4hitmodlowmlb450CR0b( "j4hitmodlowmlb450CR0b", "CR0b 4 jets, high tmod, low Mlb, MET450-600",  {&nJetsGe4, &modTopHigh, &mlbLt175, &MET_450_600, &noMediumBs} );
+	sigRegion j4hitmodlowmlb600CR0b( "j4hitmodlowmlb600CR0b", "CR0b 4 jets, high tmod, low Mlb, MET600-inf",  {&nJetsGe4, &modTopHigh, &mlbLt175, &MET_600_inf, &noMediumBs} );
+	sigRegion j4hitmodhimlb250CR0b(  "j4hitmodhimlb250CR0b",  "CR0b 4 jets, high tmod, hi Mlb, MET250-450",   {&nJetsGe4, &modTopHigh, &mlbGe175, &MET_250_450, &noTightBs} ); // H
+	sigRegion j4hitmodhimlb450CR0b(  "j4hitmodhimlb450CR0b",  "CR0b 4 jets, high tmod, hi Mlb, MET450-inf",   {&nJetsGe4, &modTopHigh, &mlbGe175, &MET_450_inf, &noTightBs} );
+	// sigRegion inclusive(   "inclusive",   "Inclusive" );
+	sigRegion corridor250CR0b( "corridor250CR0b", "CR0b Corridor, low MET",  {&nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag, &noMediumBs} );
+	sigRegion corridor350CR0b( "corridor350CR0b", "CR0b Corridor, mid MET",  {&nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag, &noMediumBs} );
+	sigRegion corridor450CR0b( "corridor450CR0b", "CR0b Corridor, high MET", {&nJetsGe5, &MET_450_inf, &j1Pt200, &j1NoTag, &noMediumBs} );
+	sigRegion corr250comboCR0b( "corr250comboCR0b", "CR0b Corridor 250 combo", {&nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet, &noMediumBs} );
+	sigRegion corr350comboCR0b( "corr350comboCR0b", "CR0b Corridor 350 combo", {&nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet, &noMediumBs} );
+	sigRegion corr450comboCR0b( "corr450comboCR0b", "CR0b Corridor 450 combo", {&nJetsGe5, &MET_450_550, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet, &noMediumBs} );
+	sigRegion corr550comboCR0b( "corr550comboCR0b", "CR0b Corridor 550 combo", {&nJetsGe5, &MET_550_inf, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet, &noMediumBs} );
+	sigRegion corrAllcomboCR0b( "corrAllcomboCR0b", "CR0b Corridor All combo", {&nJetsGe5,               &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet, &noMediumBs} );
 
 
 	// Finally, store all these signal/control regions in our "analysis" objects.
@@ -346,18 +395,31 @@ int main( int argc, char* argv[] ) {
 	srAnalysis->AddSigRegs( {&corr250combo, &corr350combo, &corr450combo, &corr550combo} );
 	srAnalysis->AddSigRegs( {&corrAllcombo} );
 
-	crLostLep->AddSigRegs( {&j23lowmlb250CR, &j23lowmlb350CR, &j23lowmlb450CR, &j23lowmlb600CR} );
-	crLostLep->AddSigRegs( {&j23himlb250CR, &j23himlb450CR, &j23himlb600CR} );
-	crLostLep->AddSigRegs( {&j4negtmodlowmlb250CR, &j4negtmodlowmlb350CR, &j4negtmodlowmlb450CR, &j4negtmodlowmlb550CR, &j4negtmodlowmlb650CR} );
-	crLostLep->AddSigRegs( {&j4negtmodhimlb250CR, &j4negtmodhimlb350CR, &j4negtmodhimlb450CR, &j4negtmodhimlb550CR} );
-	crLostLep->AddSigRegs( {&j4lowtmodlowmlb250CR, &j4lowtmodlowmlb350CR, &j4lowtmodlowmlb550CR} );
-	crLostLep->AddSigRegs( {&j4lowtmodhimlb250CR, &j4lowtmodhimlb450CR} );
-	crLostLep->AddSigRegs( {&j4hitmodlowmlb250CR, &j4hitmodlowmlb350CR, &j4hitmodlowmlb450CR, &j4hitmodlowmlb600CR} );
-	crLostLep->AddSigRegs( {&j4hitmodhimlb250CR, &j4hitmodhimlb450CR} );
+	crLostLep->AddSigRegs( {&j23lowmlb250CR2L, &j23lowmlb350CR2L, &j23lowmlb450CR2L, &j23lowmlb600CR2L} );
+	crLostLep->AddSigRegs( {&j23himlb250CR2L, &j23himlb450CR2L, &j23himlb600CR2L} );
+	crLostLep->AddSigRegs( {&j4negtmodlowmlb250CR2L, &j4negtmodlowmlb350CR2L, &j4negtmodlowmlb450CR2L, &j4negtmodlowmlb550CR2L, &j4negtmodlowmlb650CR2L} );
+	crLostLep->AddSigRegs( {&j4negtmodhimlb250CR2L, &j4negtmodhimlb350CR2L, &j4negtmodhimlb450CR2L, &j4negtmodhimlb550CR2L} );
+	crLostLep->AddSigRegs( {&j4lowtmodlowmlb250CR2L, &j4lowtmodlowmlb350CR2L, &j4lowtmodlowmlb550CR2L} );
+	crLostLep->AddSigRegs( {&j4lowtmodhimlb250CR2L, &j4lowtmodhimlb450CR2L} );
+	crLostLep->AddSigRegs( {&j4hitmodlowmlb250CR2L, &j4hitmodlowmlb350CR2L, &j4hitmodlowmlb450CR2L, &j4hitmodlowmlb600CR2L} );
+	crLostLep->AddSigRegs( {&j4hitmodhimlb250CR2L, &j4hitmodhimlb450CR2L} );
 	crLostLep->AddSigRegs( {&inclusive} );
-	crLostLep->AddSigRegs( {&corridor250CR, &corridor350CR, &corridor450CR} );
-	crLostLep->AddSigRegs( {&corr250comboCR, &corr350comboCR, &corr450comboCR, &corr550comboCR} );
+	crLostLep->AddSigRegs( {&corridor250CR2L, &corridor350CR2L, &corridor450CR2L} );
+	crLostLep->AddSigRegs( {&corr250comboCR2L, &corr350comboCR2L, &corr450comboCR2L, &corr550comboCR2L} );
 	crLostLep->AddSigRegs( {&corrAllcombo} );
+
+	cr0bjets->AddSigRegs( {&j23lowmlb250CR0b, &j23lowmlb350CR0b, &j23lowmlb450CR0b, &j23lowmlb600CR0b} );
+	cr0bjets->AddSigRegs( {&j23himlb250CR0b, &j23himlb450CR0b, &j23himlb600CR0b} );
+	cr0bjets->AddSigRegs( {&j4negtmodlowmlb250CR0b, &j4negtmodlowmlb350CR0b, &j4negtmodlowmlb450CR0b, &j4negtmodlowmlb550CR0b, &j4negtmodlowmlb650CR0b} );
+	cr0bjets->AddSigRegs( {&j4negtmodhimlb250CR0b, &j4negtmodhimlb350CR0b, &j4negtmodhimlb450CR0b, &j4negtmodhimlb550CR0b} );
+	cr0bjets->AddSigRegs( {&j4lowtmodlowmlb250CR0b, &j4lowtmodlowmlb350CR0b, &j4lowtmodlowmlb550CR0b} );
+	cr0bjets->AddSigRegs( {&j4lowtmodhimlb250CR0b, &j4lowtmodhimlb450CR0b} );
+	cr0bjets->AddSigRegs( {&j4hitmodlowmlb250CR0b, &j4hitmodlowmlb350CR0b, &j4hitmodlowmlb450CR0b, &j4hitmodlowmlb600CR0b} );
+	cr0bjets->AddSigRegs( {&j4hitmodhimlb250CR0b, &j4hitmodhimlb450CR0b} );
+	cr0bjets->AddSigRegs( {&inclusive} );
+	cr0bjets->AddSigRegs( {&corridor250CR0b, &corridor350CR0b, &corridor450CR0b} );
+	cr0bjets->AddSigRegs( {&corr250comboCR0b, &corr350comboCR0b, &corr450comboCR0b, &corr550comboCR0b} );
+	cr0bjets->AddSigRegs( {&corrAllcomboCR0b} );
 
 	// Copy signal regions to JES up and down "analysis" objects
 	for( vector<sigRegion*> srList : srAnalysis->GetSigRegions() ) {
@@ -367,6 +429,10 @@ int main( int argc, char* argv[] ) {
 	for( vector<sigRegion*> srList : crLostLep->GetSigRegions() ) {
 		cr2l_jesup->AddSigRegs( srList );
 		cr2l_jesdn->AddSigRegs( srList );
+	}
+	for( vector<sigRegion*> srList : cr0bjets->GetSigRegions() ) {
+		cr0b_jesup->AddSigRegs( srList );
+		cr0b_jesdn->AddSigRegs( srList );
 	}
 
 
@@ -504,14 +570,6 @@ int main( int argc, char* argv[] ) {
 		rare_jesdn->AddFile( bkgPath_jesdn + "ZZTo2Q2Nu_amcnlo_pythia8_25ns.root" );
 	}
 
-	// Make the 0-bjet control region "analyses" by copying the signal region "analyses" and changing a few properties
-	cr0bjets = srAnalysis->Copy( 29.53, "plots0b.root", "systVariations0b.root" );
-	cr0b_jesup = sr_jesup->Copy( 29.53, "jes_cr0b.root", "jes_cr0b.root" );
-	cr0b_jesdn = sr_jesdn->Copy( 29.53, "jes_cr0b.root", "jes_cr0b.root" );
-	if( !srAnalysis->HasData() ) cr0bjets->AddSample( data );
-	cr0bjets->ResetSystematics();
-	cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn} );
-	cr0bjets->AddSystematics( {&qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &metresup, &metresdn, &contam1lwup, &contam1lwdn } );
 
 
 

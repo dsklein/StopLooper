@@ -390,11 +390,9 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 
 			// B-tag requirement
 			// if( ngoodbtags() != 0 ) continue;
-			int countTightTags = 0;
-			for( float CSV : ak4pfjets_CSV() ) if( CSV >= 0.935 ) countTightTags++;
-			if( countTightTags > 0 ) continue; // Veto events with a tight tag
-			if( ngoodbtags() > 0 && Mlb_closestb() >= 0. && Mlb_closestb() < 175. ) continue; // Also veto events that belong in low-Mlb SRs
-			nTightTags = 99; // Bypass the nTightTags cut in the signal region definitions
+			nTightTags = 0;
+			for( float CSV : ak4pfjets_CSV() ) if( CSV >= 0.935 ) nTightTags++;
+			if( nTightTags > 0 ) continue; // Veto events with a tight tag
 			yield_0bjet += evtWeight;
 			yGen_0bjet++;
 
