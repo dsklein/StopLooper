@@ -282,7 +282,7 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 			double lepNorm = 1.;
 			double lepNorm_veto = 1.;
 			double lepNorm_FS = 1.;
-			double btagNorm = 1.;
+			// double btagNorm = 1.;
 			double isrNorm = 1.;
 
 			if( is_data() || mySample->IsData() ) evtWeight = 1.;
@@ -293,7 +293,7 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 				lepNorm = nEvtsSample / hCounterSMS->GetBinContent(binx,biny,27);
 				lepNorm_veto = nEvtsSample / hCounterSMS->GetBinContent(binx,biny,30);
 				lepNorm_FS = nEvtsSample / hCounterSMS->GetBinContent(binx,biny,33);
-				btagNorm = nEvtsSample / hCounterSMS->GetBinContent(binx,biny,14);
+				// btagNorm = nEvtsSample / hCounterSMS->GetBinContent(binx,biny,14);
 				isrNorm = nEvtsSample / hCounterSMS->GetBinContent(binx, biny, 19);
 				evtWeight = myAnalysis->GetLumi() * 1000. * xsec() / nEvtsSample;
 			}
@@ -303,14 +303,14 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 				lepNorm = nEvtsSample / hCounter->GetBinContent(28);
 				lepNorm_veto = nEvtsSample / hCounter->GetBinContent(31);
 				lepNorm_FS = nEvtsSample / hCounter->GetBinContent(34);
-				btagNorm = nEvtsSample / hCounter->GetBinContent(14);
+				// btagNorm = nEvtsSample / hCounter->GetBinContent(14);
 				isrNorm = nEvtsSample / hCounter->GetBinContent(19);
 			}
 
 			if( !is_data() ) {
 				evtWeight *= weight_lepSF()     * lepNorm;
 				evtWeight *= weight_vetoLepSF() * lepNorm_veto;
-				evtWeight *= weight_btagsf() * btagNorm;
+				// evtWeight *= weight_btagsf() * btagNorm;
 				if( isFastsim ) evtWeight *= weight_lepSF_fastSim() * lepNorm_FS;
 				if( mySample->IsSignal()  ) evtWeight *= weight_ISR() * isrNorm;
 				if( mySample->GetLabel() == "tt2l" || TString(file.GetTitle()).Contains("W_5f_powheg_pythia8") ){
