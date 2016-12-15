@@ -26,6 +26,7 @@
 
 // Custom
 #include "analysis.h"
+#include "contextVars.h"
 #include "sample.h"
 
 using namespace std;
@@ -55,6 +56,8 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 	const int nVariations = mySample->IsData() ? 0 : myAnalysis->GetSystematics(false).size();
 	bool isFastsim = mySample->IsSignal();
 	cout << "\nSample: " << sampleName.Data() << endl;
+
+	myContext.SetUseRl( false );
 
 	/////////////////////////////////////////////////////////
 	// Histograms
@@ -272,7 +275,7 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 			if( sampleName.Contains("wjets") && TString(currentFile->GetTitle()).Contains("JetsToLNu_madgraph") && genmet()>=200. ) continue;
 
 			//FastSim anomalous event filter
-			if( isFastsim && filt_fastsimjets() ) continue;
+			if( isFastsim && context::filt_fastsimjets() ) continue;
 
 
 			/////////////////////////////////
@@ -384,34 +387,34 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 			yGen_tauVeto++;
 
 			// N-jet requirement
-			if( ngoodjets() < 2 ) continue;
+			if( context::ngoodjets() < 2 ) continue;
 			yield_njets += evtWeight;
 			yGen_njets++;
 
-			j1pt = ak4pfjets_p4().at(0).pt();
+			j1pt = context::ak4pfjets_p4().at(0).pt();
 
 			// B-tag requirement
-			// if( ngoodbtags() != 0 ) continue;
+			// if( context::ngoodbtags() != 0 ) continue;
 			nTightTags = 0;
-			for( float CSV : ak4pfjets_CSV() ) if( CSV >= 0.935 ) nTightTags++;
+			for( float CSV : context::ak4pfjets_CSV() ) if( CSV >= 0.935 ) nTightTags++;
 			if( nTightTags > 0 ) continue; // Veto events with a tight tag
 			yield_0bjet += evtWeight;
 			yGen_0bjet++;
 
-			j1_isBtag = ak4pfjets_passMEDbtag().at(0);
+			j1_isBtag = context::ak4pfjets_passMEDbtag().at(0);
 
 			// Baseline MET cut
-			if( pfmet() < 250. ) continue;
+			if( context::Met() < 250. ) continue;
 			yield_METcut += evtWeight;
 			yGen_METcut++;
 
 			// MT cut
-			if( mt_met_lep() < 150. ) continue;
+			if( context::MT_met_lep() < 150. ) continue;
 			yield_MTcut += evtWeight;
 			yGen_MTcut++;
 
 			// Min delta-phi between MET and j1/j2
-			if( mindphi_met_j1_j2() < 0.8 ) continue;
+			if( context::Mindphi_met_j1_j2() < 0.8 ) continue;
 			yield_dPhi += evtWeight;
 			yGen_dPhi++;
 
@@ -437,20 +440,20 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 			else                            evtType = 2+category;
 
 			// Quickly calculate some variables
-			double metSqHT = pfmet() / sqrt( ak4_HT() );
+			double metSqHT = context::Met() / sqrt( context::ak4_HT() );
 
 			const TVector3 lepVec( lep1_p4().x(), lep1_p4().y(), lep1_p4().z() );
-			const TVector3 metVec( pfmet()*cos(pfmet_phi()), pfmet()*sin(pfmet_phi()), 0 );
+			const TVector3 metVec( context::Met()*cos(context::MetPhi()), context::Met()*sin(context::MetPhi()), 0 );
 			const TVector3 wVec = lepVec + metVec;
 			double dPhiLepW = fabs( lepVec.DeltaPhi(wVec) );
 
-			double drLepLeadb = ROOT::Math::VectorUtil::DeltaR( lep1_p4(), ak4pfjets_leadMEDbjet_p4() );
+			double drLepLeadb = ROOT::Math::VectorUtil::DeltaR( lep1_p4(), context::ak4pfjets_leadMEDbjet_p4() );
 
 			dphilmet  = fabs( lepVec.DeltaPhi(metVec) );
 			lep1pt = lep1_p4().Pt();
 
 			if( Mlb_closestb() > 0. ) myMlb = Mlb_closestb();
-			else myMlb = ( lep1_p4() + ak4pfjets_leadbtag_p4() ).M();
+			else myMlb = ( lep1_p4() + context::ak4pfjets_leadbtag_p4() ).M();
 
 			///////////////////////////////////////////
 			// Signal region cuts and histo filling
@@ -464,22 +467,22 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 				h_evttype[i][0]->Fill( evtType,                    evtWeight );
 				if( mySample->IsSignal() ) h_sigyields[i][0]->Fill( mass_stop(), mass_lsp(), evtWeight );
 
-				h_mt[i]->Fill(      mt_met_lep(),                  evtWeight );
-				h_met[i]->Fill(     pfmet(),                       evtWeight );
-				h_mt2w[i]->Fill(    MT2W(),                        evtWeight );
+				h_mt[i]->Fill(      context::MT_met_lep(),                  evtWeight );
+				h_met[i]->Fill(     context::Met(),                       evtWeight );
+				h_mt2w[i]->Fill(    context::MT2W(),                        evtWeight );
 				h_chi2[i]->Fill(    hadronic_top_chi2(),           evtWeight );
-				h_htratio[i]->Fill( ak4_htratiom(),                evtWeight );
-				h_mindphi[i]->Fill( mindphi_met_j1_j2(),           evtWeight );
-				h_ptb1[i]->Fill( ak4pfjets_leadMEDbjet_p4().pt(),  evtWeight );
+				h_htratio[i]->Fill( context::ak4_htratiom(),                evtWeight );
+				h_mindphi[i]->Fill( context::Mindphi_met_j1_j2(),           evtWeight );
+				h_ptb1[i]->Fill( context::ak4pfjets_leadMEDbjet_p4().pt(),  evtWeight );
 				h_drlb1[i]->Fill(   drLepLeadb,                    evtWeight );
 				h_ptlep[i]->Fill(   lep1_p4().pt(),                evtWeight );
 				h_metht[i]->Fill(   metSqHT,                       evtWeight );
 				h_dphilw[i]->Fill(  dPhiLepW,                      evtWeight );
-				h_njets[i]->Fill(   ngoodjets(),                   evtWeight );
-				h_nbtags[i]->Fill(  ngoodbtags(),                  evtWeight );
+				h_njets[i]->Fill(   context::ngoodjets(),                   evtWeight );
+				h_nbtags[i]->Fill(  context::ngoodbtags(),                  evtWeight );
 				h_ptj1[i]->Fill(    j1pt,                          evtWeight );
 				h_j1btag[i]->Fill(  j1_isBtag,                     evtWeight );
-				h_modtop[i]->Fill(  topnessMod(),                  evtWeight );
+				h_modtop[i]->Fill(  context::TopnessMod(),                  evtWeight );
 				h_dphilmet[i]->Fill( dphilmet,                     evtWeight );
 				h_mlb[i]->Fill(     myMlb,                         evtWeight );
 

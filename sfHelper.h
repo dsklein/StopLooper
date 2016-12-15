@@ -10,6 +10,8 @@
 
 #include "CMS3.h"
 
+#include "contextVars.h"
+
 
 // SfHelper class:
 // Provides a set of functions that will painlessly deliver you reweighting factors

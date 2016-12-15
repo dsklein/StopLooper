@@ -228,7 +228,7 @@ double sfHelper::Unity() { return 1.0; }
 
 // Get the 2-lepton CR trigger efficiency
 double sfHelper::TrigEff2l() {
-	double mymet = max(  250., min(499.99, double(tas::pfmet_rl()) ) );
+	double mymet = max(  250., min(499.99, double(context::Met()) ) );
 	double myleppt = max( 20., min(499.99, double(tas::lep1_p4().pt()) ) );
 	return h_trigeff_cr2l->GetBinContent( h_trigeff_cr2l->FindBin(mymet, myleppt) );
 }
@@ -249,23 +249,23 @@ double sfHelper::Trig2lDown() {
 
 // Get MET resolution SF
 double sfHelper::MetResSF() {
-	double mymet = isCR2l ? tas::pfmet_rl() : tas::pfmet();
-	double mymt2w = isCR2l ? tas::MT2W_rl() : tas::MT2W();
+	double mymet = context::Met();
+	double mymt2w = context::MT2W();
 
 	//Only apply to WJets, ttbar, and st_tW
 
-	if( tas::ngoodjets() == 2) {
+	if( context::ngoodjets() == 2) {
 		if(      mymet >= 450. ) return 0.679;
 		else if( mymet >= 350. ) return 0.895;
 		else if( mymet >= 250. ) return 1.080;
 	}
-	else if( tas::ngoodjets() == 3 ) {
+	else if( context::ngoodjets() == 3 ) {
 		if(      mymet >= 550. ) return 0.664;
 		else if( mymet >= 450. ) return 0.784;
 		else if( mymet >= 350. ) return 0.976;
 		else if( mymet >= 250. ) return 1.066;
 	}
-	else if( tas::ngoodjets() >= 4 ) {
+	else if( context::ngoodjets() >= 4 ) {
 		if( mymt2w < 200. && mymet >= 450. ) return 0.766;
 		else if( mymet >= 650. ) return 0.590;
 		else if( mymet >= 550. ) return 0.766;
@@ -310,8 +310,8 @@ double sfHelper::TopSystPtSF() {
 	double csv_new;
 
 	// Find the two highest-CSV jet indices
-	for( uint i=0; i<tas::ak4pfjets_CSV().size(); i++ ) {
-		csv_new = tas::ak4pfjets_CSV().at(i);
+	for( uint i=0; i<context::ak4pfjets_CSV().size(); i++ ) {
+		csv_new = context::ak4pfjets_CSV().at(i);
 		if( csv_new > csv1 ) {
 			csv2 = csv1;
 			idx2 = idx1;
@@ -323,10 +323,14 @@ double sfHelper::TopSystPtSF() {
 			idx2 = i;
 		}
 	}
-	if( idx1 >= 0 ) topsystem_p4 += tas::ak4pfjets_p4().at(idx1);
-	if( idx2 >= 0 ) topsystem_p4 += tas::ak4pfjets_p4().at(idx2);
+	if( idx1 >= 0 ) topsystem_p4 += context::ak4pfjets_p4().at(idx1);
+	if( idx2 >= 0 ) topsystem_p4 += context::ak4pfjets_p4().at(idx2);
 
-	LorentzVector met_p4( tas::pfmet()*cos(tas::pfmet_phi()), tas::pfmet()*sin(tas::pfmet_phi()), 0.0, tas::pfmet() );
+	// Turn off adding 2nd lep to MET for this case
+	bool useRl = myContext.GetUseRl();
+	myContext.SetUseRl( false );
+	LorentzVector met_p4( context::Met()*cos(context::MetPhi()), context::Met()*sin(context::MetPhi()), 0.0, context::Met() );
+	myContext.SetUseRl( useRl );
 	topsystem_p4 += met_p4;
 
 	double system_pt = topsystem_p4.Pt();
