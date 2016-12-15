@@ -6,8 +6,8 @@ ROOTCFLAGS  = $(shell root-config --cflags --libs)
 
 
 
-runLooper: runLooper.cc runLooper.h ScanChain.o looperCR2lep.o looperCR0b.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o make1lWEstimate.o libdataMCplotMaker.so libCMS3.so libsample.so libanalysis.so sigRegion.cc libsfHelper.so libsigRegion.so libsystematic.so
-	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runLooper.cc ScanChain.o looperCR2lep.o looperCR0b.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o make1lWEstimate.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lCMS3 -lsample -lanalysis -lsfHelper -lsigRegion -lsystematic -o runLooper
+runLooper: runLooper.cc runLooper.h ScanChain.o looperCR2lep.o looperCR0b.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o make1lWEstimate.o libdataMCplotMaker.so libCMS3.so libsample.so libanalysis.so libcontextVars.so sigRegion.cc libsfHelper.so libsigRegion.so libsystematic.so
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runLooper.cc ScanChain.o looperCR2lep.o looperCR0b.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o make1lWEstimate.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lCMS3 -lsample -lanalysis -lcontextVars -lsfHelper -lsigRegion -lsystematic -o runLooper
 #GenVector seems to be necessary to take a LorentzVector invariant mass. The error was "undefined reference to Math::GenVector::Throw()"
 
 
@@ -34,6 +34,9 @@ makeLostLepEstimate.o: makeLostLepEstimate.cc
 
 make1lWEstimate.o: make1lWEstimate.cc
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -c make1lWEstimate.cc -o make1lWEstimate.o
+
+libcontextVars.so: contextVars.cc contextVars.h
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared contextVars.cc -o libcontextVars.so
 
 libdataMCplotMaker.so: dataMCplotMaker.cc dataMCplotMaker.h PlotMakingTools.h
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared dataMCplotMaker.cc -o libdataMCplotMaker.so
