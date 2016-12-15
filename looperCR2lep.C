@@ -209,7 +209,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 	// Set up data-specific filters
 
 	if( mySample->IsData() ) {
-		set_goodrun_file_json( "reference-files/Cert_271036-282037_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt" );
+		set_goodrun_file_json( "reference-files/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt" );
 		duplicate_removal::clear_list();
 	}
 
@@ -274,7 +274,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 			else if( sampleName == "tt1l"  && gen_nfromtleps_() != 1 ) continue;  //Require 1 lep from top in "tt1l" events
 
 			// Stitch W+NJets samples together by removing the MET<200 events from the non-nupT samples
-			if( sampleName.Contains("wjets") && TString(currentFile->GetTitle()).Contains("JetsToLNu_madgraph") && genmet()>=200. ) continue;
+			if( sampleName.Contains("wjets") && TString(currentFile->GetTitle()).Contains("JetsToLNu_madgraph") && nupt()>=200. ) continue;
 
 			//FastSim anomalous event filter
 			if( isFastsim && context::filt_fastsimjets() ) continue;
@@ -347,6 +347,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 				if( !filt_badChargedCandidateFilter() ) continue;
 				if( !filt_badMuonFilter() ) continue;
 				if( !HLT_SingleEl() && !HLT_SingleMu() && !HLT_MET() ) continue;
+				if( HLT_SingleEl() && !(abs(lep1_pdgid()) == 11) && !(abs(lep2_pdgid()) == 11) ) continue;
+				if( HLT_SingleMu() && !(abs(lep1_pdgid()) == 13) && !(abs(lep2_pdgid()) == 13) ) continue;
 				yield_filter += evtWeight;
 				yGen_filter++;
 			}

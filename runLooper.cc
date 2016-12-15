@@ -114,15 +114,15 @@ int main( int argc, char* argv[] ) {
 	// Define the "sample" and "analysis" objects that will do much of our bookkeeping
 
 	//                     new analysis( lumi, "histogram storage file", "systematic storage file" )
-	analysis* srAnalysis = new analysis( 29.53, "plots.root", "systVariations.root" );
-	analysis* crLostLep  = new analysis( 29.53, "plotsLL.root", "systVariationsLL.root" );
-	analysis* cr0bjets   = new analysis( 29.53, "plots0b.root", "systVariations0b.root" );
-	analysis* sr_jesup   = new analysis( 29.53, "jes_sr.root", "jes_sr.root" );
-	analysis* sr_jesdn   = new analysis( 29.53, "jes_sr.root", "jes_sr.root" );
-	analysis* cr2l_jesup = new analysis( 29.53, "jes_cr2l.root", "jes_cr2l.root" );
-	analysis* cr2l_jesdn = new analysis( 29.53, "jes_cr2l.root", "jes_cr2l.root" );
-	analysis* cr0b_jesup = new analysis( 29.53, "jes_cr0b.root", "jes_cr0b.root" );
-	analysis* cr0b_jesdn = new analysis( 29.53, "jes_cr0b.root", "jes_cr0b.root" );
+	analysis* srAnalysis = new analysis( 36.46, "plots.root", "systVariations.root" );
+	analysis* crLostLep  = new analysis( 36.46, "plotsLL.root", "systVariationsLL.root" );
+	analysis* cr0bjets   = new analysis( 36.46, "plots0b.root", "systVariations0b.root" );
+	analysis* sr_jesup   = new analysis( 36.46, "jes_sr.root", "jes_sr.root" );
+	analysis* sr_jesdn   = new analysis( 36.46, "jes_sr.root", "jes_sr.root" );
+	analysis* cr2l_jesup = new analysis( 36.46, "jes_cr2l.root", "jes_cr2l.root" );
+	analysis* cr2l_jesdn = new analysis( 36.46, "jes_cr2l.root", "jes_cr2l.root" );
+	analysis* cr0b_jesup = new analysis( 36.46, "jes_cr0b.root", "jes_cr0b.root" );
+	analysis* cr0b_jesdn = new analysis( 36.46, "jes_cr0b.root", "jes_cr0b.root" );
 
 
 	//                new sample( "Label",  "Display name(s)", TColor,    sampleType )
@@ -235,6 +235,9 @@ int main( int argc, char* argv[] ) {
 	selection<bool>   j1NoTag( &j1_isBtag, false );
 	selection<double> dPhilepmet(&dphilmet, 0., 1.5 );
 	selection<double> lep1ptLt100( &lep1pt, 0., 100. );
+	selection<double> lep1ptLt150( &lep1pt, 0., 150. );
+	selection<double> dPhilMetLt20(&dphilmet, 0., 2.0 );
+
 
 
 	// Create the "sigRegion" objects that will store the definitions of our signal/control regions
@@ -275,6 +278,11 @@ int main( int argc, char* argv[] ) {
 	sigRegion corr450combo( "corr450combo", "Corridor 450 combo", {&nJetsGe5, &MET_450_550, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
 	sigRegion corr550combo( "corr550combo", "Corridor 550 combo", {&nJetsGe5, &MET_550_inf, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
 	sigRegion corrAllcombo( "corrAllcombo", "Corridor All combo", {&nJetsGe5,               &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
+	sigRegion corr250new( "corr250new", "Corridor proposal, MET 250-350", {&nJetsGe5, &MET_250_350, &lep1ptLt150, &dPhilMetLt20} );
+	sigRegion corr350new( "corr350new", "Corridor proposal, MET 350-450", {&nJetsGe5, &MET_350_450, &lep1ptLt150, &dPhilMetLt20} );
+	sigRegion corr450new( "corr450new", "Corridor proposal, MET 450-550", {&nJetsGe5, &MET_450_550, &lep1ptLt150, &dPhilMetLt20} );
+	sigRegion corr550new( "corr550new", "Corridor proposal, MET 550-inf", {&nJetsGe5, &MET_550_inf, &lep1ptLt150, &dPhilMetLt20} );
+
 
 
 	// Equivalents for the 0-btag control regions
@@ -314,6 +322,10 @@ int main( int argc, char* argv[] ) {
 	sigRegion corr450comboCR0b( "corr450comboCR0b", "CR0b Corridor 450 combo", {&nJetsGe5, &MET_450_550, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet, &noMediumBs} );
 	sigRegion corr550comboCR0b( "corr550comboCR0b", "CR0b Corridor 550 combo", {&nJetsGe5, &MET_550_inf, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet, &noMediumBs} );
 	sigRegion corrAllcomboCR0b( "corrAllcomboCR0b", "CR0b Corridor All combo", {&nJetsGe5,               &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet, &noMediumBs} );
+	sigRegion corr250newCR0b( "corr250newCR0b", "CR0b Corridor proposal, MET 250-350", {&nJetsGe5, &MET_250_350, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
+	sigRegion corr350newCR0b( "corr350newCR0b", "CR0b Corridor proposal, MET 350-450", {&nJetsGe5, &MET_350_450, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
+	sigRegion corr450newCR0b( "corr450newCR0b", "CR0b Corridor proposal, MET 450-550", {&nJetsGe5, &MET_450_550, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
+	sigRegion corr550newCR0b( "corr550newCR0b", "CR0b Corridor proposal, MET 550-inf", {&nJetsGe5, &MET_550_inf, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
 
 
 	// Finally, store all these signal/control regions in our "analysis" objects.
@@ -330,6 +342,7 @@ int main( int argc, char* argv[] ) {
 	srAnalysis->AddSigRegs( {&corridor250, &corridor350, &corridor450} );
 	srAnalysis->AddSigRegs( {&corr250combo, &corr350combo, &corr450combo, &corr550combo} );
 	srAnalysis->AddSigRegs( {&corrAllcombo} );
+	srAnalysis->AddSigRegs( {&corr250new, &corr350new, &corr450new, &corr550new} );
 
 	crLostLep->AddSigRegs( {&j23lowmlb250, &j23lowmlb350, &j23lowmlb450, &j23lowmlb600} );
 	crLostLep->AddSigRegs( {&j23himlb250, &j23himlb450, &j23himlb600} );
@@ -343,6 +356,7 @@ int main( int argc, char* argv[] ) {
 	crLostLep->AddSigRegs( {&corridor250, &corridor350, &corridor450} );
 	crLostLep->AddSigRegs( {&corr250combo, &corr350combo, &corr450combo, &corr550combo} );
 	crLostLep->AddSigRegs( {&corrAllcombo} );
+	crLostLep->AddSigRegs( {&corr250new, &corr350new, &corr450new, &corr550new} );
 
 	cr0bjets->AddSigRegs( {&j23lowmlb250CR0b, &j23lowmlb350CR0b, &j23lowmlb450CR0b, &j23lowmlb600CR0b} );
 	cr0bjets->AddSigRegs( {&j23himlb250CR0b, &j23himlb450CR0b, &j23himlb600CR0b} );
@@ -356,6 +370,7 @@ int main( int argc, char* argv[] ) {
 	cr0bjets->AddSigRegs( {&corridor250CR0b, &corridor350CR0b, &corridor450CR0b} );
 	cr0bjets->AddSigRegs( {&corr250comboCR0b, &corr350comboCR0b, &corr450comboCR0b, &corr550comboCR0b} );
 	cr0bjets->AddSigRegs( {&corrAllcomboCR0b} );
+	cr0bjets->AddSigRegs( {&corr250newCR0b, &corr350newCR0b, &corr450newCR0b, &corr550newCR0b} );
 
 	// Copy signal regions to JES up and down "analysis" objects
 	for( vector<sigRegion*> srList : srAnalysis->GetSigRegions() ) {
@@ -378,7 +393,8 @@ int main( int argc, char* argv[] ) {
 
 	TString sigPath  = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/Nominal/";
 	TString bkgPath  = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v11/skim/";
-	TString dataPath = "/nfs-7/userdata/jgwood/tupler_babies/merged/Stop_1l/v12/skim/";
+	TString bkgPath2 = "/nfs-7/userdata/jgwood/tupler_babies/merged/Stop_1l/v12/skim/";
+	TString dataPath = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v12/skim/";
 
 	TString sigPath_jesup = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/JESup/";
 	// TString bkgPath_jesup = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/JESup/";
@@ -389,9 +405,9 @@ int main( int argc, char* argv[] ) {
 	if( runlooper || runlostlep || run1lw || runjes ) {
 
 		// Data samples
-		data->AddFile( dataPath + "data_met_Run2016*_MINIAOD_PromptReco-v*.root" );
-		data->AddFile( dataPath + "data_single_electron_Run2016*_MINIAOD_PromptReco-v*.root" );
-		data->AddFile( dataPath + "data_single_muon_Run2016*_MINIAOD_PromptReco-v*.root" );
+		data->AddFile( dataPath + "data_met_Run2016*_MINIAOD_*.root" );
+		data->AddFile( dataPath + "data_single_electron_Run2016*_MINIAOD_*.root" );
+		data->AddFile( dataPath + "data_single_muon_Run2016*_MINIAOD_*.root" );
 
 		// Signal sample(s)
 		signal->AddFile( sigPath + "Signal_T2tt*.root" );
@@ -418,8 +434,8 @@ int main( int argc, char* argv[] ) {
 
 		singtop->AddFile( bkgPath + "t_sch_4f_amcnlo_pythia8_25ns.root" );
 		singtop->AddFile( bkgPath + "t_tch_4f_powheg_pythia8_25ns.root" );
-		singtop->AddFile( dataPath + "tbar_tch_4f_powheg_pythia8_25ns*.root" );   // Take this one from John's directory
-		singtop->AddFile( dataPath + "t_tW_5f_powheg_pythia8_25ns.root" );       // This one too
+		singtop->AddFile( bkgPath2 + "tbar_tch_4f_powheg_pythia8_25ns*.root" );   // Take this one from John's directory
+		singtop->AddFile( bkgPath2 + "t_tW_5f_powheg_pythia8_25ns.root" );       // This one too
 		singtop->AddFile( bkgPath + "t_tbarW_5f_powheg_pythia8_25ns.root" );
 
 		rare->AddFile( bkgPath + "ttWJets_13TeV_madgraphMLM.root" );
