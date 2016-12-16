@@ -229,6 +229,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 		// Get File Content
 		TFile file( currentFile->GetTitle() );
+		TString filename = file.GetName();
 		TTree *tree = (TTree*)file.Get("t");
 		if(fast) TTreeCache::SetLearnEntries(10);
 		if(fast) tree->SetCacheSize(128*1024*1024);
@@ -274,7 +275,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 			else if( sampleName == "tt1l"  && gen_nfromtleps_() != 1 ) continue;  //Require 1 lep from top in "tt1l" events
 
 			// Stitch W+NJets samples together by removing the MET<200 events from the non-nupT samples
-			if( sampleName.Contains("wjets") && TString(currentFile->GetTitle()).Contains("JetsToLNu_madgraph") && nupt()>=200. ) continue;
+			if( sampleName.Contains("wjets") && filename.Contains("JetsToLNu_madgraph") && nupt()>=200. ) continue;
 
 			//FastSim anomalous event filter
 			if( isFastsim && context::filt_fastsimjets() ) continue;
@@ -456,7 +457,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 			// Classify event based on number of leptons / neutrinos
 
 			int category = -99;
-			if(   isZtoNuNu() )        category = 1;   // Z to nu nu
+			if( filename.Contains("ZZTo2L2Nu") && isZtoNuNu() ) category = 2; // Force ZZto2L2Nu to be 2lep
+			else if( isZtoNuNu() )     category = 1;   // Z to nu nu
 			else if( is2lep() )        category = 2;   // 2 or more leptons
 			else if( is1lepFromTop() ) category = 3;   // 1 lepton from top quark
 			else if( is1lepFromW() )   category = 4;   // 1 lepton from a W not from top
