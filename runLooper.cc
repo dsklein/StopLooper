@@ -182,9 +182,9 @@ int main( int argc, char* argv[] ) {
 	systematic contamdn_dummy( "contam",   systematic::kDown,  (*sfhelp::Unity) );
 
 	srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
-	srAnalysis->AddSystematics( {&eff2lup_dummy, &eff2ldn_dummy, &metresup, &metresdn, &topptup, &topptdn, &contamup_dummy, &contamdn_dummy } );
+	srAnalysis->AddSystematics( {&eff2lup_dummy, &eff2ldn_dummy, &metresup, &metresdn, /*&topptup, &topptdn,*/ &contamup_dummy, &contamdn_dummy } );
 	crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn} );
-	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, &topptup, &topptdn } );
+	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn/*, &topptup, &topptdn*/ } );
 	cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn/*, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn*/} );
 	cr0bjets->AddSystematics( {&qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &metresup, &metresdn, &contam1lwup, &contam1lwdn } );
 
