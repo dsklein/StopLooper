@@ -104,24 +104,24 @@ void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 
 	// Get lost lepton background yields from MC in signal regions
 	for( uint i=0; i<srnames.size(); i++ ) {
-		TH1D* histo = (TH1D*)srhistfile->Get("evttype_"+srnames.at(i)+systSuffix);
-		if( histo == 0 ) {
+		TH1D* h_evtType = (TH1D*)srhistfile->Get("evttype_"+srnames.at(i)+systSuffix);
+		if( h_evtType == 0 ) {
 			cout << "Error in makeLostLepEstimate! Could not find histogram evttype_" << srnames.at(i)+systSuffix << " in file " << srhistfile->GetName() << "!" << endl;
 			return;
 		}
-		h_srMC->SetBinContent(i+1, histo->GetBinContent(4));
-		h_srMC->SetBinError(i+1, histo->GetBinError(4));
+		h_srMC->SetBinContent(i+1, h_evtType->GetBinContent(3));
+		h_srMC->SetBinError(i+1, h_evtType->GetBinError(3));
 	}
 
 	// Get total yields from MC in 2-lep control regions
 	for( uint i=0; i<crnames.size(); i++ ) {
-		TH1D* histo = (TH1D*)crhistfile->Get("evttype_"+crnames.at(i)+systSuffix);
-		if( histo == 0 ) {
+		TH1D* h_evtType = (TH1D*)crhistfile->Get("evttype_"+crnames.at(i)+systSuffix);
+		if( h_evtType == 0 ) {
 			cout << "Error in makeLostLepEstimate! Could not find histogram evttype_" << crnames.at(i)+systSuffix << " in file " << crhistfile->GetName() << "!" << endl;
 			return;
 		}
 		double yield, error;
-		yield = histo->IntegralAndError( 3, 6, error );
+		yield = h_evtType->IntegralAndError( 3, 6, error );
 		h_crMC->SetBinContent( i+1, yield );
 		h_crMC->SetBinError(   i+1, error );
 	}

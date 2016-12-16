@@ -18,12 +18,7 @@ void makeTables( analysis* myAnalysis ) {
 		return;
 	}
 
-	vector<TString> decayNames;
-	decayNames.push_back("Z $\\rightarrow \\nu\\nu$");
-	decayNames.push_back("$\\geq$2 leptons");
-	decayNames.push_back("1 lepton from top");
-	decayNames.push_back("1 lepton from W");
-	decayNames.push_back("Other");
+	vector<TString> decayNames = { "$\\geq$2 leptons", "1 lepton from W", "1 lepton from top", "Z $\\rightarrow \\nu\\nu$", "Other" };
 
 	TString dummySampleName = myAnalysis->GetAllSamples().at(0)->GetLabel();
 	TString dummyRegionName = myAnalysis->GetSigRegionLabelsAll().at(0);

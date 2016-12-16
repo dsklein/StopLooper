@@ -139,19 +139,19 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 		for( int j=0; j<=nVariations; j++ ) {
 
 			TAxis* axis = h_bkgtype_sum[i][j]->GetXaxis();
-			axis->SetBinLabel( 1, "ZtoNuNu" );
-			axis->SetBinLabel( 2, "2+lep" );
+			axis->SetBinLabel( 1, "2+lep" );
+			axis->SetBinLabel( 2, "1lepW" );
 			axis->SetBinLabel( 3, "1lepTop" );
-			axis->SetBinLabel( 4, "1lepW" );
+			axis->SetBinLabel( 4, "ZtoNuNu" );
 			axis->SetBinLabel( 5, "Other" );
 
 			axis = h_evttype_sum[i][j]->GetXaxis();
 			axis->SetBinLabel( 1, "Data" );
 			axis->SetBinLabel( 2, "Signals" );
-			axis->SetBinLabel( 3, "ZtoNuNu" );
-			axis->SetBinLabel( 4, "2+lep" );
+			axis->SetBinLabel( 3, "2+lep" );
+			axis->SetBinLabel( 4, "1lepW" );
 			axis->SetBinLabel( 5, "1lepTop" );
-			axis->SetBinLabel( 6, "1lepW" );
+			axis->SetBinLabel( 6, "ZtoNuNu" );
 		}
 
 	}
@@ -455,19 +455,20 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 			//////////////////////////////////////////////////////////
 			// Classify event based on number of leptons / neutrinos
+			// Order of evaluation matters, because some events fall into multiple categories
 
-			int category = -99;
-			if( filename.Contains("ZZTo2L2Nu") && isZtoNuNu() ) category = 2; // Force ZZto2L2Nu to be 2lep
-			else if( isZtoNuNu() )     category = 1;   // Z to nu nu
-			else if( is2lep() )        category = 2;   // 2 or more leptons
-			else if( is1lepFromTop() ) category = 3;   // 1 lepton from top quark
-			else if( is1lepFromW() )   category = 4;   // 1 lepton from a W not from top
-			else                       category = 5;   // Other
+			int bkgType = -99;
+			if( filename.Contains("ZZTo2L2Nu") && isZtoNuNu() ) bkgType = 1; // Force ZZto2L2Nu to be 2lep
+			else if( isZtoNuNu() )     bkgType = 4;   // Z to nu nu
+			else if( is2lep() )        bkgType = 1;   // 2 or more leptons
+			else if( is1lepFromTop() ) bkgType = 3;   // 1 lepton from top quark
+			else if( is1lepFromW() )   bkgType = 2;   // 1 lepton from a W not from top
+			else                       bkgType = 5;   // Other
 
 			int evtType = -99;
 			if(      mySample->IsData()   ) evtType = 1;
 			else if( mySample->IsSignal() ) evtType = 2;
-			else                            evtType = 2+category;
+			else                            evtType = 2+bkgType;
 
 			// Quickly calculate some variables
 			double metSqHT = context::Met() / sqrt( context::ak4_HT() );
@@ -494,7 +495,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 				if( !sigRegions.at(i)->PassAllCuts() ) continue;
 
-				h_bkgtype[i][0]->Fill( category,                   evtWeight );
+				h_bkgtype[i][0]->Fill( bkgType,                    evtWeight );
 				h_evttype[i][0]->Fill( evtType,                    evtWeight );
 				if( mySample->IsSignal() ) h_sigyields[i][0]->Fill( mass_stop(), mass_lsp(), evtWeight );
 
@@ -521,7 +522,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 				// Special systematic variation histograms
 				for( int j=1; j<=nVariations; j++ ) {
-					h_bkgtype[i][j]->Fill( category, evtWeight * variations.at(j-1)->GetWeight() );
+					h_bkgtype[i][j]->Fill( bkgType,  evtWeight * variations.at(j-1)->GetWeight() );
 					h_evttype[i][j]->Fill( evtType,  evtWeight * variations.at(j-1)->GetWeight() );
 					if( mySample->IsSignal() ) h_sigyields[i][j]->Fill( mass_stop(), mass_lsp(), evtWeight * variations.at(j-1)->GetWeight() );
 				}

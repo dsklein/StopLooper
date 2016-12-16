@@ -22,7 +22,7 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 	}
 
 	// Do some basic setup stuff
-	vector<TString> bkgs = { "zNuNu", "dilep", "top1l", "W1l" }; // Eventually pull this from the analysis object
+	vector<TString> bkgs = { "dilep", "W1l", "top1l", "zNuNu" }; // Eventually pull this from the analysis object
 	const int nBkgs = bkgs.size();
 
 	vector<TString> samples = bkgs;
@@ -38,8 +38,8 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 
 	int nVars_ll = 0;
 	int nVars_1lw = 0;
-	TFile* lostlepFile, *onelepwFile;
-	TH1D* h_lostLep, *h_onelepw;
+	TFile *lostlepFile, *onelepwFile;
+	TH1D *h_lostLep, *h_onelepw;
 
 	TFile* yieldFile   = new TFile( srAnalysis->GetPlotFileName(), "READ" );
 	systMap_sr = srAnalysis->GetSystMap();
@@ -113,7 +113,7 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 		cardlines.push_back( "imax 1  number of channels\n" );
 
 		tmpstr = Form( "jmax %d  number of backgrounds (", nBkgs );
-		for (TString bkgName : bkgs ) tmpstr += Form( "%s, ",  bkgName.Data() );   // Will usually be 4 (znunu, 2l, 1ltop, 1lw)
+		for (TString bkgName : bkgs ) tmpstr += Form( "%s, ",  bkgName.Data() );   // Will usually be 4 (2l, 1lW, 1ltop, znunu)
 		tmpstr += ")\n";
 		cardlines.push_back( tmpstr );
 		cardlines.push_back( "### Placeholder line. Number of uncertainties will go here.\n" );
@@ -150,8 +150,8 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 
 		for( int i=1; i<nSamples; i++ ) {
 
-			if(      i==2 && lostlepAnalysis!=NULL ) yield = h_lostLep->GetBinContent(reg); // Pull 2l yield from lostLepton estimate histogram
-			else if( i==4 && onelepwAnalysis!=NULL ) yield = h_onelepw->GetBinContent(reg); // Pull 1lw yield from 1l-from-w estimate histogram
+			if(      i==1 && lostlepAnalysis!=NULL ) yield = h_lostLep->GetBinContent(reg); // Pull 2l yield from lostLepton estimate histogram
+			else if( i==2 && onelepwAnalysis!=NULL ) yield = h_onelepw->GetBinContent(reg); // Pull 1lw yield from 1l-from-w estimate histogram
 			else                                     yield = h_bkgYield->GetBinContent(i+2);
 			bkgRates += Form( " %10f", yield );
 		}
@@ -171,15 +171,15 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 		uncertlines.push_back( "### Placeholder line. Stat uncertainty on signal yield will go here." );
 		for( int sampleIdx=1; sampleIdx<nSamples; sampleIdx++ ) {
 
-			if( sampleIdx == 3 ) continue;
+			if( sampleIdx == 3 ) continue; //1ltop
 
 			char statname[25];
 			sprintf( statname, "Stat%s%d", samples.at(sampleIdx).Data(), reg );
 			tmpstr = Form( "%-18s  lnN ", statname );
 
 			double statErr;
-			if(      sampleIdx==2 && lostlepAnalysis != NULL ) statErr = 1.0 + ( h_lostLep->GetBinError(reg) / h_lostLep->GetBinContent(reg) );  // Pull 2l stats from ll estimate histogram
-			else if( sampleIdx==4 && onelepwAnalysis != NULL ) statErr = 1.0 + ( h_onelepw->GetBinError(reg) / h_onelepw->GetBinContent(reg) );  // Pull 1lw stats from 1lW estimate histogram
+			if(      sampleIdx==1 && lostlepAnalysis != NULL ) statErr = 1.0 + ( h_lostLep->GetBinError(reg) / h_lostLep->GetBinContent(reg) );  // Pull 2l stats from ll estimate histogram
+			else if( sampleIdx==2 && onelepwAnalysis != NULL ) statErr = 1.0 + ( h_onelepw->GetBinError(reg) / h_onelepw->GetBinContent(reg) );  // Pull 1lw stats from 1lW estimate histogram
 			else 		                                           statErr = 1.0 + ( h_bkgYield->GetBinError(sampleIdx+2) / h_bkgYield->GetBinContent(sampleIdx+2) );
 
 			if( std::isnan(statErr) ) statErr = 1.0; // Protection against nan
@@ -193,13 +193,13 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 
 			// Add data and MC stats to systematics table
 			TH1D *datastats, *mcstats;
-			if(      sampleIdx==2 && lostlepAnalysis != NULL ) {
+			if(      sampleIdx==1 && lostlepAnalysis != NULL ) {
 				datastats = (TH1D*)lostlepFile->Get("estimate_datastats");
 				mcstats   = (TH1D*)lostlepFile->Get("estimate_mcstats");
 				lostlep_uncert[" DataStats"].push_back( datastats->GetBinError(reg) / datastats->GetBinContent(reg) );
 				lostlep_uncert[" MCstats"].push_back(   mcstats->GetBinError(reg)   / mcstats->GetBinContent(reg) );
 			}
-			else if( sampleIdx==4 && onelepwAnalysis != NULL ) {
+			else if( sampleIdx==2 && onelepwAnalysis != NULL ) {
 				datastats = (TH1D*)onelepwFile->Get("estimate_datastats");
 				mcstats   = (TH1D*)onelepwFile->Get("estimate_mcstats");
 				onelepw_uncert[" DataStats"].push_back( datastats->GetBinError(reg) / datastats->GetBinContent(reg) );
@@ -216,10 +216,10 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 			double systErr = 0.;
 			char systname[25];
 
-			if(      sampleIdx == 2 && nVars_ll  > 0 ) continue; // Don't use dummy systematic for ll background if we have actual systematics
-			else if( sampleIdx == 4 && nVars_1lw > 0 && !(sigRegions.at(reg-1).Contains("combo")) ) continue; // Same with 1l-from-W background
+			if(      sampleIdx == 1 && nVars_ll  > 0 ) continue; // Don't use dummy systematic for ll background if we have actual systematics
+			else if( sampleIdx == 2 && nVars_1lw > 0 && !(sigRegions.at(reg-1).Contains("combo")) ) continue; // Same with 1l-from-W background
 			else if( sampleIdx == 3 ) {
-				systErr = 2.0; // 100% systematic on 1l from top
+				systErr = 2.0; // 100% total uncertainty on 1l from top
 				sprintf( systname, "Flat%s%d", samples.at(sampleIdx).Data(), reg );
 			}
 			else {
@@ -252,7 +252,7 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 			if( nominal < 0.0000000001 ) nominal = 0.0000000001;  // Protection for when yields are zero or negative
 			for( auto& iter : systMap_ll ) {                      // Loop over all systematics for the ll background
 				double maxdiff = calculateMaxdiff( reg, lostlepFile, nominal, iter.second ); // Calculate the biggest variation
-				syst_holder[iter.first].at(2) = Form( "  %8.6f  ", 1.0 + maxdiff/nominal );  // Populate the appropriate cell in the datacard systematics table
+				syst_holder[iter.first].at(1) = Form( "  %8.6f  ", 1.0 + maxdiff/nominal );  // Populate the appropriate cell in the datacard systematics table
 				lostlep_uncert[iter.first].push_back( maxdiff/nominal );     // and also add that number to the printable lost lepton systematics table
 			}
 		}
@@ -265,7 +265,7 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 				if( sigRegions.at(reg-1).Contains("combo") ) onelepw_uncert[iter.first].push_back( 0. );
 				else {
 					double maxdiff = calculateMaxdiff( reg, onelepwFile, nominal, iter.second );
-					syst_holder[iter.first].at(4) = Form( "  %8.6f  ", 1.0 + maxdiff/nominal );
+					syst_holder[iter.first].at(2) = Form( "  %8.6f  ", 1.0 + maxdiff/nominal );
 					onelepw_uncert[iter.first].push_back( maxdiff/nominal );
 				}
 			}
@@ -410,6 +410,7 @@ void printSystTable( vector<TString> sigRegions, map<TString,vector<double> > un
 			totalUncertSq[i] += uncert*uncert;
 		}
 		printf( " \\\\\n" );
+		if( iter.first == " MCstats" ) printf( "\\hline\n" );
 	}
 
 	printf( "\\hline\n" );
