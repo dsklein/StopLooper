@@ -321,7 +321,7 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 				if( mySample->IsSignal()  ) evtWeight *= weight_ISR() * isrNorm;
 				if( mySample->GetLabel() == "tt2l" || TString(file.GetTitle()).Contains("W_5f_powheg_pythia8") ){
 					evtWeight *= myHelper.MetResSF();
-					evtWeight *= myHelper.TopSystPtSF();
+					// evtWeight *= myHelper.TopSystPtSF();
 				}
 				else if( mySample->GetLabel() == "tt1l" || mySample->GetLabel() == "wjets" ) evtWeight *= myHelper.MetResSF();
 			}
