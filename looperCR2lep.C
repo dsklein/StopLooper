@@ -280,6 +280,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 			//FastSim anomalous event filter
 			if( isFastsim && context::filt_fastsimjets() ) continue;
 
+			if( !mySample->PassSelections() ) continue;
+
 
 			/////////////////////////////////
 			// Set event weight
@@ -443,7 +445,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 			yGen_MTcut++;
 
 			// Min delta-phi between MET and j1/j2 (with 2nd lepton pT added to MET)
-			if( context::Mindphi_met_j1_j2() < 0.8 ) continue;
+			if( context::Mindphi_met_j1_j2() < 0.5 ) continue;
 			yield_dPhi += evtWeight;
 			yGen_dPhi++;
 

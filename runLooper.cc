@@ -233,99 +233,101 @@ int main( int argc, char* argv[] ) {
 
 	selection<double> j1Pt200( &j1pt, 200., 9999999. ); // Special selections for the corridor regions
 	selection<bool>   j1NoTag( &j1_isBtag, false );
-	selection<double> dPhilepmet(&dphilmet, 0., 1.5 );
+	selection<double> dPhilMetLt15(&dphilmet, 0., 1.5 );
+	selection<double> dPhilMetLt20(&dphilmet, 0., 2.0 );
 	selection<double> lep1ptLt100( &lep1pt, 0., 100. );
 	selection<double> lep1ptLt150( &lep1pt, 0., 150. );
-	selection<double> dPhilMetLt20(&dphilmet, 0., 2.0 );
+	selection<float> minDPhi050( (*context::Mindphi_met_j1_j2), 0.50, 9999999. );
+	selection<float> minDPhi080( (*context::Mindphi_met_j1_j2), 0.80, 9999999. );
 
 
 
 	// Create the "sigRegion" objects that will store the definitions of our signal/control regions
 	// sigRegion objName(   "label",        "Nice name(s) for plots/tables",             {selections that define the region} )
-	sigRegion j23lowmlb250( "j23lowmlb250", "2-3 jets, high tmod, low Mlb, MET250-350",  {&nJets23, &modTopHigh, &mlbLt175, &MET_250_350} ); // A
-	sigRegion j23lowmlb350( "j23lowmlb350", "2-3 jets, high tmod, low Mlb, MET350-450",  {&nJets23, &modTopHigh, &mlbLt175, &MET_350_450} );
-	sigRegion j23lowmlb450( "j23lowmlb450", "2-3 jets, high tmod, low Mlb, MET450-600",  {&nJets23, &modTopHigh, &mlbLt175, &MET_450_600} );
-	sigRegion j23lowmlb600( "j23lowmlb600", "2-3 jets, high tmod, low Mlb, MET600-inf",  {&nJets23, &modTopHigh, &mlbLt175, &MET_600_inf} );
-	sigRegion j23himlb250(  "j23himlb250",  "2-3 jets, high tmod, hi Mlb, MET250-450",   {&nJets23, &modTopHigh, &mlbGe175, &MET_250_450, &oneTightB} ); // B
-	sigRegion j23himlb450(  "j23himlb450",  "2-3 jets, high tmod, hi Mlb, MET450-600",   {&nJets23, &modTopHigh, &mlbGe175, &MET_450_600, &oneTightB} );
-	sigRegion j23himlb600(  "j23himlb600",  "2-3 jets, high tmod, hi Mlb, MET600-inf",   {&nJets23, &modTopHigh, &mlbGe175, &MET_600_inf, &oneTightB} );
-	sigRegion j4negtmodlowmlb250( "j4negtmodlowmlb250", "4 jets, neg tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_250_350} ); // C
-	sigRegion j4negtmodlowmlb350( "j4negtmodlowmlb350", "4 jets, neg tmod, low Mlb, MET350-450",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_350_450} );
-	sigRegion j4negtmodlowmlb450( "j4negtmodlowmlb450", "4 jets, neg tmod, low Mlb, MET450-550",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_450_550} );
-	sigRegion j4negtmodlowmlb550( "j4negtmodlowmlb550", "4 jets, neg tmod, low Mlb, MET550-650",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_550_650} );
-	sigRegion j4negtmodlowmlb650( "j4negtmodlowmlb650", "4 jets, neg tmod, low Mlb, MET650-inf",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_650_inf} );
-	sigRegion j4negtmodhimlb250(  "j4negtmodhimlb250",  "4 jets, neg tmod, hi Mlb, MET250-350",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_350, &oneTightB} ); // D
-	sigRegion j4negtmodhimlb350(  "j4negtmodhimlb350",  "4 jets, neg tmod, hi Mlb, MET350-450",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_350_450, &oneTightB} );
-	sigRegion j4negtmodhimlb450(  "j4negtmodhimlb450",  "4 jets, neg tmod, hi Mlb, MET450-550",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_450_550, &oneTightB} );
-	sigRegion j4negtmodhimlb550(  "j4negtmodhimlb550",  "4 jets, neg tmod, hi Mlb, MET550-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_550_inf, &oneTightB} );
-	sigRegion j4lowtmodlowmlb250( "j4lowtmodlowmlb250", "4 jets, low tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopLow, &mlbLt175, &MET_250_350} ); // E
-	sigRegion j4lowtmodlowmlb350( "j4lowtmodlowmlb350", "4 jets, low tmod, low Mlb, MET350-550",  {&nJetsGe4, &modTopLow, &mlbLt175, &MET_350_550} );
-	sigRegion j4lowtmodlowmlb550( "j4lowtmodlowmlb550", "4 jets, low tmod, low Mlb, MET550-inf",  {&nJetsGe4, &modTopLow, &mlbLt175, &MET_550_inf} );
-	sigRegion j4lowtmodhimlb250(  "j4lowtmodhimlb250",  "4 jets, low tmod, hi Mlb, MET250-450",   {&nJetsGe4, &modTopLow, &mlbGe175, &MET_250_450, &oneTightB} ); // F
-	sigRegion j4lowtmodhimlb450(  "j4lowtmodhimlb450",  "4 jets, low tmod, hi Mlb, MET450-inf",   {&nJetsGe4, &modTopLow, &mlbGe175, &MET_450_inf, &oneTightB} );
-	sigRegion j4hitmodlowmlb250( "j4hitmodlowmlb250", "4 jets, high tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopHigh, &mlbLt175, &MET_250_350} ); // G
-	sigRegion j4hitmodlowmlb350( "j4hitmodlowmlb350", "4 jets, high tmod, low Mlb, MET350-450",  {&nJetsGe4, &modTopHigh, &mlbLt175, &MET_350_450} );
-	sigRegion j4hitmodlowmlb450( "j4hitmodlowmlb450", "4 jets, high tmod, low Mlb, MET450-600",  {&nJetsGe4, &modTopHigh, &mlbLt175, &MET_450_600} );
-	sigRegion j4hitmodlowmlb600( "j4hitmodlowmlb600", "4 jets, high tmod, low Mlb, MET600-inf",  {&nJetsGe4, &modTopHigh, &mlbLt175, &MET_600_inf} );
-	sigRegion j4hitmodhimlb250(  "j4hitmodhimlb250",  "4 jets, high tmod, hi Mlb, MET250-450",   {&nJetsGe4, &modTopHigh, &mlbGe175, &MET_250_450, &oneTightB} ); // H
-	sigRegion j4hitmodhimlb450(  "j4hitmodhimlb450",  "4 jets, high tmod, hi Mlb, MET450-inf",   {&nJetsGe4, &modTopHigh, &mlbGe175, &MET_450_inf, &oneTightB} );
+	sigRegion j23lowmlb250( "j23lowmlb250", "2-3 jets, high tmod, low Mlb, MET250-350",  {&minDPhi080, &nJets23, &modTopHigh, &mlbLt175, &MET_250_350} ); // A
+	sigRegion j23lowmlb350( "j23lowmlb350", "2-3 jets, high tmod, low Mlb, MET350-450",  {&minDPhi080, &nJets23, &modTopHigh, &mlbLt175, &MET_350_450} );
+	sigRegion j23lowmlb450( "j23lowmlb450", "2-3 jets, high tmod, low Mlb, MET450-600",  {&minDPhi080, &nJets23, &modTopHigh, &mlbLt175, &MET_450_600} );
+	sigRegion j23lowmlb600( "j23lowmlb600", "2-3 jets, high tmod, low Mlb, MET600-inf",  {&minDPhi080, &nJets23, &modTopHigh, &mlbLt175, &MET_600_inf} );
+	sigRegion j23himlb250(  "j23himlb250",  "2-3 jets, high tmod, hi Mlb, MET250-450",   {&minDPhi080, &nJets23, &modTopHigh, &mlbGe175, &MET_250_450, &oneTightB} ); // B
+	sigRegion j23himlb450(  "j23himlb450",  "2-3 jets, high tmod, hi Mlb, MET450-600",   {&minDPhi080, &nJets23, &modTopHigh, &mlbGe175, &MET_450_600, &oneTightB} );
+	sigRegion j23himlb600(  "j23himlb600",  "2-3 jets, high tmod, hi Mlb, MET600-inf",   {&minDPhi080, &nJets23, &modTopHigh, &mlbGe175, &MET_600_inf, &oneTightB} );
+	sigRegion j4negtmodlowmlb250( "j4negtmodlowmlb250", "4 jets, neg tmod, low Mlb, MET250-350",  {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbLt175, &MET_250_350} ); // C
+	sigRegion j4negtmodlowmlb350( "j4negtmodlowmlb350", "4 jets, neg tmod, low Mlb, MET350-450",  {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbLt175, &MET_350_450} );
+	sigRegion j4negtmodlowmlb450( "j4negtmodlowmlb450", "4 jets, neg tmod, low Mlb, MET450-550",  {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbLt175, &MET_450_550} );
+	sigRegion j4negtmodlowmlb550( "j4negtmodlowmlb550", "4 jets, neg tmod, low Mlb, MET550-650",  {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbLt175, &MET_550_650} );
+	sigRegion j4negtmodlowmlb650( "j4negtmodlowmlb650", "4 jets, neg tmod, low Mlb, MET650-inf",  {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbLt175, &MET_650_inf} );
+	sigRegion j4negtmodhimlb250(  "j4negtmodhimlb250",  "4 jets, neg tmod, hi Mlb, MET250-350",   {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_350, &oneTightB} ); // D
+	sigRegion j4negtmodhimlb350(  "j4negtmodhimlb350",  "4 jets, neg tmod, hi Mlb, MET350-450",   {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbGe175, &MET_350_450, &oneTightB} );
+	sigRegion j4negtmodhimlb450(  "j4negtmodhimlb450",  "4 jets, neg tmod, hi Mlb, MET450-550",   {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbGe175, &MET_450_550, &oneTightB} );
+	sigRegion j4negtmodhimlb550(  "j4negtmodhimlb550",  "4 jets, neg tmod, hi Mlb, MET550-inf",   {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbGe175, &MET_550_inf, &oneTightB} );
+	sigRegion j4lowtmodlowmlb250( "j4lowtmodlowmlb250", "4 jets, low tmod, low Mlb, MET250-350",  {&minDPhi080, &nJetsGe4, &modTopLow, &mlbLt175, &MET_250_350} ); // E
+	sigRegion j4lowtmodlowmlb350( "j4lowtmodlowmlb350", "4 jets, low tmod, low Mlb, MET350-550",  {&minDPhi080, &nJetsGe4, &modTopLow, &mlbLt175, &MET_350_550} );
+	sigRegion j4lowtmodlowmlb550( "j4lowtmodlowmlb550", "4 jets, low tmod, low Mlb, MET550-inf",  {&minDPhi080, &nJetsGe4, &modTopLow, &mlbLt175, &MET_550_inf} );
+	sigRegion j4lowtmodhimlb250(  "j4lowtmodhimlb250",  "4 jets, low tmod, hi Mlb, MET250-450",   {&minDPhi080, &nJetsGe4, &modTopLow, &mlbGe175, &MET_250_450, &oneTightB} ); // F
+	sigRegion j4lowtmodhimlb450(  "j4lowtmodhimlb450",  "4 jets, low tmod, hi Mlb, MET450-inf",   {&minDPhi080, &nJetsGe4, &modTopLow, &mlbGe175, &MET_450_inf, &oneTightB} );
+	sigRegion j4hitmodlowmlb250( "j4hitmodlowmlb250", "4 jets, high tmod, low Mlb, MET250-350",  {&minDPhi080, &nJetsGe4, &modTopHigh, &mlbLt175, &MET_250_350} ); // G
+	sigRegion j4hitmodlowmlb350( "j4hitmodlowmlb350", "4 jets, high tmod, low Mlb, MET350-450",  {&minDPhi080, &nJetsGe4, &modTopHigh, &mlbLt175, &MET_350_450} );
+	sigRegion j4hitmodlowmlb450( "j4hitmodlowmlb450", "4 jets, high tmod, low Mlb, MET450-600",  {&minDPhi080, &nJetsGe4, &modTopHigh, &mlbLt175, &MET_450_600} );
+	sigRegion j4hitmodlowmlb600( "j4hitmodlowmlb600", "4 jets, high tmod, low Mlb, MET600-inf",  {&minDPhi080, &nJetsGe4, &modTopHigh, &mlbLt175, &MET_600_inf} );
+	sigRegion j4hitmodhimlb250(  "j4hitmodhimlb250",  "4 jets, high tmod, hi Mlb, MET250-450",   {&minDPhi080, &nJetsGe4, &modTopHigh, &mlbGe175, &MET_250_450, &oneTightB} ); // H
+	sigRegion j4hitmodhimlb450(  "j4hitmodhimlb450",  "4 jets, high tmod, hi Mlb, MET450-inf",   {&minDPhi080, &nJetsGe4, &modTopHigh, &mlbGe175, &MET_450_inf, &oneTightB} );
 	sigRegion inclusive(   "inclusive",   "Inclusive" );
-	sigRegion corridor250( "corridor250", "Corridor, low MET",  {&nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag} );
-	sigRegion corridor350( "corridor350", "Corridor, mid MET",  {&nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag} );
-	sigRegion corridor450( "corridor450", "Corridor, high MET", {&nJetsGe5, &MET_450_inf, &j1Pt200, &j1NoTag} );
-	sigRegion corr250combo( "corr250combo", "Corridor 250 combo", {&nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
-	sigRegion corr350combo( "corr350combo", "Corridor 350 combo", {&nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
-	sigRegion corr450combo( "corr450combo", "Corridor 450 combo", {&nJetsGe5, &MET_450_550, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
-	sigRegion corr550combo( "corr550combo", "Corridor 550 combo", {&nJetsGe5, &MET_550_inf, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
-	sigRegion corrAllcombo( "corrAllcombo", "Corridor All combo", {&nJetsGe5,               &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet} );
-	sigRegion corr250new( "corr250new", "Corridor proposal, MET 250-350", {&nJetsGe5, &MET_250_350, &lep1ptLt150, &dPhilMetLt20} );
-	sigRegion corr350new( "corr350new", "Corridor proposal, MET 350-450", {&nJetsGe5, &MET_350_450, &lep1ptLt150, &dPhilMetLt20} );
-	sigRegion corr450new( "corr450new", "Corridor proposal, MET 450-550", {&nJetsGe5, &MET_450_550, &lep1ptLt150, &dPhilMetLt20} );
-	sigRegion corr550new( "corr550new", "Corridor proposal, MET 550-inf", {&nJetsGe5, &MET_550_inf, &lep1ptLt150, &dPhilMetLt20} );
+	sigRegion corr250ichep( "corr250ichep", "Corridor ICHEP 250",  {&minDPhi080, &nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag} );
+	sigRegion corr350ichep( "corr350ichep", "Corridor ICHEP 350",  {&minDPhi080, &nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag} );
+	sigRegion corr450ichep( "corr450ichep", "Corridor ICHEP 450", {&minDPhi080, &nJetsGe5, &MET_450_inf, &j1Pt200, &j1NoTag} );
+	sigRegion corr250combo( "corr250combo", "Corridor 250 combo", {&minDPhi080, &nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15} );
+	sigRegion corr350combo( "corr350combo", "Corridor 350 combo", {&minDPhi080, &nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15} );
+	sigRegion corr450combo( "corr450combo", "Corridor 450 combo", {&minDPhi080, &nJetsGe5, &MET_450_550, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15} );
+	sigRegion corr550combo( "corr550combo", "Corridor 550 combo", {&minDPhi080, &nJetsGe5, &MET_550_inf, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15} );
+	sigRegion corrAllcombo( "corrAllcombo", "Corridor All combo", {&minDPhi080, &nJetsGe5,               &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15} );
+	sigRegion corr250new( "corr250new", "Corridor proposal, MET 250-350", {&minDPhi050, &nJetsGe5, &MET_250_350, &lep1ptLt150, &dPhilMetLt20} );
+	sigRegion corr350new( "corr350new", "Corridor proposal, MET 350-450", {&minDPhi050, &nJetsGe5, &MET_350_450, &lep1ptLt150, &dPhilMetLt20} );
+	sigRegion corr450new( "corr450new", "Corridor proposal, MET 450-550", {&minDPhi050, &nJetsGe5, &MET_450_550, &lep1ptLt150, &dPhilMetLt20} );
+	sigRegion corr550new( "corr550new", "Corridor proposal, MET 550-inf", {&minDPhi050, &nJetsGe5, &MET_550_inf, &lep1ptLt150, &dPhilMetLt20} );
 
 
 
 	// Equivalents for the 0-btag control regions
-	sigRegion j23lowmlb250CR0b( "j23lowmlb250CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET250-350",  {&nJets23, &modTopHigh, &mlbLt175, &MET_250_350, &noMediumBs} ); // A
-	sigRegion j23lowmlb350CR0b( "j23lowmlb350CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET350-450",  {&nJets23, &modTopHigh, &mlbLt175, &MET_350_450, &noMediumBs} );
-	sigRegion j23lowmlb450CR0b( "j23lowmlb450CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET450-600",  {&nJets23, &modTopHigh, &mlbLt175, &MET_450_600, &noMediumBs} );
-	sigRegion j23lowmlb600CR0b( "j23lowmlb600CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET600-inf",  {&nJets23, &modTopHigh, &mlbLt175, &MET_600_inf, &noMediumBs} );
-	sigRegion j23himlb250CR0b(  "j23himlb250CR0b",  "CR0b 2-3 jets, high tmod, hi Mlb, MET250-450",   {&nJets23, &modTopHigh, &mlbGe175, &MET_250_450, &noTightBs} ); // B
-	sigRegion j23himlb450CR0b(  "j23himlb450CR0b",  "CR0b 2-3 jets, high tmod, hi Mlb, MET450-600",   {&nJets23, &modTopHigh, &mlbGe175, &MET_450_600, &noTightBs} );
-	sigRegion j23himlb600CR0b(  "j23himlb600CR0b",  "CR0b 2-3 jets, high tmod, hi Mlb, MET600-inf",   {&nJets23, &modTopHigh, &mlbGe175, &MET_600_inf, &noTightBs} );
-	sigRegion j4negtmodlowmlb250CR0b( "j4negtmodlowmlb250CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_250_350, &noMediumBs} ); // C
-	sigRegion j4negtmodlowmlb350CR0b( "j4negtmodlowmlb350CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET350-450",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_350_450, &noMediumBs} );
-	sigRegion j4negtmodlowmlb450CR0b( "j4negtmodlowmlb450CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET450-550",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_450_550, &noMediumBs} );
-	sigRegion j4negtmodlowmlb550CR0b( "j4negtmodlowmlb550CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET550-650",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_550_650, &noMediumBs} );
-	sigRegion j4negtmodlowmlb650CR0b( "j4negtmodlowmlb650CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET650-inf",  {&nJetsGe4, &modTopNeg, &mlbLt175, &MET_650_inf, &noMediumBs} );
-	sigRegion j4negtmodhimlb250CR0b(  "j4negtmodhimlb250CR0b",  "CR0b 4 jets, neg tmod, hi Mlb, MET250-350",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_350, &noTightBs} ); // D
-	sigRegion j4negtmodhimlb350CR0b(  "j4negtmodhimlb350CR0b",  "CR0b 4 jets, neg tmod, hi Mlb, MET350-450",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_350_450, &noTightBs} );
-	sigRegion j4negtmodhimlb450CR0b(  "j4negtmodhimlb450CR0b",  "CR0b 4 jets, neg tmod, hi Mlb, MET450-550",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_450_550, &noTightBs} );
-	sigRegion j4negtmodhimlb550CR0b(  "j4negtmodhimlb550CR0b",  "CR0b 4 jets, neg tmod, hi Mlb, MET550-inf",   {&nJetsGe4, &modTopNeg, &mlbGe175, &MET_550_inf, &noTightBs} );
-	sigRegion j4lowtmodlowmlb250CR0b( "j4lowtmodlowmlb250CR0b", "CR0b 4 jets, low tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopLow, &mlbLt175, &MET_250_350, &noMediumBs} ); // E
-	sigRegion j4lowtmodlowmlb350CR0b( "j4lowtmodlowmlb350CR0b", "CR0b 4 jets, low tmod, low Mlb, MET350-550",  {&nJetsGe4, &modTopLow, &mlbLt175, &MET_350_550, &noMediumBs} );
-	sigRegion j4lowtmodlowmlb550CR0b( "j4lowtmodlowmlb550CR0b", "CR0b 4 jets, low tmod, low Mlb, MET550-inf",  {&nJetsGe4, &modTopLow, &mlbLt175, &MET_550_inf, &noMediumBs} );
-	sigRegion j4lowtmodhimlb250CR0b(  "j4lowtmodhimlb250CR0b",  "CR0b 4 jets, low tmod, hi Mlb, MET250-450",   {&nJetsGe4, &modTopLow, &mlbGe175, &MET_250_450, &noTightBs} ); // F
-	sigRegion j4lowtmodhimlb450CR0b(  "j4lowtmodhimlb450CR0b",  "CR0b 4 jets, low tmod, hi Mlb, MET450-inf",   {&nJetsGe4, &modTopLow, &mlbGe175, &MET_450_inf, &noTightBs} );
-	sigRegion j4hitmodlowmlb250CR0b( "j4hitmodlowmlb250CR0b", "CR0b 4 jets, high tmod, low Mlb, MET250-350",  {&nJetsGe4, &modTopHigh, &mlbLt175, &MET_250_350, &noMediumBs} ); // G
-	sigRegion j4hitmodlowmlb350CR0b( "j4hitmodlowmlb350CR0b", "CR0b 4 jets, high tmod, low Mlb, MET350-450",  {&nJetsGe4, &modTopHigh, &mlbLt175, &MET_350_450, &noMediumBs} );
-	sigRegion j4hitmodlowmlb450CR0b( "j4hitmodlowmlb450CR0b", "CR0b 4 jets, high tmod, low Mlb, MET450-600",  {&nJetsGe4, &modTopHigh, &mlbLt175, &MET_450_600, &noMediumBs} );
-	sigRegion j4hitmodlowmlb600CR0b( "j4hitmodlowmlb600CR0b", "CR0b 4 jets, high tmod, low Mlb, MET600-inf",  {&nJetsGe4, &modTopHigh, &mlbLt175, &MET_600_inf, &noMediumBs} );
-	sigRegion j4hitmodhimlb250CR0b(  "j4hitmodhimlb250CR0b",  "CR0b 4 jets, high tmod, hi Mlb, MET250-450",   {&nJetsGe4, &modTopHigh, &mlbGe175, &MET_250_450, &noTightBs} ); // H
-	sigRegion j4hitmodhimlb450CR0b(  "j4hitmodhimlb450CR0b",  "CR0b 4 jets, high tmod, hi Mlb, MET450-inf",   {&nJetsGe4, &modTopHigh, &mlbGe175, &MET_450_inf, &noTightBs} );
+	sigRegion j23lowmlb250CR0b( "j23lowmlb250CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET250-350",  {&minDPhi080, &nJets23, &modTopHigh, &mlbLt175, &MET_250_350, &noMediumBs} ); // A
+	sigRegion j23lowmlb350CR0b( "j23lowmlb350CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET350-450",  {&minDPhi080, &nJets23, &modTopHigh, &mlbLt175, &MET_350_450, &noMediumBs} );
+	sigRegion j23lowmlb450CR0b( "j23lowmlb450CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET450-600",  {&minDPhi080, &nJets23, &modTopHigh, &mlbLt175, &MET_450_600, &noMediumBs} );
+	sigRegion j23lowmlb600CR0b( "j23lowmlb600CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET600-inf",  {&minDPhi080, &nJets23, &modTopHigh, &mlbLt175, &MET_600_inf, &noMediumBs} );
+	sigRegion j23himlb250CR0b(  "j23himlb250CR0b",  "CR0b 2-3 jets, high tmod, hi Mlb, MET250-450",   {&minDPhi080, &nJets23, &modTopHigh, &mlbGe175, &MET_250_450, &noTightBs} ); // B
+	sigRegion j23himlb450CR0b(  "j23himlb450CR0b",  "CR0b 2-3 jets, high tmod, hi Mlb, MET450-600",   {&minDPhi080, &nJets23, &modTopHigh, &mlbGe175, &MET_450_600, &noTightBs} );
+	sigRegion j23himlb600CR0b(  "j23himlb600CR0b",  "CR0b 2-3 jets, high tmod, hi Mlb, MET600-inf",   {&minDPhi080, &nJets23, &modTopHigh, &mlbGe175, &MET_600_inf, &noTightBs} );
+	sigRegion j4negtmodlowmlb250CR0b( "j4negtmodlowmlb250CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET250-350",  {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbLt175, &MET_250_350, &noMediumBs} ); // C
+	sigRegion j4negtmodlowmlb350CR0b( "j4negtmodlowmlb350CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET350-450",  {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbLt175, &MET_350_450, &noMediumBs} );
+	sigRegion j4negtmodlowmlb450CR0b( "j4negtmodlowmlb450CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET450-550",  {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbLt175, &MET_450_550, &noMediumBs} );
+	sigRegion j4negtmodlowmlb550CR0b( "j4negtmodlowmlb550CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET550-650",  {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbLt175, &MET_550_650, &noMediumBs} );
+	sigRegion j4negtmodlowmlb650CR0b( "j4negtmodlowmlb650CR0b", "CR0b 4 jets, neg tmod, low Mlb, MET650-inf",  {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbLt175, &MET_650_inf, &noMediumBs} );
+	sigRegion j4negtmodhimlb250CR0b(  "j4negtmodhimlb250CR0b",  "CR0b 4 jets, neg tmod, hi Mlb, MET250-350",   {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbGe175, &MET_250_350, &noTightBs} ); // D
+	sigRegion j4negtmodhimlb350CR0b(  "j4negtmodhimlb350CR0b",  "CR0b 4 jets, neg tmod, hi Mlb, MET350-450",   {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbGe175, &MET_350_450, &noTightBs} );
+	sigRegion j4negtmodhimlb450CR0b(  "j4negtmodhimlb450CR0b",  "CR0b 4 jets, neg tmod, hi Mlb, MET450-550",   {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbGe175, &MET_450_550, &noTightBs} );
+	sigRegion j4negtmodhimlb550CR0b(  "j4negtmodhimlb550CR0b",  "CR0b 4 jets, neg tmod, hi Mlb, MET550-inf",   {&minDPhi080, &nJetsGe4, &modTopNeg, &mlbGe175, &MET_550_inf, &noTightBs} );
+	sigRegion j4lowtmodlowmlb250CR0b( "j4lowtmodlowmlb250CR0b", "CR0b 4 jets, low tmod, low Mlb, MET250-350",  {&minDPhi080, &nJetsGe4, &modTopLow, &mlbLt175, &MET_250_350, &noMediumBs} ); // E
+	sigRegion j4lowtmodlowmlb350CR0b( "j4lowtmodlowmlb350CR0b", "CR0b 4 jets, low tmod, low Mlb, MET350-550",  {&minDPhi080, &nJetsGe4, &modTopLow, &mlbLt175, &MET_350_550, &noMediumBs} );
+	sigRegion j4lowtmodlowmlb550CR0b( "j4lowtmodlowmlb550CR0b", "CR0b 4 jets, low tmod, low Mlb, MET550-inf",  {&minDPhi080, &nJetsGe4, &modTopLow, &mlbLt175, &MET_550_inf, &noMediumBs} );
+	sigRegion j4lowtmodhimlb250CR0b(  "j4lowtmodhimlb250CR0b",  "CR0b 4 jets, low tmod, hi Mlb, MET250-450",   {&minDPhi080, &nJetsGe4, &modTopLow, &mlbGe175, &MET_250_450, &noTightBs} ); // F
+	sigRegion j4lowtmodhimlb450CR0b(  "j4lowtmodhimlb450CR0b",  "CR0b 4 jets, low tmod, hi Mlb, MET450-inf",   {&minDPhi080, &nJetsGe4, &modTopLow, &mlbGe175, &MET_450_inf, &noTightBs} );
+	sigRegion j4hitmodlowmlb250CR0b( "j4hitmodlowmlb250CR0b", "CR0b 4 jets, high tmod, low Mlb, MET250-350",  {&minDPhi080, &nJetsGe4, &modTopHigh, &mlbLt175, &MET_250_350, &noMediumBs} ); // G
+	sigRegion j4hitmodlowmlb350CR0b( "j4hitmodlowmlb350CR0b", "CR0b 4 jets, high tmod, low Mlb, MET350-450",  {&minDPhi080, &nJetsGe4, &modTopHigh, &mlbLt175, &MET_350_450, &noMediumBs} );
+	sigRegion j4hitmodlowmlb450CR0b( "j4hitmodlowmlb450CR0b", "CR0b 4 jets, high tmod, low Mlb, MET450-600",  {&minDPhi080, &nJetsGe4, &modTopHigh, &mlbLt175, &MET_450_600, &noMediumBs} );
+	sigRegion j4hitmodlowmlb600CR0b( "j4hitmodlowmlb600CR0b", "CR0b 4 jets, high tmod, low Mlb, MET600-inf",  {&minDPhi080, &nJetsGe4, &modTopHigh, &mlbLt175, &MET_600_inf, &noMediumBs} );
+	sigRegion j4hitmodhimlb250CR0b(  "j4hitmodhimlb250CR0b",  "CR0b 4 jets, high tmod, hi Mlb, MET250-450",   {&minDPhi080, &nJetsGe4, &modTopHigh, &mlbGe175, &MET_250_450, &noTightBs} ); // H
+	sigRegion j4hitmodhimlb450CR0b(  "j4hitmodhimlb450CR0b",  "CR0b 4 jets, high tmod, hi Mlb, MET450-inf",   {&minDPhi080, &nJetsGe4, &modTopHigh, &mlbGe175, &MET_450_inf, &noTightBs} );
 	// sigRegion inclusive(   "inclusive",   "Inclusive" );
-	sigRegion corridor250CR0b( "corridor250CR0b", "CR0b Corridor, low MET",  {&nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag, &noMediumBs} );
-	sigRegion corridor350CR0b( "corridor350CR0b", "CR0b Corridor, mid MET",  {&nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag, &noMediumBs} );
-	sigRegion corridor450CR0b( "corridor450CR0b", "CR0b Corridor, high MET", {&nJetsGe5, &MET_450_inf, &j1Pt200, &j1NoTag, &noMediumBs} );
-	sigRegion corr250comboCR0b( "corr250comboCR0b", "CR0b Corridor 250 combo", {&nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet, &noMediumBs} );
-	sigRegion corr350comboCR0b( "corr350comboCR0b", "CR0b Corridor 350 combo", {&nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet, &noMediumBs} );
-	sigRegion corr450comboCR0b( "corr450comboCR0b", "CR0b Corridor 450 combo", {&nJetsGe5, &MET_450_550, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet, &noMediumBs} );
-	sigRegion corr550comboCR0b( "corr550comboCR0b", "CR0b Corridor 550 combo", {&nJetsGe5, &MET_550_inf, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet, &noMediumBs} );
-	sigRegion corrAllcomboCR0b( "corrAllcomboCR0b", "CR0b Corridor All combo", {&nJetsGe5,               &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilepmet, &noMediumBs} );
-	sigRegion corr250newCR0b( "corr250newCR0b", "CR0b Corridor proposal, MET 250-350", {&nJetsGe5, &MET_250_350, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
-	sigRegion corr350newCR0b( "corr350newCR0b", "CR0b Corridor proposal, MET 350-450", {&nJetsGe5, &MET_350_450, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
-	sigRegion corr450newCR0b( "corr450newCR0b", "CR0b Corridor proposal, MET 450-550", {&nJetsGe5, &MET_450_550, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
-	sigRegion corr550newCR0b( "corr550newCR0b", "CR0b Corridor proposal, MET 550-inf", {&nJetsGe5, &MET_550_inf, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
+	sigRegion corr250ichepCR0b( "corr250ichepCR0b", "CR0b Corridor ICHEP 250",  {&minDPhi080, &nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag, &noMediumBs} );
+	sigRegion corr350ichepCR0b( "corr350ichepCR0b", "CR0b Corridor ICHEP 350",  {&minDPhi080, &nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag, &noMediumBs} );
+	sigRegion corr450ichepCR0b( "corr450ichepCR0b", "CR0b Corridor ICHEP 450", {&minDPhi080, &nJetsGe5, &MET_450_inf, &j1Pt200, &j1NoTag, &noMediumBs} );
+	sigRegion corr250comboCR0b( "corr250comboCR0b", "CR0b Corridor 250 combo", {&minDPhi080, &nJetsGe5, &MET_250_350, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15, &noMediumBs} );
+	sigRegion corr350comboCR0b( "corr350comboCR0b", "CR0b Corridor 350 combo", {&minDPhi080, &nJetsGe5, &MET_350_450, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15, &noMediumBs} );
+	sigRegion corr450comboCR0b( "corr450comboCR0b", "CR0b Corridor 450 combo", {&minDPhi080, &nJetsGe5, &MET_450_550, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15, &noMediumBs} );
+	sigRegion corr550comboCR0b( "corr550comboCR0b", "CR0b Corridor 550 combo", {&minDPhi080, &nJetsGe5, &MET_550_inf, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15, &noMediumBs} );
+	sigRegion corrAllcomboCR0b( "corrAllcomboCR0b", "CR0b Corridor All combo", {&minDPhi080, &nJetsGe5,               &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15, &noMediumBs} );
+	sigRegion corr250newCR0b( "corr250newCR0b", "CR0b Corridor proposal, MET 250-350", {&minDPhi050, &nJetsGe5, &MET_250_350, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
+	sigRegion corr350newCR0b( "corr350newCR0b", "CR0b Corridor proposal, MET 350-450", {&minDPhi050, &nJetsGe5, &MET_350_450, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
+	sigRegion corr450newCR0b( "corr450newCR0b", "CR0b Corridor proposal, MET 450-550", {&minDPhi050, &nJetsGe5, &MET_450_550, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
+	sigRegion corr550newCR0b( "corr550newCR0b", "CR0b Corridor proposal, MET 550-inf", {&minDPhi050, &nJetsGe5, &MET_550_inf, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
 
 
 	// Finally, store all these signal/control regions in our "analysis" objects.
@@ -339,7 +341,7 @@ int main( int argc, char* argv[] ) {
 	srAnalysis->AddSigRegs( {&j4hitmodlowmlb250, &j4hitmodlowmlb350, &j4hitmodlowmlb450, &j4hitmodlowmlb600} );
 	srAnalysis->AddSigRegs( {&j4hitmodhimlb250, &j4hitmodhimlb450} );
 	srAnalysis->AddSigRegs( {&inclusive} );
-	srAnalysis->AddSigRegs( {&corridor250, &corridor350, &corridor450} );
+	srAnalysis->AddSigRegs( {&corr250ichep, &corr350ichep, &corr450ichep} );
 	srAnalysis->AddSigRegs( {&corr250combo, &corr350combo, &corr450combo, &corr550combo} );
 	srAnalysis->AddSigRegs( {&corrAllcombo} );
 	srAnalysis->AddSigRegs( {&corr250new, &corr350new, &corr450new, &corr550new} );
@@ -353,7 +355,7 @@ int main( int argc, char* argv[] ) {
 	crLostLep->AddSigRegs( {&j4hitmodlowmlb250, &j4hitmodlowmlb350, &j4hitmodlowmlb450, &j4hitmodlowmlb600} );
 	crLostLep->AddSigRegs( {&j4hitmodhimlb250, &j4hitmodhimlb450} );
 	crLostLep->AddSigRegs( {&inclusive} );
-	crLostLep->AddSigRegs( {&corridor250, &corridor350, &corridor450} );
+	crLostLep->AddSigRegs( {&corr250ichep, &corr350ichep, &corr450ichep} );
 	crLostLep->AddSigRegs( {&corr250combo, &corr350combo, &corr450combo, &corr550combo} );
 	crLostLep->AddSigRegs( {&corrAllcombo} );
 	crLostLep->AddSigRegs( {&corr250new, &corr350new, &corr450new, &corr550new} );
@@ -367,7 +369,7 @@ int main( int argc, char* argv[] ) {
 	cr0bjets->AddSigRegs( {&j4hitmodlowmlb250CR0b, &j4hitmodlowmlb350CR0b, &j4hitmodlowmlb450CR0b, &j4hitmodlowmlb600CR0b} );
 	cr0bjets->AddSigRegs( {&j4hitmodhimlb250CR0b, &j4hitmodhimlb450CR0b} );
 	cr0bjets->AddSigRegs( {&inclusive} );
-	cr0bjets->AddSigRegs( {&corridor250CR0b, &corridor350CR0b, &corridor450CR0b} );
+	cr0bjets->AddSigRegs( {&corr250ichepCR0b, &corr350ichepCR0b, &corr450ichepCR0b} );
 	cr0bjets->AddSigRegs( {&corr250comboCR0b, &corr350comboCR0b, &corr450comboCR0b, &corr550comboCR0b} );
 	cr0bjets->AddSigRegs( {&corrAllcomboCR0b} );
 	cr0bjets->AddSigRegs( {&corr250newCR0b, &corr350newCR0b, &corr450newCR0b, &corr550newCR0b} );
@@ -392,9 +394,9 @@ int main( int argc, char* argv[] ) {
 	// For each "sample" object defined earlier, chain up the baby files that make up that sample
 
 	TString sigPath  = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/Nominal/";
-	TString bkgPath  = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v11/skim/";
-	TString bkgPath2 = "/nfs-7/userdata/jgwood/tupler_babies/merged/Stop_1l/v12/skim/";
-	TString dataPath = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v12/skim/";
+	TString bkgPath  = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v11/output/";
+	TString bkgPath2 = "/nfs-7/userdata/jgwood/tupler_babies/merged/Stop_1l/v12/output/";
+	TString dataPath = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v12/output/";
 
 	TString sigPath_jesup = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/JESup/";
 	// TString bkgPath_jesup = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/JESup/";
@@ -420,38 +422,38 @@ int main( int argc, char* argv[] ) {
 		tt1l->AddFile( bkgPath + "ttbar_singleLeptFromT_madgraph_pythia8_ext1*.root" );
 		tt1l->AddFile( bkgPath + "ttbar_singleLeptFromTbar_madgraph_pythia8_ext1*.root" );
 
-		wjets->AddFile( bkgPath + "W1JetsToLNu_madgraph_pythia8_25ns.root" );
-		wjets->AddFile( bkgPath + "W2JetsToLNu_madgraph_pythia8_25ns.root" ); // Cut out genmet < 200 section from these
-		wjets->AddFile( bkgPath + "W3JetsToLNu_madgraph_pythia8_25ns.root" );
-		wjets->AddFile( bkgPath + "W4JetsToLNu_madgraph_pythia8_25ns.root" );
-		wjets->AddFile( bkgPath + "W1JetsToLNu_nupT200_madgraph_pythia8_25ns.root" );
-		wjets->AddFile( bkgPath + "W2JetsToLNu_nupT200_madgraph_pythia8_25ns.root" );
-		wjets->AddFile( bkgPath + "W3JetsToLNu_nupT200_madgraph_pythia8_25ns.root" );
-		wjets->AddFile( bkgPath + "W4JetsToLNu_nupT200_madgraph_pythia8_25ns.root" );
+		wjets->AddFile( bkgPath + "W1JetsToLNu_madgraph_pythia8_25ns*.root" );
+		wjets->AddFile( bkgPath + "W2JetsToLNu_madgraph_pythia8_25ns*.root" ); // Cut out genmet < 200 section from these
+		wjets->AddFile( bkgPath + "W3JetsToLNu_madgraph_pythia8_25ns*.root" );
+		wjets->AddFile( bkgPath + "W4JetsToLNu_madgraph_pythia8_25ns*.root" );
+		wjets->AddFile( bkgPath + "W1JetsToLNu_nupT200_madgraph_pythia8_25ns*.root" );
+		wjets->AddFile( bkgPath + "W2JetsToLNu_nupT200_madgraph_pythia8_25ns*.root" );
+		wjets->AddFile( bkgPath + "W3JetsToLNu_nupT200_madgraph_pythia8_25ns*.root" );
+		wjets->AddFile( bkgPath + "W4JetsToLNu_nupT200_madgraph_pythia8_25ns*.root" );
 
-		dy->AddFile( bkgPath + "DYJetsToLL_m10To50_amcnlo_pythia8_25ns.root" );
-		dy->AddFile( bkgPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns.root" );
+		dy->AddFile( bkgPath + "DYJetsToLL_m10To50_amcnlo_pythia8_25ns*.root" );
+		dy->AddFile( bkgPath + "DYJetsToLL_m50_amcnlo_pythia8_25ns*.root" );
 
-		singtop->AddFile( bkgPath + "t_sch_4f_amcnlo_pythia8_25ns.root" );
-		singtop->AddFile( bkgPath + "t_tch_4f_powheg_pythia8_25ns.root" );
+		singtop->AddFile( bkgPath + "t_sch_4f_amcnlo_pythia8_25ns*.root" );
+		singtop->AddFile( bkgPath + "t_tch_4f_powheg_pythia8_25ns*.root" );
 		singtop->AddFile( bkgPath2 + "tbar_tch_4f_powheg_pythia8_25ns*.root" );   // Take this one from John's directory
-		singtop->AddFile( bkgPath2 + "t_tW_5f_powheg_pythia8_25ns.root" );       // This one too
-		singtop->AddFile( bkgPath + "t_tbarW_5f_powheg_pythia8_25ns.root" );
+		singtop->AddFile( bkgPath2 + "t_tW_5f_powheg_pythia8_25ns*.root" );       // This one too
+		singtop->AddFile( bkgPath + "t_tbarW_5f_powheg_pythia8_25ns*.root" );
 
-		rare->AddFile( bkgPath + "ttWJets_13TeV_madgraphMLM.root" );
+		rare->AddFile( bkgPath + "ttWJets_13TeV_madgraphMLM*.root" );
 		rare->AddFile( bkgPath + "ttZJets_13TeV_madgraphMLM*.root" );
-		// rare->AddFile( bkgPath + "tZq_ll_4f_amcnlo_pythia8_25ns.root" );
-		// rare->AddFile( bkgPath + "tZq_nunu_4f_amcnlo_pythia8_25ns.root" );
-		rare->AddFile( bkgPath + "WWTo2l2Nu_powheg_25ns.root" );
-		rare->AddFile( bkgPath + "WWToLNuQQ_powheg_25ns.root" );
-		rare->AddFile( bkgPath + "WZTo3LNu_powheg_pythia8_25ns.root" );
-		rare->AddFile( bkgPath + "WZTo2L2Q_amcnlo_pythia8_25ns.root" );
+		// rare->AddFile( bkgPath + "tZq_ll_4f_amcnlo_pythia8_25ns*.root" );
+		// rare->AddFile( bkgPath + "tZq_nunu_4f_amcnlo_pythia8_25ns*.root" );
+		rare->AddFile( bkgPath + "WWTo2l2Nu_powheg_25ns*.root" );
+		rare->AddFile( bkgPath + "WWToLNuQQ_powheg_25ns*.root" );
+		rare->AddFile( bkgPath + "WZTo3LNu_powheg_pythia8_25ns*.root" );
+		rare->AddFile( bkgPath + "WZTo2L2Q_amcnlo_pythia8_25ns*.root" );
 		rare->AddFile( bkgPath + "WZTo1LNu2Q_amcnlo_pythia8_25ns*.root" );
-		rare->AddFile( bkgPath + "WZTo1L3Nu_amcnlo_pythia8_25ns.root" );
-		rare->AddFile( bkgPath + "ZZTo4L_powheg_pythia8_25ns.root" );
-		rare->AddFile( bkgPath + "ZZTo2L2Q_amcnlo_pythia8_25ns.root" );
-		rare->AddFile( bkgPath + "ZZTo2L2Nu_powheg_pythia8_25ns.root" );
-		rare->AddFile( bkgPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns.root" );
+		rare->AddFile( bkgPath + "WZTo1L3Nu_amcnlo_pythia8_25ns*.root" );
+		rare->AddFile( bkgPath + "ZZTo4L_powheg_pythia8_25ns*.root" );
+		rare->AddFile( bkgPath + "ZZTo2L2Q_amcnlo_pythia8_25ns*.root" );
+		rare->AddFile( bkgPath + "ZZTo2L2Nu_powheg_pythia8_25ns*.root" );
+		rare->AddFile( bkgPath + "ZZTo2Q2Nu_amcnlo_pythia8_25ns*.root" );
 	}
 
 
