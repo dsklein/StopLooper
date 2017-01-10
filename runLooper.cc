@@ -282,10 +282,10 @@ int main( int argc, char* argv[] ) {
 	sigRegion corr450combo( "corr450combo", "Corridor 450 combo", {&minDPhi080, &nJetsGe5, &MET_450_550, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15} );
 	sigRegion corr550combo( "corr550combo", "Corridor 550 combo", {&minDPhi080, &nJetsGe5, &MET_550_inf, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15} );
 	sigRegion corrAllcombo( "corrAllcombo", "Corridor All combo", {&minDPhi080, &nJetsGe5,               &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15} );
-	sigRegion corr250new( "corr250new", "Corridor proposal, MET 250-350", {&minDPhi050, &nJetsGe5, &MET_250_350, &lep1ptLt150, &dPhilMetLt20} );
-	sigRegion corr350new( "corr350new", "Corridor proposal, MET 350-450", {&minDPhi050, &nJetsGe5, &MET_350_450, &lep1ptLt150, &dPhilMetLt20} );
-	sigRegion corr450new( "corr450new", "Corridor proposal, MET 450-550", {&minDPhi050, &nJetsGe5, &MET_450_550, &lep1ptLt150, &dPhilMetLt20} );
-	sigRegion corr550new( "corr550new", "Corridor proposal, MET 550-inf", {&minDPhi050, &nJetsGe5, &MET_550_inf, &lep1ptLt150, &dPhilMetLt20} );
+	sigRegion corr250new( "corr250new", "Corridor, MET 250-350", {&minDPhi050, &nJetsGe5, &MET_250_350, &lep1ptLt150, &dPhilMetLt20} );
+	sigRegion corr350new( "corr350new", "Corridor, MET 350-450", {&minDPhi050, &nJetsGe5, &MET_350_450, &lep1ptLt150, &dPhilMetLt20} );
+	sigRegion corr450new( "corr450new", "Corridor, MET 450-550", {&minDPhi050, &nJetsGe5, &MET_450_550, &lep1ptLt150, &dPhilMetLt20} );
+	sigRegion corr550new( "corr550new", "Corridor, MET 550-inf", {&minDPhi050, &nJetsGe5, &MET_550_inf, &lep1ptLt150, &dPhilMetLt20} );
 
 
 
@@ -326,10 +326,10 @@ int main( int argc, char* argv[] ) {
 	sigRegion corr450comboCR0b( "corr450comboCR0b", "CR0b Corridor 450 combo", {&minDPhi080, &nJetsGe5, &MET_450_550, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15, &noMediumBs} );
 	sigRegion corr550comboCR0b( "corr550comboCR0b", "CR0b Corridor 550 combo", {&minDPhi080, &nJetsGe5, &MET_550_inf, &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15, &noMediumBs} );
 	sigRegion corrAllcomboCR0b( "corrAllcomboCR0b", "CR0b Corridor All combo", {&minDPhi080, &nJetsGe5,               &j1Pt200, &j1NoTag, &lep1ptLt100, &dPhilMetLt15, &noMediumBs} );
-	sigRegion corr250newCR0b( "corr250newCR0b", "CR0b Corridor proposal, MET 250-350", {&minDPhi050, &nJetsGe5, &MET_250_350, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
-	sigRegion corr350newCR0b( "corr350newCR0b", "CR0b Corridor proposal, MET 350-450", {&minDPhi050, &nJetsGe5, &MET_350_450, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
-	sigRegion corr450newCR0b( "corr450newCR0b", "CR0b Corridor proposal, MET 450-550", {&minDPhi050, &nJetsGe5, &MET_450_550, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
-	sigRegion corr550newCR0b( "corr550newCR0b", "CR0b Corridor proposal, MET 550-inf", {&minDPhi050, &nJetsGe5, &MET_550_inf, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
+	sigRegion corr250newCR0b( "corr250newCR0b", "CR0b Corridor, MET 250-350", {&minDPhi050, &nJetsGe5, &MET_250_350, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
+	sigRegion corr350newCR0b( "corr350newCR0b", "CR0b Corridor, MET 350-450", {&minDPhi050, &nJetsGe5, &MET_350_450, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
+	sigRegion corr450newCR0b( "corr450newCR0b", "CR0b Corridor, MET 450-550", {&minDPhi050, &nJetsGe5, &MET_450_550, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
+	sigRegion corr550newCR0b( "corr550newCR0b", "CR0b Corridor, MET 550-inf", {&minDPhi050, &nJetsGe5, &MET_550_inf, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
 
 
 	// Finally, store all these signal/control regions in our "analysis" objects.
@@ -396,14 +396,12 @@ int main( int argc, char* argv[] ) {
 	// For each "sample" object defined earlier, chain up the baby files that make up that sample
 
 	TString sigPath  = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/Nominal/";
-	TString bkgPath  = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v11/output/";
-	TString bkgPath2 = "/nfs-7/userdata/jgwood/tupler_babies/merged/Stop_1l/v12/output/";
-	TString dataPath = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v12/output/";
+	TString bkgPath  = "/nfs-6/userdata/dsklein/stop-babies/skims_minDPhi05_v11/";
+	TString bkgPath2 = "/nfs-6/userdata/dsklein/stop-babies/skims_minDPhi05_v11/";
+	TString dataPath = "/nfs-6/userdata/dsklein/stop-babies/skims_minDPhi05_v11/";
 
 	TString sigPath_jesup = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/JESup/";
-	// TString bkgPath_jesup = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/JESup/";
 	TString sigPath_jesdn = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/JESdn/";
-	// TString bkgPath_jesdn = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/JESdn/";
 
 
 	if( runlooper || runlostlep || run1lw || runjes ) {

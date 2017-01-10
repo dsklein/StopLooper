@@ -562,7 +562,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 	printf("Events with at least 1 b-tag:       %10.2f %9i\n", yield_1bjet    , yGen_1bjet    );
 	printf("Events with MET > 250 GeV:          %10.2f %9i\n", yield_METcut   , yGen_METcut   );
 	printf("Events with MT > 150 GeV:           %10.2f %9i\n", yield_MTcut    , yGen_MTcut    );
-	printf("Events with min dPhi > 0.8:         %10.2f %9i\n", yield_dPhi     , yGen_dPhi     );
+	printf("Events with min dPhi > 0.5:         %10.2f %9i\n", yield_dPhi     , yGen_dPhi     );
 	// printf("Events with chi2 < 10:              %10.2f %9i\n", yield_chi2     , yGen_chi2     );
 	printf("Yield after preselection:           %10.2f %9i\n", yield_chi2     , yGen_chi2     );
 
