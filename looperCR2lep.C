@@ -295,6 +295,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 			if( is_data() || mySample->IsData() ) evtWeight = 1.;
 			else if( mySample->IsSignal() ) {
+				myHelper.PrepSignal();
 				double nEvtsSample = hNEvts->GetBinContent( hNEvts->FindBin( mass_stop(), mass_lsp() ) );
 				int binx = hCounterSMS->GetXaxis()->FindBin( mass_stop() );
 				int biny = hCounterSMS->GetYaxis()->FindBin( mass_lsp()  );

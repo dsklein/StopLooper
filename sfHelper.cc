@@ -59,16 +59,42 @@ void sfHelper::Setup( bool is_fastsim, bool is_cr2l, TH1D* counterHist, TH2F* ne
 	isrnjetsnorm_down = h_counter->GetBinContent( 27 );
 }
 
+// Special setup function for SUSY signal samples
+void sfHelper::PrepSignal() {
+	if( !hist_nEvts ) return;
+	if( !h_counterSMS ) return;
+
+	binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
+	biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
+
+	nEvts = hist_nEvts->GetBinContent( binx, biny );
+
+	qsquarednorm    = h_counterSMS->GetBinContent( binx, biny, 1 );
+	alphasnorm      = h_counterSMS->GetBinContent( binx, biny, 1 );
+	qsquarednorm_up = h_counterSMS->GetBinContent( binx, biny, 5 );
+	qsquarednorm_down = h_counterSMS->GetBinContent( binx, biny, 9 );
+	alphasnorm_up   = h_counterSMS->GetBinContent( binx, biny, 12 );
+	alphasnorm_down = h_counterSMS->GetBinContent( binx, biny, 13 );
+	btagnorm        = h_counterSMS->GetBinContent( binx, biny, 14 );
+	btagnormHF_up   = h_counterSMS->GetBinContent( binx, biny, 15 );
+	btagnormLF_up   = h_counterSMS->GetBinContent( binx, biny, 16 );
+	btagnormHF_down = h_counterSMS->GetBinContent( binx, biny, 17 );
+	btagnormLF_down = h_counterSMS->GetBinContent( binx, biny, 18 );
+	isrnorm         = h_counterSMS->GetBinContent( binx, biny, 19 );
+	isrnorm_up      = h_counterSMS->GetBinContent( binx, biny, 20 );
+	isrnorm_down    = h_counterSMS->GetBinContent( binx, biny, 21 );
+	lepnorm         = h_counterSMS->GetBinContent( binx, biny, 27 ) * h_counterSMS->GetBinContent( binx, biny, 30 ); // Lepton SF * veto lepton SF
+	lepnorm_up      = h_counterSMS->GetBinContent( binx, biny, 28 ) * h_counterSMS->GetBinContent( binx, biny, 31 );
+	lepnorm_down    = h_counterSMS->GetBinContent( binx, biny, 29 ) * h_counterSMS->GetBinContent( binx, biny, 32 );
+	isrnjetsnorm    = h_counterSMS->GetBinContent( binx, biny, 24 );
+	isrnjetsnorm_up = h_counterSMS->GetBinContent( binx, biny, 25 );
+	isrnjetsnorm_down = h_counterSMS->GetBinContent( binx, biny, 26 );
+}
+
 // Get reweighting factor to vary the lepton and veto lepton SFs up
 double sfHelper::LepSFUp() {
 	double lepsf    = tas::weight_lepSF()    * tas::weight_vetoLepSF();
 	double lepsf_up = tas::weight_lepSF_up() * tas::weight_vetoLepSF_up();
-	if( isFastsim ) {
-		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-		lepnorm    = h_counterSMS->GetBinContent( binx, biny, 27 ) * h_counterSMS->GetBinContent( binx, biny, 30 );
-		lepnorm_up = h_counterSMS->GetBinContent( binx, biny, 28 ) * h_counterSMS->GetBinContent( binx, biny, 31);
-	}
 	return (lepsf_up / lepnorm_up) / (lepsf / lepnorm);
 }
 
@@ -76,12 +102,6 @@ double sfHelper::LepSFUp() {
 double sfHelper::LepSFDown() {
 	double lepsf      = tas::weight_lepSF()      * tas::weight_vetoLepSF();
 	double lepsf_down = tas::weight_lepSF_down() * tas::weight_vetoLepSF_down();
-	if( isFastsim ) {
-		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-		lepnorm      = h_counterSMS->GetBinContent( binx, biny, 27 ) * h_counterSMS->GetBinContent( binx, biny, 30 );
-		lepnorm_down = h_counterSMS->GetBinContent( binx, biny, 29 ) * h_counterSMS->GetBinContent( binx, biny, 32);;
-	}
 	return (lepsf_down / lepnorm_down) / (lepsf / lepnorm);
 }
 
@@ -89,12 +109,6 @@ double sfHelper::LepSFDown() {
 double sfHelper::BtagHeavyUp() {
 	double btagsf    = tas::weight_btagsf();
 	double btagsf_up = tas::weight_btagsf_heavy_UP();
-	if( isFastsim ) {
-		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-		btagnorm      = h_counterSMS->GetBinContent( binx, biny, 14 );
-		btagnormHF_up = h_counterSMS->GetBinContent( binx, biny, 15 );
-	}
 	return (btagsf_up / btagnormHF_up) / (btagsf / btagnorm);
 }
 
@@ -102,12 +116,6 @@ double sfHelper::BtagHeavyUp() {
 double sfHelper::BtagHeavyDown() {
 	double btagsf      = tas::weight_btagsf();
 	double btagsf_down = tas::weight_btagsf_heavy_DN();
-	if( isFastsim ) {
-		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-		btagnorm        = h_counterSMS->GetBinContent( binx, biny, 14 );
-		btagnormHF_down = h_counterSMS->GetBinContent( binx, biny, 17 );
-	}
 	return (btagsf_down / btagnormHF_down) / (btagsf / btagnorm);
 }
 
@@ -115,12 +123,6 @@ double sfHelper::BtagHeavyDown() {
 double sfHelper::BtagLightUp() {
 	double btagsf    = tas::weight_btagsf();
 	double btagsf_up = tas::weight_btagsf_light_UP();
-	if( isFastsim ) {
-		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-		btagnorm      = h_counterSMS->GetBinContent( binx, biny, 14 );
-		btagnormLF_up = h_counterSMS->GetBinContent( binx, biny, 16 );
-	}
 	return (btagsf_up / btagnormLF_up) / (btagsf / btagnorm);
 }
 
@@ -128,12 +130,6 @@ double sfHelper::BtagLightUp() {
 double sfHelper::BtagLightDown() {
 	double btagsf      = tas::weight_btagsf();
 	double btagsf_down = tas::weight_btagsf_light_DN();
-	if( isFastsim ) {
-		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-		btagnorm        = h_counterSMS->GetBinContent( binx, biny, 14 );
-		btagnormLF_down = h_counterSMS->GetBinContent( binx, biny, 18 );
-	}
 	return (btagsf_down / btagnormLF_down) / (btagsf / btagnorm);
 }
 
@@ -145,10 +141,6 @@ double sfHelper::ISRUp() {
 	}
 	double isr    = tas::weight_ISR();
 	double isr_up = tas::weight_ISRup();
-	int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-	int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-	double isrnorm    = h_counterSMS->GetBinContent( binx, biny, 19 );
-	double isrnorm_up = h_counterSMS->GetBinContent( binx, biny, 20 );
 	return (isr_up / isrnorm_up ) / (isr / isrnorm );
 }
 
@@ -160,10 +152,6 @@ double sfHelper::ISRDown() {
 	}
 	double isr      = tas::weight_ISR();
 	double isr_down = tas::weight_ISRdown();
-	int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-	int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-	double isrnorm      = h_counterSMS->GetBinContent( binx, biny, 19 );
-	double isrnorm_down = h_counterSMS->GetBinContent( binx, biny, 21 );
 	return (isr_down / isrnorm_down ) / (isr / isrnorm );
 }
 
@@ -173,12 +161,6 @@ double sfHelper::QSquaredUp() {
 	double qsquared    = tas::genweights().at(0);
 	double qsquared_up = tas::genweights().at(4);
 	if( qsquared < 0. || qsquared_up < 0. ) return 1.;
-	if( isFastsim ) {
-		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-		qsquarednorm    = h_counterSMS->GetBinContent( binx, biny, 1 );
-		qsquarednorm_up = h_counterSMS->GetBinContent( binx, biny, 5 );
-	}
 	return (qsquared_up / qsquarednorm_up ) / (qsquared / qsquarednorm );
 }
 
@@ -188,12 +170,6 @@ double sfHelper::QSquaredDown() {
 	double qsquared      = tas::genweights().at(0);
 	double qsquared_down = tas::genweights().at(8);
 	if( qsquared < 0. || qsquared_down < 0. ) return 1.;
-	if( isFastsim ) {
-		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-		qsquarednorm      = h_counterSMS->GetBinContent( binx, biny, 1 );
-		qsquarednorm_down = h_counterSMS->GetBinContent( binx, biny, 9 );
-	}
 	return (qsquared_down / qsquarednorm_down ) / (qsquared / qsquarednorm );
 }
 
@@ -203,12 +179,6 @@ double sfHelper::AlphaSUp() {
 	double alphas    = tas::genweights().at(0);
 	double alphas_up = tas::genweights().at(109);
 	if( alphas < 0. || alphas_up < 0. ) return 1.;
-	if( isFastsim ) {
-		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-		alphasnorm    = h_counterSMS->GetBinContent( binx, biny, 1 );
-		alphasnorm_up = h_counterSMS->GetBinContent( binx, biny, 12 );
-	}
 	return (alphas_up / alphasnorm_up ) / (alphas / alphasnorm );
 }
 
@@ -218,12 +188,6 @@ double sfHelper::AlphaSDown() {
 	double alphas      = tas::genweights().at(0);
 	double alphas_down = tas::genweights().at(110);
 	if( alphas < 0. || alphas_down < 0. ) return 1.;
-	if( isFastsim ) {
-		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-		alphasnorm      = h_counterSMS->GetBinContent( binx, biny, 1 );
-		alphasnorm_down = h_counterSMS->GetBinContent( binx, biny, 13 );
-	}
 	return (alphas_down / alphasnorm_down ) / (alphas / alphasnorm );
 }
 
@@ -377,12 +341,6 @@ double sfHelper::Contam1lwDown() {
 // Get ISR NJets scale factor
 double sfHelper::ISRnJetsSF() {
 	double isrnjsf = tas::weight_ISRnjets();
-	if( isFastsim ) {
-		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-		isrnjetsnorm = h_counterSMS->GetBinContent( binx, biny, 24 );
-		nEvts = hist_nEvts->GetBinContent( binx, biny );
-	}
 	return isrnjsf * (nEvts / isrnjetsnorm);
 }
 
@@ -390,12 +348,6 @@ double sfHelper::ISRnJetsSF() {
 double sfHelper::ISRnJetsUp() {
 	double isrnjsf    = tas::weight_ISRnjets();
 	double isrnjsf_up = tas::weight_ISRnjets_UP();
-	if( isFastsim ) {
-		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-		isrnjetsnorm    = h_counterSMS->GetBinContent( binx, biny, 24 );
-		isrnjetsnorm_up = h_counterSMS->GetBinContent( binx, biny, 25 );
-	}
 	return (isrnjsf_up / isrnjetsnorm_up) / (isrnjsf / isrnjetsnorm );
 }
 
@@ -403,12 +355,6 @@ double sfHelper::ISRnJetsUp() {
 double sfHelper::ISRnJetsDown() {
 	double isrnjsf      = tas::weight_ISRnjets();
 	double isrnjsf_down = tas::weight_ISRnjets_DN();
-	if( isFastsim ) {
-		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
-		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
-		isrnjetsnorm      = h_counterSMS->GetBinContent( binx, biny, 24 );
-		isrnjetsnorm_down = h_counterSMS->GetBinContent( binx, biny, 26 );
-	}
 	return (isrnjsf_down / isrnjetsnorm_down) / (isrnjsf / isrnjetsnorm );
 }
 

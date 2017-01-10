@@ -25,6 +25,7 @@ public:
 	~sfHelper();
 
 	void Setup( bool is_fastsim, bool is_cr2l, TH1D* counterHist, TH2F* nevtsHist, TH3D* counterHist_SMS );
+	void PrepSignal();
 
 	double LepSFUp();
 	double LepSFDown();
@@ -59,6 +60,8 @@ private:
 	bool isCR2l;
 	int topptBin;
 	int nEvts;
+	int binx;
+	int biny;
 	TH1D* h_counter;
 	TH2F* hist_nEvts;
 	TH3D* h_counterSMS;
@@ -73,6 +76,9 @@ private:
 	double btagnormLF_up;
 	double btagnormHF_down;
 	double btagnormLF_down;
+	double isrnorm;
+	double isrnorm_up;
+	double isrnorm_down;
 	double qsquarednorm;
 	double qsquarednorm_up;
 	double qsquarednorm_down;
