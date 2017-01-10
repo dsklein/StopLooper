@@ -324,6 +324,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 					// evtWeight *= myHelper.TopSystPtSF();
 				}
 				else if( mySample->GetLabel() == "tt1l" || mySample->GetLabel() == "wjets" ) evtWeight *= myHelper.MetResSF();
+				if( mySample->GetLabel() == "tt2l" ) evtWeight *= myHelper.ISRnJetsSF();
 			}
 
 

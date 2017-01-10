@@ -38,6 +38,7 @@ void sfHelper::Setup( bool is_fastsim, bool is_cr2l, TH1D* counterHist, TH2F* ne
 	hist_nEvts = nevtsHist;
 	h_counterSMS = counterHist_SMS;
 	topptBin = -99;
+	nEvts = h_counter->GetBinContent( 22 );
 
 	qsquarednorm    = h_counter->GetBinContent( 1 );
 	alphasnorm      = h_counter->GetBinContent( 1 );
@@ -53,6 +54,9 @@ void sfHelper::Setup( bool is_fastsim, bool is_cr2l, TH1D* counterHist, TH2F* ne
 	lepnorm         = h_counter->GetBinContent( 28 ) * h_counter->GetBinContent( 31 ); // Lepton SF * veto lepton SF
 	lepnorm_up      = h_counter->GetBinContent( 29 ) * h_counter->GetBinContent( 32 );
 	lepnorm_down    = h_counter->GetBinContent( 30 ) * h_counter->GetBinContent( 33 );
+	isrnjetsnorm    = h_counter->GetBinContent( 25 );
+	isrnjetsnorm_up = h_counter->GetBinContent( 26 );
+	isrnjetsnorm_down = h_counter->GetBinContent( 27 );
 }
 
 // Get reweighting factor to vary the lepton and veto lepton SFs up
@@ -370,6 +374,44 @@ double sfHelper::Contam1lwDown() {
 	return 0.5;
 }
 
+// Get ISR NJets scale factor
+double sfHelper::ISRnJetsSF() {
+	double isrnjsf = tas::weight_ISRnjets();
+	if( isFastsim ) {
+		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
+		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
+		isrnjetsnorm = h_counterSMS->GetBinContent( binx, biny, 24 );
+		nEvts = hist_nEvts->GetBinContent( binx, biny );
+	}
+	return isrnjsf * (nEvts / isrnjetsnorm);
+}
+
+// Get reweighting factor to vary the ISR NJets scale factor up
+double sfHelper::ISRnJetsUp() {
+	double isrnjsf    = tas::weight_ISRnjets();
+	double isrnjsf_up = tas::weight_ISRnjets_UP();
+	if( isFastsim ) {
+		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
+		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
+		isrnjetsnorm    = h_counterSMS->GetBinContent( binx, biny, 24 );
+		isrnjetsnorm_up = h_counterSMS->GetBinContent( binx, biny, 25 );
+	}
+	return (isrnjsf_up / isrnjetsnorm_up) / (isrnjsf / isrnjetsnorm );
+}
+
+// Get reweighting factor to vary the ISR NJets scale factor down
+double sfHelper::ISRnJetsDown() {
+	double isrnjsf      = tas::weight_ISRnjets();
+	double isrnjsf_down = tas::weight_ISRnjets_DN();
+	if( isFastsim ) {
+		int binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
+		int biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
+		isrnjetsnorm      = h_counterSMS->GetBinContent( binx, biny, 24 );
+		isrnjetsnorm_down = h_counterSMS->GetBinContent( binx, biny, 26 );
+	}
+	return (isrnjsf_down / isrnjetsnorm_down) / (isrnjsf / isrnjetsnorm );
+}
+
 
 namespace sfhelp {
 	double LepSFUp()       { return myHelper.LepSFUp(); }
@@ -396,4 +438,7 @@ namespace sfhelp {
 	double TopSystPtDown() { return myHelper.TopSystPtDown(); }
 	double Contam1lwUp()   { return myHelper.Contam1lwUp(); }
 	double Contam1lwDown() { return myHelper.Contam1lwDown(); }
+	double ISRnJetsSF()    { return myHelper.ISRnJetsSF(); }
+	double ISRnJetsUp()    { return myHelper.ISRnJetsUp(); }
+	double ISRnJetsDown()  { return myHelper.ISRnJetsDown(); }
 }

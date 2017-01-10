@@ -178,15 +178,17 @@ int main( int argc, char* argv[] ) {
 	systematic topptdn(        "topSysPt", systematic::kDown,  (*sfhelp::TopSystPtDown) );
 	systematic contam1lwup(    "contam",   systematic::kUp,    (*sfhelp::Contam1lwUp) );
 	systematic contam1lwdn(    "contam",   systematic::kDown,  (*sfhelp::Contam1lwDown) );
+	systematic isrnjetsup(     "isrnjets", systematic::kUp,    (*sfhelp::ISRnJetsUp) );
+	systematic isrnjetsdn(     "isrnjets", systematic::kDown,  (*sfhelp::ISRnJetsDown) );
 	systematic contamup_dummy( "contam",   systematic::kUp,    (*sfhelp::Unity) );
 	systematic contamdn_dummy( "contam",   systematic::kDown,  (*sfhelp::Unity) );
 
 	srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
-	srAnalysis->AddSystematics( {&eff2lup_dummy, &eff2ldn_dummy, &metresup, &metresdn, /*&topptup, &topptdn,*/ &contamup_dummy, &contamdn_dummy } );
+	srAnalysis->AddSystematics( {&eff2lup_dummy, &eff2ldn_dummy, &metresup, &metresdn, /*&topptup, &topptdn,*/ &contamup_dummy, &contamdn_dummy, &isrnjetsup, &isrnjetsdn} );
 	crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn} );
-	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn/*, &topptup, &topptdn*/ } );
-	cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn/*, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn*/} );
-	cr0bjets->AddSystematics( {&qSquaredup, &qSquareddn, &alphaSup, &alphaSdn, &metresup, &metresdn, &contam1lwup, &contam1lwdn } );
+	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, /*&topptup, &topptdn*/ &isrnjetsup, &isrnjetsdn } );
+	cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn*/ &qSquaredup, &qSquareddn} );
+	cr0bjets->AddSystematics( {&alphaSup, &alphaSdn, &metresup, &metresdn, &contam1lwup, &contam1lwdn, &isrnjetsup, &isrnjetsdn } );
 
 	// A sneaky trick to make JES systematics work with existing code
 	systematic jesup_dummy( "JES", systematic::kUp,   (*sfhelp::Unity) );

@@ -50,11 +50,15 @@ public:
 	double TopSystPtDown();
 	double Contam1lwUp();
 	double Contam1lwDown();
+	double ISRnJetsSF();
+	double ISRnJetsUp();
+	double ISRnJetsDown();
 
 private:
 	bool isFastsim;
 	bool isCR2l;
 	int topptBin;
+	int nEvts;
 	TH1D* h_counter;
 	TH2F* hist_nEvts;
 	TH3D* h_counterSMS;
@@ -75,6 +79,9 @@ private:
 	double alphasnorm;
 	double alphasnorm_up;
 	double alphasnorm_down;
+	double isrnjetsnorm;
+	double isrnjetsnorm_up;
+	double isrnjetsnorm_down;
 
 };
 
@@ -106,6 +113,9 @@ namespace sfhelp {
 	double TopSystPtDown();
 	double Contam1lwUp();
 	double Contam1lwDown();
+	double ISRnJetsSF();
+	double ISRnJetsUp();
+	double ISRnJetsDown();
 }
 
 
