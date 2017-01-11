@@ -95,10 +95,12 @@ void make1lWEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 void do1lWestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 
 	// Define histograms that will hold the SR/CR yields
-	TH1D* h_srMC   = new TH1D( "srMC"  , "Signal region yields from MC"   , nSRegions, 0.5, float(nSRegions)+0.5 );
-	TH1D* h_crMC   = new TH1D( "crMC"  , "Control region yields from MC"  , nCRegions, 0.5, float(nCRegions)+0.5 );
+	TH1D* h_srMC    = new TH1D( "srMC"  , "Signal region yields from MC"         , nSRegions, 0.5, float(nSRegions)+0.5 );
+	TH1D* h_crMC    = new TH1D( "crMC"  , "Control region total yields from MC"  , nCRegions, 0.5, float(nCRegions)+0.5 );
+	TH1D* h_crMC1lw = new TH1D( "crMC1lW" , "Control region 1lW yields from MC"  , nCRegions, 0.5, float(nCRegions)+0.5 );
 	for( uint i=0; i<nSRegions; i++ ) h_srMC->GetXaxis()->SetBinLabel( i+1, srnames.at(i) );
 	for( uint i=0; i<nCRegions; i++ ) h_crMC->GetXaxis()->SetBinLabel( i+1, crnames.at(i) );
+	for( uint i=0; i<nCRegions; i++ ) h_crMC1lw->GetXaxis()->SetBinLabel( i+1, crnames.at(i) );
 
 
 	// Get 1l-from-W background yields from MC in signal regions
@@ -125,7 +127,27 @@ void do1lWestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 		h_crMC->SetBinError(   i+1, error );
 	}
 
-	// Now do the division, M^SR / M^CR
+	// Get 1l-from-W yields from MC in control regions
+	for( uint i=0; i<crnames.size(); i++ ) {
+		TH1D* h_evtType = (TH1D*)crhistfile->Get("evttype_"+crnames.at(i)+systSuffix);
+		if( h_evtType == 0 ) {
+			cout << "Error in make1lWestimate! Could not find histogram evttype_" << crnames.at(i)+systSuffix << " in file " << crhistfile->GetName() << "!" << endl;
+			return;
+		}
+		h_crMC1lw->SetBinContent(i+1, h_evtType->GetBinContent(4));
+		h_crMC1lw->SetBinError(i+1, h_evtType->GetBinError(4));
+	}
+
+	// Calculate the purity and TF_btag
+	TH1D* h_purity = (TH1D*)h_crMC1lw->Clone("purity"+systSuffix);
+	h_purity->SetTitle( "Purity of CRs" );
+	h_purity->Divide( h_crMC );
+	for( uint i=0; i<nSRegions; i++ ) h_crMC1lw->GetXaxis()->SetBinLabel( i+1, srnames.at(i) ); // equalize bin names
+	TH1D* h_tfbtag = (TH1D*)h_srMC->Clone( "tfbtag"+systSuffix);
+	h_tfbtag->SetTitle( "B-tag transfer factor" );
+	h_tfbtag->Divide( h_crMC1lw );
+
+	// Calculate the total TF, which is the product of Purity and TF_btag (but some terms cancel out)
 	TH1D* h_mcRatio = (TH1D*)h_srMC->Clone("mcRatio1lepW"+systSuffix);
 	h_mcRatio->SetTitle( "SR/CR ratio by signal region" );
 	for( uint i=0; i<nSRegions; i++ ) h_crMC->GetXaxis()->SetBinLabel( i+1, srnames.at(i) ); // equalize bin names
@@ -148,24 +170,31 @@ void do1lWestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 	h_bkgEstimate->SetTitle( "1l-from-W background estimate" );
 	h_bkgEstimate->Multiply( h_mcRatio );
 
-	// In combo regions, take bkg estimate directly from MC
-	for( uint i=0; i<nSRegions; i++ ) {
-		if( srnames.at(i).Contains("combo") ) {
-			h_bkgEstimate->SetBinContent( i+1, h_srMC->GetBinContent(i+1) );
-			h_bkgEstimate->SetBinError(   i+1, h_srMC->GetBinError(i+1) );
-		}
-	}
+	// // In combo regions, take bkg estimate directly from MC
+	// for( uint i=0; i<nSRegions; i++ ) {
+	// 	if( srnames.at(i).Contains("combo") ) {
+	// 		h_bkgEstimate->SetBinContent( i+1, h_srMC->GetBinContent(i+1) );
+	// 		h_bkgEstimate->SetBinError(   i+1, h_srMC->GetBinError(i+1) );
+	// 	}
+	// }
 
 	// Write everything to a file
 	h_mcRatio->Write();
 	h_bkgEstimate->Write();
+	h_purity->Write();
+	h_tfbtag->Write();
 	if( systSuffix == "" ) cout << "1l-from-W background estimate saved in " << gFile->GetName() << "." << endl;
 	else cout << "Systematic variation " << systSuffix << " saved in " << gFile->GetName() << "." << endl;
 
 	delete h_srMC;
 	delete h_crMC;
+	delete h_crMC1lw;
 
-	if( systSuffix != "" ) return;
+	if( systSuffix != "" ) {
+		delete h_purity;
+		delete h_tfbtag;
+		return;
+	}
 
 	////////////////////////////////////////////////////////////////
 	// Now do some calculations for the systematics...
@@ -208,9 +237,9 @@ void do1lWestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 
 	//  Print table header
 	cout << "\n1l-from-W background estimate (stat errors only)\n" << endl;
-	cout << "\\begin{tabular}{ | l | c | c | c | }" << endl;
+	cout << "\\begin{tabular}{ | l | c | c | c | c | }" << endl;
 	cout << "\\hline" << endl;
-	cout << "Signal region  &  $N^{CR}$  &  Transfer factor  &  $N_{est}^{SR}$ \\\\" << endl;
+	cout << "Signal region  &  $N^{CR}$  & $F^{1\\ell W}_{CR}$ (purity) &  $TF_{btag}$  &  $N_{est}^{SR}$ \\\\" << endl;
 	cout << "\\hline" << endl;
 
 	// Loop through signal regions and print out table rows
@@ -218,15 +247,9 @@ void do1lWestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 	for( vector<sigRegion*> sigRegs : sigRegionList ) {
 		for( uint i=0; i<sigRegs.size(); i++ ) {
 
-			if( sigRegs.at(i)->GetLabel().Contains("combo") ) {
-				printf( "%32s &        N/A        &         N/A         &  %6.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i)->GetTableName().Data(),
-								h_bkgEstimate->GetBinContent(i+binOffset), h_bkgEstimate->GetBinError(i+binOffset) );
-			}
-			else {
-				printf( "%32s & %4d $\\pm$ %6.3f &  %5.3f $\\pm$ %5.3f  &  %6.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i)->GetTableName().Data(),
-								int(h_crData->GetBinContent(i+binOffset)), h_crData->GetBinError(i+binOffset), h_mcRatio->GetBinContent(i+binOffset),
-								h_mcRatio->GetBinError(i+binOffset), h_bkgEstimate->GetBinContent(i+binOffset), h_bkgEstimate->GetBinError(i+binOffset) );
-			}
+			printf( "%32s & %4d $\\pm$ %6.3f &  %5.3f $\\pm$ %5.3f  &  %5.3f $\\pm$ %5.3f  &  %6.2f $\\pm$ %5.2f  \\\\\n", sigRegs.at(i)->GetTableName().Data(),
+			        int(h_crData->GetBinContent(i+binOffset)), h_crData->GetBinError(i+binOffset), h_purity->GetBinContent(i+binOffset), h_purity->GetBinContent(i+binOffset),
+			        h_tfbtag->GetBinContent(i+binOffset), h_tfbtag->GetBinError(i+binOffset), h_bkgEstimate->GetBinContent(i+binOffset), h_bkgEstimate->GetBinError(i+binOffset) );
 
 		}
 		binOffset += sigRegs.size();
@@ -234,4 +257,6 @@ void do1lWestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 	}
 	cout << "\\end{tabular}\n" << endl;
 
+	delete h_purity;
+	delete h_tfbtag;
 }
