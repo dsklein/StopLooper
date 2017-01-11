@@ -55,7 +55,10 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 	const int nSigRegs = myAnalysis->GetSigRegionsAll().size();
 	const int nVariations = mySample->IsData() ? 0 : myAnalysis->GetSystematics(false).size();
 	bool isFastsim = mySample->IsSignal();
-	cout << "\nSample: " << sampleName.Data() << endl;
+	cout << "\nSample: " << sampleName.Data() << " (CR0b";
+	if(      myContext.GetJesDir() == contextVars::kUp )   cout << ", JES up";
+	else if( myContext.GetJesDir() == contextVars::kDown ) cout << ", JES down";
+	cout << ")" << endl;
 
 	myContext.SetUseRl( false );
 
