@@ -320,7 +320,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 				// evtWeight *= weight_btagsf() * btagNorm;
 				if( isFastsim ) evtWeight *= weight_lepSF_fastSim() * lepNorm_FS;
 				if( mySample->IsSignal()  ) evtWeight *= weight_ISR() * isrNorm;
-				if( mySample->GetLabel() == "tt2l" || TString(file.GetTitle()).Contains("W_5f_powheg_pythia8") ){
+				if( mySample->GetLabel() == "tt2l" || filename.Contains("W_5f_powheg_pythia8") ){
 					evtWeight *= myHelper.MetResSF();
 					// evtWeight *= myHelper.TopSystPtSF();
 				}
