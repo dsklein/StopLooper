@@ -328,14 +328,18 @@ double sfHelper::TopSystPtDown() {
 
 // Get reiweighting factor to vary the non-1l-from-W CR contamination up
 double sfHelper::Contam1lwUp() {
-	if( tas::is1lepFromW() ) return 1.0;
-	return 1.5;
+	if(      tas::isZtoNuNu()     ) return 1.5;
+	else if( tas::is2lep()        ) return 1.5;
+	else if( tas::is1lepFromTop() ) return 1.5;
+	return 1.0;
 }
 
 // Get reiweighting factor to vary the non-1l-from-W CR contamination down
 double sfHelper::Contam1lwDown() {
-	if( tas::is1lepFromW() ) return 1.0;
-	return 0.5;
+	if(      tas::isZtoNuNu()     ) return 0.5;
+	else if( tas::is2lep()        ) return 0.5;
+	else if( tas::is1lepFromTop() ) return 0.5;
+	return 1.0;
 }
 
 // Get ISR NJets scale factor
