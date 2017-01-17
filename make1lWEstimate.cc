@@ -114,7 +114,7 @@ void do1lWestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 		h_srMC->SetBinError(i+1, h_evtType->GetBinError(4));
 	}
 
-	// Get total yields from MC in 0-btag control regions
+	// Get total yields and 1l-from-W yields from MC in 0-btag control regions
 	for( uint i=0; i<crnames.size(); i++ ) {
 		TH1D* h_evtType = (TH1D*)crhistfile->Get("evttype_"+crnames.at(i)+systSuffix);
 		if( h_evtType == 0 ) {
@@ -125,15 +125,6 @@ void do1lWestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 		yield = h_evtType->IntegralAndError( 3, 6, error );
 		h_crMC->SetBinContent( i+1, yield );
 		h_crMC->SetBinError(   i+1, error );
-	}
-
-	// Get 1l-from-W yields from MC in control regions
-	for( uint i=0; i<crnames.size(); i++ ) {
-		TH1D* h_evtType = (TH1D*)crhistfile->Get("evttype_"+crnames.at(i)+systSuffix);
-		if( h_evtType == 0 ) {
-			cout << "Error in make1lWestimate! Could not find histogram evttype_" << crnames.at(i)+systSuffix << " in file " << crhistfile->GetName() << "!" << endl;
-			return;
-		}
 		h_crMC1lw->SetBinContent(i+1, h_evtType->GetBinContent(4));
 		h_crMC1lw->SetBinError(i+1, h_evtType->GetBinError(4));
 	}
