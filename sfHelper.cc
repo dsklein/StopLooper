@@ -362,6 +362,12 @@ double sfHelper::ISRnJetsDown() {
 	return (isrnjsf_down / isrnjetsnorm_down) / (isrnjsf / isrnjetsnorm );
 }
 
+// Get flat 6.2% uncertainty on lumi
+double sfHelper::LumiUp() {
+	if( tas::is_data() ) return 1.0;
+	return 1.062;
+}
+
 
 namespace sfhelp {
 	double LepSFUp()       { return myHelper.LepSFUp(); }
@@ -391,4 +397,5 @@ namespace sfhelp {
 	double ISRnJetsSF()    { return myHelper.ISRnJetsSF(); }
 	double ISRnJetsUp()    { return myHelper.ISRnJetsUp(); }
 	double ISRnJetsDown()  { return myHelper.ISRnJetsDown(); }
+	double LumiUp()        { return myHelper.LumiUp(); }
 }

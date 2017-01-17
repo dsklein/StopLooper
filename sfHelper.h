@@ -54,6 +54,7 @@ public:
 	double ISRnJetsSF();
 	double ISRnJetsUp();
 	double ISRnJetsDown();
+	double LumiUp();
 
 private:
 	bool isFastsim;
@@ -122,6 +123,7 @@ namespace sfhelp {
 	double ISRnJetsSF();
 	double ISRnJetsUp();
 	double ISRnJetsDown();
+	double LumiUp();
 }
 
 

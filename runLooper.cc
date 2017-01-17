@@ -182,6 +182,7 @@ int main( int argc, char* argv[] ) {
 	systematic isrnjetsdn(     "isrnjets", systematic::kDown,  (*sfhelp::ISRnJetsDown) );
 	systematic contamup_dummy( "contam",   systematic::kUp,    (*sfhelp::Unity) );
 	systematic contamdn_dummy( "contam",   systematic::kDown,  (*sfhelp::Unity) );
+	systematic lumi(           "lumi",     systematic::kUp,    (*sfhelp::LumiUp) );
 
 	srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
 	srAnalysis->AddSystematics( {&eff2lup_dummy, &eff2ldn_dummy, &metresup, &metresdn, /*&topptup, &topptdn,*/ &contamup_dummy, &contamdn_dummy, &isrnjetsup, &isrnjetsdn} );
