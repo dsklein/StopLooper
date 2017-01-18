@@ -245,7 +245,7 @@ int main( int argc, char* argv[] ) {
 
 
 
-	// Create the "sigRegion" objects that will store the definitions of our signal/control regions
+	// Create the "sigRegion" objects that will store the definitions of our signal regions
 	// sigRegion objName(   "label",        "Nice name(s) for plots/tables",             {selections that define the region} )
 	sigRegion j23lowmlb250( "j23lowmlb250", "2-3 jets, high tmod, low Mlb, MET250-350",  {&minDPhi080, &nJets23, &modTopHigh, &mlbLt175, &MET_250_350} ); // A
 	sigRegion j23lowmlb350( "j23lowmlb350", "2-3 jets, high tmod, low Mlb, MET350-450",  {&minDPhi080, &nJets23, &modTopHigh, &mlbLt175, &MET_350_450} );
@@ -288,9 +288,29 @@ int main( int argc, char* argv[] ) {
 	sigRegion corr450new( "corr450new", "Corridor, MET 450-550", {&minDPhi050, &nJetsGe5, &MET_450_550, &lep1ptLt150, &dPhilMetLt20} );
 	sigRegion corr550new( "corr550new", "Corridor, MET 550-inf", {&minDPhi050, &nJetsGe5, &MET_550_inf, &lep1ptLt150, &dPhilMetLt20} );
 
+	// Store these signal regions in our "analysis" object.
+	// Regions grouped together here will also be grouped together in various tables down the road (yields, systematics, etc.)
+	srAnalysis->AddSigRegs( {&j23lowmlb250, &j23lowmlb350, &j23lowmlb450, &j23lowmlb600} );
+	srAnalysis->AddSigRegs( {&j23himlb250, &j23himlb450, &j23himlb600} );
+	srAnalysis->AddSigRegs( {&j4negtmodlowmlb250, &j4negtmodlowmlb350, &j4negtmodlowmlb450, &j4negtmodlowmlb550, &j4negtmodlowmlb650} );
+	srAnalysis->AddSigRegs( {&j4negtmodhimlb250, &j4negtmodhimlb350, &j4negtmodhimlb450, &j4negtmodhimlb550} );
+	srAnalysis->AddSigRegs( {&j4lowtmodlowmlb250, &j4lowtmodlowmlb350, &j4lowtmodlowmlb550} );
+	srAnalysis->AddSigRegs( {&j4lowtmodhimlb250, &j4lowtmodhimlb450} );
+	srAnalysis->AddSigRegs( {&j4hitmodlowmlb250, &j4hitmodlowmlb350, &j4hitmodlowmlb450, &j4hitmodlowmlb600} );
+	srAnalysis->AddSigRegs( {&j4hitmodhimlb250, &j4hitmodhimlb450} );
+	srAnalysis->AddSigRegs( {&inclusive} );
+	srAnalysis->AddSigRegs( {&corr250ichep, &corr350ichep, &corr450ichep} );
+	srAnalysis->AddSigRegs( {&corr250combo, &corr350combo, &corr450combo, &corr550combo} );
+	srAnalysis->AddSigRegs( {&corrAllcombo} );
+	srAnalysis->AddSigRegs( {&corr250new, &corr350new, &corr450new, &corr550new} );
+
+	// Copy all sigRegions from the SR analysis to the lost lepton analysis.
+	// Cuts that depend on e.g. MET_rl will be handled automatically by the "contextVars" class
+	for( std::vector<sigRegion*> regList : srAnalysis->GetSigRegions() ) crLostLep->AddSigRegs( regList );
 
 
-	// Equivalents for the 0-btag control regions
+
+	// Also create sigRegion objects for the 0-btag control regions
 	sigRegion j23lowmlb250CR0b( "j23lowmlb250CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET250-350",  {&minDPhi080, &nJets23, &modTopHigh, &mlbLt175, &MET_250_350, &noMediumBs} ); // A
 	sigRegion j23lowmlb350CR0b( "j23lowmlb350CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET350-450",  {&minDPhi080, &nJets23, &modTopHigh, &mlbLt175, &MET_350_450, &noMediumBs} );
 	sigRegion j23lowmlb450CR0b( "j23lowmlb450CR0b", "CR0b 2-3 jets, high tmod, low Mlb, MET450-600",  {&minDPhi080, &nJets23, &modTopHigh, &mlbLt175, &MET_450_600, &noMediumBs} );
@@ -332,37 +352,7 @@ int main( int argc, char* argv[] ) {
 	sigRegion corr450newCR0b( "corr450newCR0b", "CR0b Corridor, MET 450-550", {&minDPhi050, &nJetsGe5, &MET_450_550, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
 	sigRegion corr550newCR0b( "corr550newCR0b", "CR0b Corridor, MET 550-inf", {&minDPhi050, &nJetsGe5, &MET_550_inf, &lep1ptLt150, &dPhilMetLt20, &noMediumBs} );
 
-
-	// Finally, store all these signal/control regions in our "analysis" objects.
-	// Regions grouped together here will also be grouped together in various tables down the road (yields, systematics, etc.)
-	srAnalysis->AddSigRegs( {&j23lowmlb250, &j23lowmlb350, &j23lowmlb450, &j23lowmlb600} );
-	srAnalysis->AddSigRegs( {&j23himlb250, &j23himlb450, &j23himlb600} );
-	srAnalysis->AddSigRegs( {&j4negtmodlowmlb250, &j4negtmodlowmlb350, &j4negtmodlowmlb450, &j4negtmodlowmlb550, &j4negtmodlowmlb650} );
-	srAnalysis->AddSigRegs( {&j4negtmodhimlb250, &j4negtmodhimlb350, &j4negtmodhimlb450, &j4negtmodhimlb550} );
-	srAnalysis->AddSigRegs( {&j4lowtmodlowmlb250, &j4lowtmodlowmlb350, &j4lowtmodlowmlb550} );
-	srAnalysis->AddSigRegs( {&j4lowtmodhimlb250, &j4lowtmodhimlb450} );
-	srAnalysis->AddSigRegs( {&j4hitmodlowmlb250, &j4hitmodlowmlb350, &j4hitmodlowmlb450, &j4hitmodlowmlb600} );
-	srAnalysis->AddSigRegs( {&j4hitmodhimlb250, &j4hitmodhimlb450} );
-	srAnalysis->AddSigRegs( {&inclusive} );
-	srAnalysis->AddSigRegs( {&corr250ichep, &corr350ichep, &corr450ichep} );
-	srAnalysis->AddSigRegs( {&corr250combo, &corr350combo, &corr450combo, &corr550combo} );
-	srAnalysis->AddSigRegs( {&corrAllcombo} );
-	srAnalysis->AddSigRegs( {&corr250new, &corr350new, &corr450new, &corr550new} );
-
-	crLostLep->AddSigRegs( {&j23lowmlb250, &j23lowmlb350, &j23lowmlb450, &j23lowmlb600} );
-	crLostLep->AddSigRegs( {&j23himlb250, &j23himlb450, &j23himlb600} );
-	crLostLep->AddSigRegs( {&j4negtmodlowmlb250, &j4negtmodlowmlb350, &j4negtmodlowmlb450, &j4negtmodlowmlb550, &j4negtmodlowmlb650} );
-	crLostLep->AddSigRegs( {&j4negtmodhimlb250, &j4negtmodhimlb350, &j4negtmodhimlb450, &j4negtmodhimlb550} );
-	crLostLep->AddSigRegs( {&j4lowtmodlowmlb250, &j4lowtmodlowmlb350, &j4lowtmodlowmlb550} );
-	crLostLep->AddSigRegs( {&j4lowtmodhimlb250, &j4lowtmodhimlb450} );
-	crLostLep->AddSigRegs( {&j4hitmodlowmlb250, &j4hitmodlowmlb350, &j4hitmodlowmlb450, &j4hitmodlowmlb600} );
-	crLostLep->AddSigRegs( {&j4hitmodhimlb250, &j4hitmodhimlb450} );
-	crLostLep->AddSigRegs( {&inclusive} );
-	crLostLep->AddSigRegs( {&corr250ichep, &corr350ichep, &corr450ichep} );
-	crLostLep->AddSigRegs( {&corr250combo, &corr350combo, &corr450combo, &corr550combo} );
-	crLostLep->AddSigRegs( {&corrAllcombo} );
-	crLostLep->AddSigRegs( {&corr250new, &corr350new, &corr450new, &corr550new} );
-
+	// Store these sigRegions in the CR0b analysis object
 	cr0bjets->AddSigRegs( {&j23lowmlb250CR0b, &j23lowmlb350CR0b, &j23lowmlb450CR0b, &j23lowmlb600CR0b} );
 	cr0bjets->AddSigRegs( {&j23himlb250CR0b, &j23himlb450CR0b, &j23himlb600CR0b} );
 	cr0bjets->AddSigRegs( {&j4negtmodlowmlb250CR0b, &j4negtmodlowmlb350CR0b, &j4negtmodlowmlb450CR0b, &j4negtmodlowmlb550CR0b, &j4negtmodlowmlb650CR0b} );
@@ -377,7 +367,8 @@ int main( int argc, char* argv[] ) {
 	cr0bjets->AddSigRegs( {&corrAllcomboCR0b} );
 	cr0bjets->AddSigRegs( {&corr250newCR0b, &corr350newCR0b, &corr450newCR0b, &corr550newCR0b} );
 
-	// Copy signal regions to JES up and down "analysis" objects
+
+	// Copy signal/control regions to JES up and down "analysis" objects
 	for( vector<sigRegion*> srList : srAnalysis->GetSigRegions() ) {
 		sr_jesup->AddSigRegs( srList );
 		sr_jesdn->AddSigRegs( srList );
