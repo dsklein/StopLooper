@@ -31,12 +31,12 @@ int nTightTags;
 
 // Help with program options
 void printHelp() {
-	std::cout << "\nUsage: ./runLooper [arg]\n" << std::endl;
+	std::cout << "\nUsage: ./runLooper [arg(s)]\n" << std::endl;
 
-	std::cout << "Takes zero or more arguments from the following list:" << std::endl;
+	std::cout << "Takes zero or more arguments (separated by spaces) from the following list:" << std::endl;
 	std::cout << "[blank]     equivalent to 'all'" << std::endl;
 	std::cout << "help        show this message" << std::endl;
-	std::cout << "all         run all of the components listed below" << std::endl;
+	std::cout << "all         run this entire analysis code" << std::endl;
 	std::cout << "scan        run ScanChain only" << std::endl;
 	std::cout << "lostlep     run lost lepton looper only" << std::endl;
 	std::cout << "1lw         run 1l-from-W background looper only" << std::endl;
@@ -46,6 +46,8 @@ void printHelp() {
 	std::cout << "estimate    run data-driven background estimates only" << std::endl;
 	std::cout << "cards       run makeDataCards only" << std::endl;
 	std::cout << "output      run makeStack, makeTables, and makeDataCards only" << std::endl;
+
+	std::cout << "\nUsage example: ./runLooper lostlep tables estimate cards\n" << std::endl;
 }
 
 
@@ -113,7 +115,7 @@ int main( int argc, char* argv[] ) {
 	////////////////////////////////////////////////////////////////////////////////////////
 	// Define the "sample" and "analysis" objects that will do much of our bookkeeping
 
-	//                     new analysis( lumi, "histogram storage file", "systematic storage file" )
+	//                     new analysis( lumi, "histogram storage file", "systematic variation storage file" )
 	analysis* srAnalysis = new analysis( 36.46, "plots.root", "systVariations.root" );
 	analysis* crLostLep  = new analysis( 36.46, "plotsLL.root", "systVariationsLL.root" );
 	analysis* cr0bjets   = new analysis( 36.46, "plots0b.root", "systVariations0b.root" );
@@ -501,8 +503,8 @@ int main( int argc, char* argv[] ) {
 		for( sample* mySample : cr0bjets->GetAllSamples() ) looperCR0b( cr0bjets, mySample );
 	}
 
-	////////////////////////////////////////////////
-	// Run jet energy scale (JES) systematics
+	/////////////////////////////////////////////////////
+	// Run jet energy scale (JES) up and down variations
 
 	if( runjes ) {
 

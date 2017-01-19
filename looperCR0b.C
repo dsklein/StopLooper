@@ -21,8 +21,8 @@
 
 // CMS3 and CORE
 #include "CMS3.h"
-#include "../StopAnalysis_74x/CORE/Tools/dorky/dorky.h"
-#include "../StopAnalysis_74x/CORE/Tools/goodrun.h"
+#include "../StopAnalysis_80x/CORE/Tools/dorky/dorky.h"
+#include "../StopAnalysis_80x/CORE/Tools/goodrun.h"
 
 // Custom
 #include "analysis.h"
