@@ -172,8 +172,6 @@ int main( int argc, char* argv[] ) {
 	systematic alphaSdn(       "alphaS",   systematic::kDown,  (*sfhelp::AlphaSDown) );
 	systematic eff2lup(        "cr2ltrig", systematic::kUp,    (*sfhelp::Trig2lUp) );
 	systematic eff2ldn(        "cr2ltrig", systematic::kDown,  (*sfhelp::Trig2lDown) );
-	systematic eff2lup_dummy(  "cr2ltrig", systematic::kUp,    (*sfhelp::Unity) );
-	systematic eff2ldn_dummy(  "cr2ltrig", systematic::kDown,  (*sfhelp::Unity) );
 	systematic metresup(       "METres",   systematic::kUp,    (*sfhelp::MetResUp) );
 	systematic metresdn(       "METres",   systematic::kDown,  (*sfhelp::MetResDown) );
 	systematic topptup(        "topSysPt", systematic::kUp,    (*sfhelp::TopSystPtUp) );
@@ -182,12 +180,10 @@ int main( int argc, char* argv[] ) {
 	systematic contam1lwdn(    "contam",   systematic::kDown,  (*sfhelp::Contam1lwDown) );
 	systematic isrnjetsup(     "isrnjets", systematic::kUp,    (*sfhelp::ISRnJetsUp) );
 	systematic isrnjetsdn(     "isrnjets", systematic::kDown,  (*sfhelp::ISRnJetsDown) );
-	systematic contamup_dummy( "contam",   systematic::kUp,    (*sfhelp::Unity) );
-	systematic contamdn_dummy( "contam",   systematic::kDown,  (*sfhelp::Unity) );
 	systematic lumi(           "lumi",     systematic::kUp,    (*sfhelp::LumiUp) );
 
 	srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
-	srAnalysis->AddSystematics( {&eff2lup_dummy, &eff2ldn_dummy, &metresup, &metresdn, /*&topptup, &topptdn,*/ &contamup_dummy, &contamdn_dummy, &isrnjetsup, &isrnjetsdn} );
+	srAnalysis->AddSystematics( {&metresup, &metresdn, /*&topptup, &topptdn,*/ &isrnjetsup, &isrnjetsdn} );
 	crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn} );
 	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, /*&topptup, &topptdn*/ &isrnjetsup, &isrnjetsdn } );
 	cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn*/ &qSquaredup, &qSquareddn} );

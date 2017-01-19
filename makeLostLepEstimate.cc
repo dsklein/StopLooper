@@ -10,7 +10,7 @@
 
 using namespace std;
 
-void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix );
+void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix, bool srVariation );
 
 // Declare some static global variables
 // This simplifies the process of repeating the background estimate over multiple systematic variations
@@ -67,11 +67,17 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 
 	// Now actually run the lost lepton background estimates!
 	// Once for the nominal estimate, and once for each of the systematic variations
-	doLLestimate( srHistFile, crHistFile, "" );
+	doLLestimate( srHistFile, crHistFile, "", true );
 	for( systematic* thisSys : crAnalysis->GetSystematics(true) ) {
+
+		// If the SRs don't use this variation, then use the nominal SR yields instead
+		bool hasSRvariation = false;
+		for( systematic* thatSys : srAnalysis->GetSystematics(true) ) if( thatSys->GetNameLong() == thisSys->GetNameLong() ) hasSRvariation = true;
+
 		TString suffix = "_" + thisSys->GetNameLong();
-		if( suffix.Contains("JES") ) doLLestimate( srJesFile, crJesFile, suffix );
-		else doLLestimate( srSystFile, crSystFile, suffix );
+		if( suffix.Contains("JES") ) doLLestimate( srJesFile,  crJesFile,  suffix, true  );
+		else if( !hasSRvariation )   doLLestimate( srHistFile, crSystFile, suffix, hasSRvariation );
+		else                         doLLestimate( srSystFile, crSystFile, suffix, hasSRvariation );
 	}
 
 
@@ -93,7 +99,7 @@ void makeLostLepEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 
 
 // Function that actually does the nitty-gritty of the lost lepton background estimate /////////////////
-void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
+void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix, bool srVariation ) {
 
 	// Define histograms that will hold the SR/CR yields
 	TH1D* h_srMC = new TH1D( "srMC", "Signal region yields from MC" , nSRegions, 0.5, float(nSRegions)+0.5 );
@@ -104,9 +110,11 @@ void doLLestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix ) {
 
 	// Get lost lepton background yields from MC in signal regions
 	for( uint i=0; i<srnames.size(); i++ ) {
-		TH1D* h_evtType = (TH1D*)srhistfile->Get("evttype_"+srnames.at(i)+systSuffix);
+		TString histname = "evttype_"+srnames.at(i);
+		if( srVariation ) histname += systSuffix;
+		TH1D* h_evtType = (TH1D*)srhistfile->Get(histname);
 		if( h_evtType == 0 ) {
-			cout << "Error in makeLostLepEstimate! Could not find histogram evttype_" << srnames.at(i)+systSuffix << " in file " << srhistfile->GetName() << "!" << endl;
+			cout << "Error in makeLostLepEstimate! Could not find histogram " << histname << " in file " << srhistfile->GetName() << "!" << endl;
 			return;
 		}
 		h_srMC->SetBinContent(i+1, h_evtType->GetBinContent(3));
