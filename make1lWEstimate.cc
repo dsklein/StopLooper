@@ -2,6 +2,7 @@
 
 #include "analysis.h"
 #include "sample.h"
+#include "sigRegion.h"
 #include "systematic.h"
 
 #include "TFile.h"
@@ -16,7 +17,6 @@ void do1lWestimate( TFile* srhistfile, TFile* crhistfile, TString systSuffix, bo
 // This simplifies the process of repeating the background estimate over multiple systematic variations
 static vector<TString> srnames;
 static vector<TString> crnames;
-static vector<TString> crBkgLabels;
 static uint nSRegions;
 static uint nCRegions;
 static TH1D* h_crData = NULL;
@@ -60,7 +60,6 @@ void make1lWEstimate( analysis* srAnalysis, analysis* crAnalysis ) {
 	}
 	if( crAnalysis->HasData() ) h_crData = (TH1D*)crHistFile->Get("srYields_"+crAnalysis->GetData()->GetLabel())->Clone("crData");
 	crHasSignal = ( crAnalysis->GetNsignals() >= 1 );
-	crBkgLabels = crAnalysis->GetBkgLabels();
 	sigRegionList = srAnalysis->GetSigRegions();
 
 
