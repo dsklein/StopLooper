@@ -11,14 +11,19 @@
 using namespace std;
 
 double calculateMaxdiff( int bin, TFile* histfile, const double& nominal, vector<TString> varNames );
+double calculateMaxdiff( int binx, int biny, TFile* histfile, TString regName, const double& nominal, vector<TString> varNames ); //2D version for signals
 void printSystTable( vector<TString> sigRegions, map<TString,vector<double> > uncertainties );
 
 
-void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, analysis* onelepwAnalysis = NULL ) {
+void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis* lostlepAnalysis = NULL, analysis* onelepwAnalysis = NULL ) {
 
-	if( srAnalysis->GetNsignals() < 1 ) {
-		cout << "\nError in makeDataCards.cc: Need at least one signal sample!" << endl;
-		return;
+	// Make sure we always have some signal to work with.
+	if( sigAnalysis == NULL ) {
+		if( srAnalysis->GetNsignals() < 1 ) {
+			cout << "\nError in makeDataCards.cc: Need at least one signal sample!" << endl;
+			return;
+		}
+		else sigAnalysis = srAnalysis;
 	}
 
 	// Do some basic setup stuff
@@ -32,20 +37,25 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 	vector<TString> sigRegions = srAnalysis->GetSigRegionLabelsAll();
 	const int nSigRegs = sigRegions.size();
 
-	map<TString,vector<TString> > systMap_sr, systMap_ll, systMap_1lw;
-	map<TString,vector<double> > lostlep_uncert, onelepw_uncert;
+	map<TString,vector<TString> > systMap_sig, systMap_ll, systMap_1lw;
+	map<TString,vector<double> > lostlep_uncert, onelepw_uncert; //, signal_uncert;
 	vector<TFile*> filesToCheck;
 
 	int nVars_ll = 0;
 	int nVars_1lw = 0;
-	TFile *lostlepFile, *onelepwFile;
+	TFile *lostlepFile, *onelepwFile, *sigFile;
 	TH1D *h_lostLep, *h_onelepw;
+	TH2D *h_signal, *h_signal_contamSubtracted;
 
 	TFile* yieldFile   = new TFile( srAnalysis->GetPlotFileName(), "READ" );
-	systMap_sr = srAnalysis->GetSystMap();
 	filesToCheck.push_back( yieldFile );
 
-	// Get info about the background estimates
+	// Get info about the background and signal estimates
+	if( sigAnalysis ) {
+		systMap_sig = sigAnalysis->GetSystMap();
+		sigFile = new TFile( "signalEstimates.root", "READ" );
+		filesToCheck.push_back( sigFile );
+	}
 	if( lostlepAnalysis ) {
 		nVars_ll  = lostlepAnalysis->GetSystematics(true).size();
 		systMap_ll = lostlepAnalysis->GetSystMap();
@@ -80,22 +90,12 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 		cout << "Writing data cards for signal region " << sigRegions.at(reg-1) << endl;
 
 		TH1D* h_bkgYield  = (TH1D*)yieldFile->Get( "evttype_"+sigRegions.at(reg-1) );
-		TH2D* h_sigYield  = (TH2D*)yieldFile->Get( "sigyields_"+sigRegions.at(reg-1) );
-
-		// Subtract signal contamination from signal MC prediction.
-		// Had a LONG discussion with John and FKW about why they want us to do it this way
-		if( lostlepFile ) {
-			TH2D* h_sigContam = (TH2D*)lostlepFile->Get( "sigContam_"+sigRegions.at(reg-1) );
-			h_sigYield->Add( h_sigContam, -1. );
-		}
-		if( onelepwFile && !(sigRegions.at(reg-1).Contains("combo")) ) {
-			TH2D* h_sigContam = (TH2D*)onelepwFile->Get( "sigContam_"+sigRegions.at(reg-1) );
-			h_sigYield->Add( h_sigContam, -1. );
-		}
+		h_signal = (TH2D*)sigFile->Get( "nominal_"+sigRegions.at(reg-1) );
+		h_signal_contamSubtracted = (TH2D*)sigFile->Get("contamSubtracted_"+sigRegions.at(reg-1) );
 
 		// Get bin sizes for the signal yield histogram
-		double binwidthX = h_sigYield->GetXaxis()->GetBinWidth(1);
-		double binwidthY = h_sigYield->GetYaxis()->GetBinWidth(1);
+		double binwidthX = h_signal->GetXaxis()->GetBinWidth(1);
+		double binwidthY = h_signal->GetYaxis()->GetBinWidth(1);
 
 
 		///////////////////////////////////////////////////////////////////////////////////////
@@ -178,8 +178,8 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 			tmpstr = Form( "%-18s  lnN ", statname );
 
 			double statErr;
-			if(      sampleIdx==1 && lostlepAnalysis != NULL ) statErr = 1.0 + ( h_lostLep->GetBinError(reg) / h_lostLep->GetBinContent(reg) );  // Pull 2l stats from ll estimate histogram
-			else if( sampleIdx==2 && onelepwAnalysis != NULL ) statErr = 1.0 + ( h_onelepw->GetBinError(reg) / h_onelepw->GetBinContent(reg) );  // Pull 1lw stats from 1lW estimate histogram
+			if(      sampleIdx==1 && lostlepAnalysis != NULL ) statErr = 1.0 + ( h_lostLep->GetBinError(reg) / h_lostLep->GetBinContent(reg) );
+			else if( sampleIdx==2 && onelepwAnalysis != NULL ) statErr = 1.0 + ( h_onelepw->GetBinError(reg) / h_onelepw->GetBinContent(reg) );
 			else 		                                           statErr = 1.0 + ( h_bkgYield->GetBinError(sampleIdx+2) / h_bkgYield->GetBinContent(sampleIdx+2) );
 
 			if( std::isnan(statErr) ) statErr = 1.0; // Protection against nan
@@ -205,25 +205,23 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 				onelepw_uncert[" DataStats"].push_back( datastats->GetBinError(reg) / datastats->GetBinContent(reg) );
 				onelepw_uncert[" MCstats"].push_back(   mcstats->GetBinError(reg)   / mcstats->GetBinContent(reg) );
 			}
-			else continue;
-		}
+		} // End loop over samples for statistical uncertainties
 
 
 		// Write out a dummy systematic uncertainty for each of the backgrounds that doesn't have an actual systematic calculation
-		// For now, skip the signal sample (don't give it a systematic uncertainty)
 		for( int sampleIdx = 1; sampleIdx<nSamples; sampleIdx++ ) {
 
 			double systErr = 0.;
 			char systname[25];
 
 			if(      sampleIdx == 1 && nVars_ll  > 0 ) continue; // Don't use dummy systematic for ll background if we have actual systematics
-			else if( sampleIdx == 2 && nVars_1lw > 0 && !(sigRegions.at(reg-1).Contains("combo")) ) continue; // Same with 1l-from-W background
+			else if( sampleIdx == 2 && nVars_1lw > 0 ) continue; // Same with 1l-from-W background
 			else if( sampleIdx == 3 ) {
 				systErr = 2.0; // 100% total uncertainty on 1l from top
 				sprintf( systname, "Flat%s%d", samples.at(sampleIdx).Data(), reg );
 			}
 			else {
-				systErr = 1.3; // Flat 30% systematic for now
+				systErr = 1.3; // Flat 30% systematic
 				sprintf( systname, "Flat%s", samples.at(sampleIdx).Data() );
 			}
 
@@ -279,31 +277,32 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 			uncertlines.push_back( tmpstr );
 		}
 
-		// Count number of uncertainties, and insert appropriate row into datacard template
-		int nUncerts = uncertlines.size();
-		cardlines.at(5) = Form( "kmax %d  number of uncertainties\n", nUncerts );
-
 
 
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Loop over signal mass points, to get the information that's specific to each mass point
 
-		for( int xbin=1; xbin<=h_sigYield->GetNbinsX(); xbin++ ) {
-			for( int ybin=1; ybin<=h_sigYield->GetNbinsY(); ybin++ ) {
+		for( int xbin=1; xbin<=h_signal->GetNbinsX(); xbin++ ) {
+			for( int ybin=1; ybin<=h_signal->GetNbinsY(); ybin++ ) {
 
-				// Round bin centers to sensible numbers (nearest integer multiple of the bin width)
-				int stopmass = binwidthX * round( h_sigYield->GetXaxis()->GetBinCenter(xbin) / binwidthX );
-				int lspmass  = binwidthY * round( h_sigYield->GetYaxis()->GetBinCenter(ybin) / binwidthY );
-
-				double sigYield = h_sigYield->GetBinContent( xbin, ybin );
-				double sigError = h_sigYield->GetBinError(   xbin, ybin );
-				if( fabs(sigYield) < 0.000001 ) continue;
+				// Skip empty bins in the mass histogram
+				double sigYield = h_signal_contamSubtracted->GetBinContent( xbin, ybin );
+				double sigError = h_signal_contamSubtracted->GetBinError(   xbin, ybin );
+				double sigYield_raw = h_signal->GetBinContent( xbin, ybin );
+				if( fabs(sigYield_raw) < 0.000001 ) continue;
 				if( sigYield < 0. ) {
-					// cout << "Warning in makeDataCards: Mass point (" << stopmass << "," << lspmass
-					// 	   << ") has negative signal yield after subtracting contamination. Setting yield to zero." << endl;
 					sigYield = 0.000000001;
 					sigError = 0.;
 				}
+
+				// Prepare the structures that will hold the info on signal systematics
+				map<TString,vector<TString> > syst_holder_sig;
+				for( auto& iter : systMap_sig ) syst_holder_sig[iter.first] = emptySystLine;
+				vector<TString> uncertlines_signal;
+
+				// Round bin centers to sensible numbers (nearest integer multiple of the bin width)
+				int stopmass = binwidthX * round( h_signal->GetXaxis()->GetBinCenter(xbin) / binwidthX );
+				int lspmass  = binwidthY * round( h_signal->GetYaxis()->GetBinCenter(ybin) / binwidthY );
 
 				// Generate the second line of the datacard, with the susy masses
 				cardlines.at(1) = Form( "# Stop mass = %d, LSP mass = %d\n", stopmass, lspmass );
@@ -326,6 +325,28 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 				uncertlines.at(0) = tmpstr;
 
 
+				// Evaluate systematic uncertainties on the signal yield
+				// Note: I use the signal yield before contamination subtraction as the denominator!
+				for( auto& iter : systMap_sig ) {
+					double maxdiff = calculateMaxdiff( xbin, ybin, sigFile, sigRegions.at(reg-1), sigYield_raw, iter.second );
+					syst_holder_sig[iter.first].at(0) = Form( "  %8.6f  ", 1.0 + maxdiff/sigYield_raw );
+					// Make sure to keep track of the size of the signal systematics!
+					// A systematics table is out of the question, but find some other way to do it.
+				}
+
+				// Make the sytematics lines for signal
+				for( auto& iter : syst_holder_sig ) {
+					tmpstr = Form( "Syst%-14s  lnN ", (iter.first+"Sig").Data() );
+					for( TString cell : iter.second ) tmpstr += cell;
+					tmpstr += "\n";
+					uncertlines_signal.push_back( tmpstr );
+				}
+
+				// Count number of uncertainties, and insert appropriate row into datacard template
+				int nUncerts = uncertlines.size() + uncertlines_signal.size();
+				cardlines.at(5) = Form( "kmax %d  number of uncertainties\n", nUncerts );
+
+
 				///////////////////////////////////////////////////////////////////
 				// Now let's actually make a datacard!
 
@@ -336,8 +357,9 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 				outfile = fopen( fileName.Data(), "w" );
 
 				// Write out each line
-				for( TString line : cardlines   ) fputs( line.Data(), outfile );
-				for( TString line : uncertlines ) fputs( line.Data(), outfile );
+				for( TString line : cardlines   )       fputs( line.Data(), outfile );
+				for( TString line : uncertlines )       fputs( line.Data(), outfile );
+				for( TString line : uncertlines_signal) fputs( line.Data(), outfile );
 
 				// Close file
 				fprintf( outfile,  "---\n" );
@@ -363,6 +385,7 @@ void makeDataCards( analysis* srAnalysis, analysis* lostlepAnalysis = NULL, anal
 
 	delete lostlepFile;
 	delete onelepwFile;
+	delete sigFile;
 	delete yieldFile;
 }
 // End of function makeDataCards
@@ -386,6 +409,22 @@ double calculateMaxdiff( int bin, TFile* histfile, const double& nominal, vector
 	return maxdiff;
 }
 
+double calculateMaxdiff( int binx, int biny, TFile* histfile, TString regName, const double& nominal, vector<TString> varNames ) {
+
+	if( nominal < 0.00000001 ) return 0.;
+	double maxdiff = 0.;
+
+	for( TString varName : varNames ) {
+		TH2D* h_tmp = (TH2D*)histfile->Get( "variation_" + regName + "_" + varName );
+		if( h_tmp == 0 ) {
+			cout << "Warning in makeDataCards: Couldn't find histogram variation_" << regName << "_" << varName << " in file " << histfile->GetName() << "!" << endl;
+			continue;
+		}
+		maxdiff = max( maxdiff, fabs(nominal - h_tmp->GetBinContent(binx,biny)) );
+	}
+
+	return maxdiff;
+}
 
 void printSystTable( vector<TString> sigRegions, map<TString,vector<double> > uncertainties ) {
 

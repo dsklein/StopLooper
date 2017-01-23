@@ -119,6 +119,7 @@ int main( int argc, char* argv[] ) {
 	analysis* srAnalysis = new analysis( 36.46, "plots.root", "systVariations.root" );
 	analysis* crLostLep  = new analysis( 36.46, "plotsLL.root", "systVariationsLL.root" );
 	analysis* cr0bjets   = new analysis( 36.46, "plots0b.root", "systVariations0b.root" );
+	analysis* sr_signal  = new analysis( 36.46, "plotsSig.root", "systVariationsSig.root" );
 	analysis* sr_jesup   = new analysis( 36.46, "jes_sr.root", "jes_sr.root" );
 	analysis* sr_jesdn   = new analysis( 36.46, "jes_sr.root", "jes_sr.root" );
 	analysis* cr2l_jesup = new analysis( 36.46, "jes_cr2l.root", "jes_cr2l.root" );
@@ -143,7 +144,8 @@ int main( int argc, char* argv[] ) {
 	// srAnalysis->AddSample( data );   // Uncomment this line to unblind
 	crLostLep->AddSample( data );
 	cr0bjets->AddSample(  data );
-	srAnalysis->AddSamples( {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
+	sr_signal->AddSample( signal );
+	srAnalysis->AddSamples( {tt2l, tt1l, singtop, wjets, dy, rare} );
 	crLostLep->AddSamples(  {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
 	cr0bjets->AddSamples(   {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
 
@@ -184,6 +186,7 @@ int main( int argc, char* argv[] ) {
 
 	srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
 	srAnalysis->AddSystematics( {&metresup, &metresdn, /*&topptup, &topptdn,*/ &isrnjetsup, &isrnjetsdn} );
+	sr_signal->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &isrnjetsup, &isrnjetsdn, &lumi} );
 	crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn} );
 	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, /*&topptup, &topptdn*/ &isrnjetsup, &isrnjetsdn } );
 	cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn*/ &qSquaredup, &qSquareddn} );
@@ -302,9 +305,12 @@ int main( int argc, char* argv[] ) {
 	srAnalysis->AddSigRegs( {&corrAllcombo} );
 	srAnalysis->AddSigRegs( {&corr250new, &corr350new, &corr450new, &corr550new} );
 
-	// Copy all sigRegions from the SR analysis to the lost lepton analysis.
+	// Copy all sigRegions from the SR analysis to the lost lepton and signal analyses.
 	// Cuts that depend on e.g. MET_rl will be handled automatically by the "contextVars" class
-	for( std::vector<sigRegion*> regList : srAnalysis->GetSigRegions() ) crLostLep->AddSigRegs( regList );
+	for( std::vector<sigRegion*> regList : srAnalysis->GetSigRegions() ) {
+		sr_signal->AddSigRegs( regList );
+		crLostLep->AddSigRegs( regList );
+	}
 
 
 
@@ -458,10 +464,15 @@ int main( int argc, char* argv[] ) {
 		outfile->Close();
 		outfile = new TFile( srAnalysis->GetSystFileName(), "RECREATE" );
 		outfile->Close();
+		outfile = new TFile( sr_signal->GetPlotFileName(), "RECREATE" );
+		outfile->Close();
+		outfile = new TFile( sr_signal->GetSystFileName(), "RECREATE" );
+		outfile->Close();
 
 		// Run ScanChain on all samples
 		myContext.SetUseRl( false );
 		myContext.SetJesDir( contextVars::kNominal );
+		ScanChain( sr_signal, signal );
 		for( sample* mySample : srAnalysis->GetAllSamples() ) ScanChain( srAnalysis, mySample );
 	}
 
@@ -544,13 +555,15 @@ int main( int argc, char* argv[] ) {
 	if( runestimate ) {
 		makeLostLepEstimate( srAnalysis, crLostLep );
 		make1lWEstimate( srAnalysis, cr0bjets );
+		makeSignalEstimate( sr_signal );
 	}
-	if( runcards )                makeDataCards( srAnalysis, crLostLep, cr0bjets );
+	if( runcards )                makeDataCards( srAnalysis, sr_signal, crLostLep, cr0bjets );
 
 	// Clean up /////////
 	delete srAnalysis;
 	delete crLostLep;
 	delete cr0bjets;
+	delete sr_signal;
 	delete data;
 	delete signal;
 	delete tt2l;
