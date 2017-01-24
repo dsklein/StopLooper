@@ -24,7 +24,7 @@ public:
 	sfHelper();
 	~sfHelper();
 
-	void Setup( bool is_fastsim, bool is_cr2l, TH1D* counterHist, TH2F* nevtsHist, TH3D* counterHist_SMS );
+	void Setup( bool is_fastsim, TH1D* counterHist, TH2F* nevtsHist, TH3D* counterHist_SMS );
 	void PrepSignal();
 
 	double LepSFUp();
@@ -58,7 +58,6 @@ public:
 
 private:
 	bool isFastsim;
-	bool isCR2l;
 	int topptBin;
 	int nEvts;
 	int binx;

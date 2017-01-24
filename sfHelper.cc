@@ -30,14 +30,16 @@ sfHelper::~sfHelper()
 }
 
 // Setup function
-void sfHelper::Setup( bool is_fastsim, bool is_cr2l, TH1D* counterHist, TH2F* nevtsHist=NULL, TH3D* counterHist_SMS=NULL )
+void sfHelper::Setup( bool is_fastsim, TH1D* counterHist=NULL, TH2F* nevtsHist=NULL, TH3D* counterHist_SMS=NULL )
 {
 	isFastsim = is_fastsim;
-	isCR2l = is_cr2l;
 	h_counter = counterHist;
 	hist_nEvts = nevtsHist;
 	h_counterSMS = counterHist_SMS;
 	topptBin = -99;
+
+	if( !h_counter ) return;
+
 	nEvts = h_counter->GetBinContent( 22 );
 
 	qsquarednorm    = h_counter->GetBinContent( 1 );

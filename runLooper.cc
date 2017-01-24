@@ -138,9 +138,6 @@ int main( int argc, char* argv[] ) {
 	sample* dy      = new sample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
 	sample* rare    = new sample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
 
-	sample* signal_jesup  = new sample( "signal_jesup",  "T2tt",           kBlue+3,   sample::kSignal );
-	sample* signal_jesdn  = new sample( "signal_jesdn",  "T2tt",           kBlue+3,   sample::kSignal );
-
 	// srAnalysis->AddSample( data );   // Uncomment this line to unblind
 	crLostLep->AddSample( data );
 	cr0bjets->AddSample(  data );
@@ -149,12 +146,12 @@ int main( int argc, char* argv[] ) {
 	crLostLep->AddSamples(  {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
 	cr0bjets->AddSamples(   {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
 
-	sr_jesup->AddSamples(   {signal_jesup, tt2l, tt1l, singtop, wjets, dy, rare} );
-	cr2l_jesup->AddSamples( {signal_jesup, tt2l, tt1l, singtop, wjets, dy, rare} );
-	cr0b_jesup->AddSamples( {signal_jesup, tt2l, tt1l, singtop, wjets, dy, rare} );
-	sr_jesdn->AddSamples(   {signal_jesdn, tt2l, tt1l, singtop, wjets, dy, rare} );
-	cr2l_jesdn->AddSamples( {signal_jesdn, tt2l, tt1l, singtop, wjets, dy, rare} );
-	cr0b_jesdn->AddSamples( {signal_jesdn, tt2l, tt1l, singtop, wjets, dy, rare} );
+	sr_jesup->AddSamples(   {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
+	cr2l_jesup->AddSamples( {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
+	cr0b_jesup->AddSamples( {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
+	sr_jesdn->AddSamples(   {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
+	cr2l_jesdn->AddSamples( {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
+	cr0b_jesdn->AddSamples( {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
 
 	/////////////////////////////////////////////////////////////////////////
 	// Create "systematic" objects to store all our systematic variations
@@ -184,12 +181,12 @@ int main( int argc, char* argv[] ) {
 	systematic isrnjetsdn(     "isrnjets", systematic::kDown,  (*sfhelp::ISRnJetsDown) );
 	systematic lumi(           "lumi",     systematic::kUp,    (*sfhelp::LumiUp) );
 
-	srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
+	srAnalysis->AddSystematics( {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
 	srAnalysis->AddSystematics( {&metresup, &metresdn, /*&topptup, &topptdn,*/ &isrnjetsup, &isrnjetsdn} );
-	sr_signal->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &isrnjetsup, &isrnjetsdn, &lumi} );
-	crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn} );
+	sr_signal->AddSystematics(  {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &isrnjetsup, &isrnjetsdn, &lumi} );
+	crLostLep->AddSystematics(  {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn} );
 	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, /*&topptup, &topptdn*/ &isrnjetsup, &isrnjetsdn } );
-	cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn*/ &qSquaredup, &qSquareddn} );
+	cr0bjets->AddSystematics( {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn*/ &qSquaredup, &qSquareddn} );
 	cr0bjets->AddSystematics( {&alphaSup, &alphaSdn, &metresup, &metresdn, &contam1lwup, &contam1lwdn, &isrnjetsup, &isrnjetsdn } );
 
 	// A sneaky trick to make JES systematics work with existing code
@@ -391,13 +388,9 @@ int main( int argc, char* argv[] ) {
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// For each "sample" object defined earlier, chain up the baby files that make up that sample
 
-	TString sigPath  = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/Nominal/";
-	TString bkgPath  = "/nfs-6/userdata/dsklein/stop-babies/skims_minDPhi05_v11/";
-	TString bkgPath2 = "/nfs-6/userdata/dsklein/stop-babies/skims_minDPhi05_v11/";
-	TString dataPath = "/nfs-6/userdata/dsklein/stop-babies/skims_minDPhi05_v11/";
-
-	TString sigPath_jesup = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/JESup/";
-	TString sigPath_jesdn = "/nfs-7/userdata/stopRun2/analysis2016__SUS-16-028__12p9fb/stopBabies__v8.0.x_v8__20160729/JESdn/";
+	TString sigPath  = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v17/skim/";
+	TString bkgPath  = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v18/skim/";
+	TString dataPath = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v17/skim/";
 
 
 	if( runlooper || runlostlep || run1lw || runjes ) {
@@ -409,8 +402,6 @@ int main( int argc, char* argv[] ) {
 
 		// Signal sample(s)
 		signal->AddFile( sigPath + "Signal_T2tt*.root" );
-		signal_jesup->AddFile( sigPath_jesup + "Signal_T2tt*.root" );
-		signal_jesdn->AddFile( sigPath_jesdn + "Signal_T2tt*.root" );
 
 		// Background samples
 		tt2l->AddFile( bkgPath + "ttbar_diLept_madgraph_pythia8_ext1_25ns*.root" );
@@ -432,8 +423,8 @@ int main( int argc, char* argv[] ) {
 
 		singtop->AddFile( bkgPath + "t_sch_4f_amcnlo_pythia8_25ns*.root" );
 		singtop->AddFile( bkgPath + "t_tch_4f_powheg_pythia8_25ns*.root" );
-		singtop->AddFile( bkgPath2 + "tbar_tch_4f_powheg_pythia8_25ns*.root" );   // Take this one from John's directory
-		singtop->AddFile( bkgPath2 + "t_tW_5f_powheg_pythia8_25ns*.root" );       // This one too
+		singtop->AddFile( bkgPath + "tbar_tch_4f_powheg_pythia8_25ns*.root" );
+		singtop->AddFile( bkgPath + "t_tW_5f_powheg_pythia8_25ns*.root" );
 		singtop->AddFile( bkgPath + "t_tbarW_5f_powheg_pythia8_25ns*.root" );
 
 		rare->AddFile( bkgPath + "ttWJets_13TeV_madgraphMLM*.root" );
@@ -525,23 +516,14 @@ int main( int argc, char* argv[] ) {
 
 		// Run ScanChain, looperCR2lep, and loopercr0b on JES up/down babies
 		myContext.SetJesDir( contextVars::kUp );
-		for( sample* mySample : sr_jesup->GetBkgs()   ) ScanChain(    sr_jesup,   mySample );
-		for( sample* mySample : cr2l_jesup->GetBkgs() ) looperCR2lep( cr2l_jesup, mySample );
-		for( sample* mySample : cr0b_jesup->GetBkgs() ) looperCR0b(   cr0b_jesup, mySample );
+		for( sample* mySample : sr_jesup->GetAllSamples()   ) ScanChain(    sr_jesup,   mySample );
+		for( sample* mySample : cr2l_jesup->GetAllSamples() ) looperCR2lep( cr2l_jesup, mySample );
+		for( sample* mySample : cr0b_jesup->GetAllSamples() ) looperCR0b(   cr0b_jesup, mySample );
 
 		myContext.SetJesDir( contextVars::kDown );
-		for( sample* mySample : sr_jesdn->GetBkgs()   ) ScanChain(    sr_jesdn,   mySample );
-		for( sample* mySample : cr2l_jesdn->GetBkgs() ) looperCR2lep( cr2l_jesdn, mySample );
-		for( sample* mySample : cr0b_jesdn->GetBkgs() ) looperCR0b(   cr0b_jesdn, mySample );
-
-		// Do the JES signal samples separately, because they're old and don't have JES up/down branches
-		myContext.SetJesDir( contextVars::kNominal );
-		for( sample* mySample : sr_jesup->GetSignals()   ) ScanChain(    sr_jesup,   mySample );
-		for( sample* mySample : cr2l_jesup->GetSignals() ) looperCR2lep( cr2l_jesup, mySample );
-		for( sample* mySample : cr0b_jesup->GetSignals() ) looperCR0b(   cr0b_jesup, mySample );
-		for( sample* mySample : sr_jesdn->GetSignals()   ) ScanChain(    sr_jesdn,   mySample );
-		for( sample* mySample : cr2l_jesdn->GetSignals() ) looperCR2lep( cr2l_jesdn, mySample );
-		for( sample* mySample : cr0b_jesdn->GetSignals() ) looperCR0b(   cr0b_jesdn, mySample );
+		for( sample* mySample : sr_jesdn->GetAllSamples()   ) ScanChain(    sr_jesdn,   mySample );
+		for( sample* mySample : cr2l_jesdn->GetAllSamples() ) looperCR2lep( cr2l_jesdn, mySample );
+		for( sample* mySample : cr0b_jesdn->GetAllSamples() ) looperCR0b(   cr0b_jesdn, mySample );
 	}
 
 
@@ -572,8 +554,6 @@ int main( int argc, char* argv[] ) {
 	delete wjets;
 	delete dy;
 	delete rare;
-	delete signal_jesup;
-	delete signal_jesdn;
 
 	return 0;
 }

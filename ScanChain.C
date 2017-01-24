@@ -240,7 +240,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 		TH2F* hNEvts = (TH2F*)file.Get("histNEvts");
 		TH3D* hCounterSMS = (TH3D*)file.Get("h_counterSMS");
 		TH1D* hCounter = (TH1D*)file.Get("h_counter");
-		myHelper.Setup( isFastsim, false, hCounter, hNEvts, hCounterSMS );
+		myHelper.Setup( isFastsim, hCounter, hNEvts, hCounterSMS );
 
 		// Reset zeroing histograms
 		for( int i=0; i<nSigRegs; i++ ) {
