@@ -77,6 +77,24 @@ const float &contextVars::TopnessMod() {
 	return tas::topnessMod();
 }
 
+const float &contextVars::lep1_dphiMET() {
+	if(       useRl && jesDirection==kUp      ) return tas::lep1_dphiMET_rl_jup();
+	else if(  useRl && jesDirection==kDown    ) return tas::lep1_dphiMET_rl_jdown();
+	else if(  useRl && jesDirection==kNominal ) return tas::lep1_dphiMET_rl();
+	else if( !useRl && jesDirection==kUp      ) return tas::lep1_dphiMET_jup();
+	else if( !useRl && jesDirection==kDown    ) return tas::lep1_dphiMET_jdown();
+	return tas::lep1_dphiMET();
+}
+
+const float &contextVars::lep2_dphiMET() {
+	if(       useRl && jesDirection==kUp      ) return tas::lep2_dphiMET_rl_jup();
+	else if(  useRl && jesDirection==kDown    ) return tas::lep2_dphiMET_rl_jdown();
+	else if(  useRl && jesDirection==kNominal ) return tas::lep2_dphiMET_rl();
+	else if( !useRl && jesDirection==kUp      ) return tas::lep2_dphiMET_jup();
+	else if( !useRl && jesDirection==kDown    ) return tas::lep2_dphiMET_jdown();
+	return tas::lep2_dphiMET();
+}
+
 /////////////////////////////////////////////////////////////////////////////////
 
 
@@ -84,6 +102,12 @@ const bool &contextVars::filt_fastsimjets() {
 	if(      jesDirection==kUp   ) return tas::filt_fastsimjets_jup();
 	else if( jesDirection==kDown ) return tas::filt_fastsimjets_jdown();
 	return tas::filt_fastsimjets();
+}
+
+const bool &contextVars::filt_jetWithBadMuon() {
+	if(      jesDirection==kUp   ) return tas::filt_jetWithBadMuon_jup();
+	else if( jesDirection==kDown ) return tas::filt_jetWithBadMuon_jdown();
+	return tas::filt_jetWithBadMuon();
 }
 
 const int &contextVars::ngoodjets() {
@@ -98,6 +122,24 @@ const int &contextVars::ngoodbtags() {
 	return tas::ngoodbtags();
 }
 
+const int &contextVars::nloosebtags() {
+	if(      jesDirection==kUp   ) return tas::jup_nloosebtags();
+	else if( jesDirection==kDown ) return tas::jdown_nloosebtags();
+	return tas::nloosebtags();
+}
+
+const int &contextVars::ntightbtags() {
+	if(      jesDirection==kUp   ) return tas::jup_ntightbtags();
+	else if( jesDirection==kDown ) return tas::jdown_ntightbtags();
+	return tas::ntightbtags();
+}
+
+const int &contextVars::nanalysisbtags() {
+	if(      jesDirection==kUp   ) return tas::jup_nanalysisbtags();
+	else if( jesDirection==kDown ) return tas::jdown_nanalysisbtags();
+	return tas::nanalysisbtags();
+}
+
 const float &contextVars::ak4_HT() {
 	if(      jesDirection==kUp   ) return tas::jup_ak4_HT();
 	else if( jesDirection==kDown ) return tas::jdown_ak4_HT();
@@ -108,6 +150,18 @@ const float &contextVars::ak4_htratiom() {
 	if(      jesDirection==kUp   ) return tas::jup_ak4_htratiom();
 	else if( jesDirection==kDown ) return tas::jdown_ak4_htratiom();
 	return tas::ak4_htratiom();
+}
+
+const float &contextVars::Mlb_closestb() {
+	if(      jesDirection==kUp   ) return tas::Mlb_closestb_jup();
+	else if( jesDirection==kDown ) return tas::Mlb_closestb_jdown();
+	return tas::Mlb_closestb();
+}
+
+const float &contextVars::Mlb_lead_bdiscr() {
+	if(      jesDirection==kUp   ) return tas::Mlb_lead_bdiscr_jup();
+	else if( jesDirection==kDown ) return tas::Mlb_lead_bdiscr_jdown();
+	return tas::Mlb_lead_bdiscr();
 }
 
 
@@ -197,11 +251,19 @@ namespace context {
 	const float &Mindphi_met_j1_j2() { return myContext.Mindphi_met_j1_j2(); }
 	const float &MT_met_lep() { return myContext.MT_met_lep(); }
 	const float &TopnessMod() { return myContext.TopnessMod(); }
+	const float &lep1_dphiMET() { return myContext.lep1_dphiMET(); }
+	const float &lep2_dphiMET() { return myContext.lep2_dphiMET(); }
 	const bool &filt_fastsimjets() { return myContext.filt_fastsimjets(); }
+	const bool &filt_jetWithBadMuon() { return myContext.filt_jetWithBadMuon(); }
 	const int &ngoodjets() { return myContext.ngoodjets(); }
 	const int &ngoodbtags() { return myContext.ngoodbtags(); }
+	const int &nloosebtags() { return myContext.nloosebtags(); }
+	const int &ntightbtags() { return myContext.ntightbtags(); }
+	const int &nanalysisbtags() { return myContext.nanalysisbtags(); }
 	const float &ak4_HT() { return myContext.ak4_HT(); }
 	const float &ak4_htratiom() { return myContext.ak4_htratiom(); }
+	const float &Mlb_closestb() { return myContext.Mlb_closestb(); }
+	const float &Mlb_lead_bdiscr() { return myContext.Mlb_lead_bdiscr(); }
 	const std::vector<float> &dphi_ak4pfjet_met() { return myContext.dphi_ak4pfjet_met(); }
 	const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > > &ak4pfjets_p4() { return myContext.ak4pfjets_p4(); }
 	const std::vector<bool> &ak4pfjets_passMEDbtag() { return myContext.ak4pfjets_passMEDbtag(); }

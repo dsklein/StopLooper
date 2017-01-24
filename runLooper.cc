@@ -16,17 +16,13 @@
 // Global variables, for use in defining signal regions
 extern bool j1_isBtag;
 extern double j1pt;
-extern double dphilmet;
 extern double lep1pt;
 extern double myMlb;
-extern int nTightTags;
 
 bool j1_isBtag;
 double j1pt;
-double dphilmet;
 double lep1pt;
 double myMlb;
-int nTightTags;
 
 
 // Help with program options
@@ -221,8 +217,8 @@ int main( int argc, char* argv[] ) {
 	selection<int> nJetsGe4( (*context::ngoodjets), 4, 9999999 ); // NJets bins
 	selection<int> nJetsGe5( (*context::ngoodjets), 5, 9999999 );
 
-	selection<int> oneTightB( &nTightTags, 1, 9999999 ); // Various requirements on the number of tight or medium b-tags
-	selection<int> noTightBs( &nTightTags, 0 );
+	selection<int> oneTightB( (*context::ntightbtags), 1, 9999999 ); // Various requirements on the number of tight or medium b-tags
+	selection<int> noTightBs( (*context::ntightbtags), 0 );
 	selection<int> noMediumBs( (*context::ngoodbtags), 0 );
 
 	selection<float> modTopNeg(   (*context::TopnessMod), -9999999., 0. );
@@ -232,14 +228,14 @@ int main( int argc, char* argv[] ) {
 	selection<double> mlbLt175( &myMlb,    0., 175. );
 	selection<double> mlbGe175( &myMlb,  175., 9999999. );  // M_lb bins
 
-	selection<double> j1Pt200( &j1pt, 200., 9999999. ); // Special selections for the corridor regions
-	selection<bool>   j1NoTag( &j1_isBtag, false );
-	selection<double> dPhilMetLt15(&dphilmet, 0., 1.5 );
-	selection<double> dPhilMetLt20(&dphilmet, 0., 2.0 );
-	selection<double> lep1ptLt100( &lep1pt, 0., 100. );
-	selection<double> lep1ptLt150( &lep1pt, 0., 150. );
+	selection<float> dPhilMetLt15( (*context::lep1_dphiMET), 0., 1.5 );   // Special selections for the corridor regions
+	selection<float> dPhilMetLt20( (*context::lep1_dphiMET), 0., 2.0 );
 	selection<float> minDPhi050( (*context::Mindphi_met_j1_j2), 0.50, 9999999. );
 	selection<float> minDPhi080( (*context::Mindphi_met_j1_j2), 0.80, 9999999. );
+	selection<double> lep1ptLt100( &lep1pt, 0., 100. );
+	selection<double> lep1ptLt150( &lep1pt, 0., 150. );
+	selection<double> j1Pt200( &j1pt, 200., 9999999. );
+	selection<bool> j1NoTag( &j1_isBtag, false );
 
 
 

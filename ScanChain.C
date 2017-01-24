@@ -37,10 +37,8 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > LorentzVector;
 // Global variables used in defining signal regions
 extern bool j1_isBtag;
 extern double j1pt;
-extern double dphilmet;
 extern double lep1pt;
 extern double myMlb;
-extern int nTightTags;
 
 
 int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fast = true) {
@@ -458,12 +456,9 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 
 			double drLepLeadb = ROOT::Math::VectorUtil::DeltaR( lep1_p4(), context::ak4pfjets_leadMEDbjet_p4() );
 
-			dphilmet  = fabs( lepVec.DeltaPhi(metVec) );
 			lep1pt = lep1_p4().Pt();
 
-			myMlb = Mlb_closestb();
-			nTightTags = 0;
-			for( float CSV : context::ak4pfjets_CSV() ) if( CSV >= 0.935 ) nTightTags++;
+			myMlb = context::Mlb_closestb();
 
 			///////////////////////////////////////////
 			// Signal region cuts and histo filling
@@ -473,30 +468,30 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 
 				if( !sigRegions.at(i)->PassAllCuts() ) continue;
 
-				h_bkgtype[i][0]->Fill( bkgType,                    evtWeight );
-				h_evttype[i][0]->Fill( evtType,                    evtWeight );
+				h_bkgtype[i][0]->Fill( bkgType,                            evtWeight );
+				h_evttype[i][0]->Fill( evtType,                            evtWeight );
 				if( mySample->IsSignal() ) h_sigyields[i][0]->Fill( mass_stop(), mass_lsp(), evtWeight );
 
-				h_mt[i]->Fill(      context::MT_met_lep(),                  evtWeight );
-				h_met[i]->Fill(     context::Met(),                       evtWeight );
-				h_mt2w[i]->Fill(    context::MT2W(),                        evtWeight );
-				h_chi2[i]->Fill(    hadronic_top_chi2(),           evtWeight );
-				h_htratio[i]->Fill( context::ak4_htratiom(),                evtWeight );
-				h_mindphi[i]->Fill( context::Mindphi_met_j1_j2(),           evtWeight );
-				h_ptb1[i]->Fill( context::ak4pfjets_leadMEDbjet_p4().pt(),  evtWeight );
-				h_drlb1[i]->Fill(   drLepLeadb,                    evtWeight );
-				h_ptlep[i]->Fill(   lep1_p4().pt(),                evtWeight );
-				h_metht[i]->Fill(   metSqHT,                       evtWeight );
-				h_dphilw[i]->Fill(  dPhiLepW,                      evtWeight );
-				h_njets[i]->Fill(   context::ngoodjets(),                   evtWeight );
-				h_nbtags[i]->Fill(  context::ngoodbtags(),                  evtWeight );
-				h_ptj1[i]->Fill(    j1pt,                          evtWeight );
-				h_j1btag[i]->Fill(  j1_isBtag,                     evtWeight );
-				h_modtop[i]->Fill(  context::TopnessMod(),                  evtWeight );
-				h_dphilmet[i]->Fill( dphilmet,                     evtWeight );
-				h_mlb[i]->Fill(     myMlb,                         evtWeight );
+				h_mt[i]->Fill(      context::MT_met_lep(),                 evtWeight );
+				h_met[i]->Fill(     context::Met(),                        evtWeight );
+				h_mt2w[i]->Fill(    context::MT2W(),                       evtWeight );
+				h_chi2[i]->Fill(    hadronic_top_chi2(),                   evtWeight );
+				h_htratio[i]->Fill( context::ak4_htratiom(),               evtWeight );
+				h_mindphi[i]->Fill( context::Mindphi_met_j1_j2(),          evtWeight );
+				h_ptb1[i]->Fill( context::ak4pfjets_leadMEDbjet_p4().pt(), evtWeight );
+				h_drlb1[i]->Fill(   drLepLeadb,                            evtWeight );
+				h_ptlep[i]->Fill(   lep1_p4().pt(),                        evtWeight );
+				h_metht[i]->Fill(   metSqHT,                               evtWeight );
+				h_dphilw[i]->Fill(  dPhiLepW,                              evtWeight );
+				h_njets[i]->Fill(   context::ngoodjets(),                  evtWeight );
+				h_nbtags[i]->Fill(  context::ngoodbtags(),                 evtWeight );
+				h_ptj1[i]->Fill(    j1pt,                                  evtWeight );
+				h_j1btag[i]->Fill(  j1_isBtag,                             evtWeight );
+				h_modtop[i]->Fill(  context::TopnessMod(),                 evtWeight );
+				h_dphilmet[i]->Fill( context::lep1_dphiMET(),              evtWeight );
+				h_mlb[i]->Fill(     myMlb,                                 evtWeight );
 
-				h_yields->Fill(     double(i+1),                   evtWeight );
+				h_yields->Fill(     double(i+1),                           evtWeight );
 
 				// Special systematic variation histograms
 				for( int j=1; j<=nVariations; j++ ) {

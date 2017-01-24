@@ -32,12 +32,20 @@ public:
 	const float &Mindphi_met_j1_j2();
 	const float &MT_met_lep();
 	const float &TopnessMod();
+	const float &lep1_dphiMET();
+	const float &lep2_dphiMET();
 
 	const bool &filt_fastsimjets();
+	const bool &filt_jetWithBadMuon();
 	const int &ngoodjets();
 	const int &ngoodbtags();
+	const int &nloosebtags();
+	const int &ntightbtags();
+	const int &nanalysisbtags();
 	const float &ak4_HT();
 	const float &ak4_htratiom();
+	const float &Mlb_closestb();
+	const float &Mlb_lead_bdiscr();
 
 	const std::vector<float> &dphi_ak4pfjet_met();
 	const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > > &ak4pfjets_p4();
@@ -70,11 +78,19 @@ namespace context {
 	const float &Mindphi_met_j1_j2();
 	const float &MT_met_lep();
 	const float &TopnessMod();
+	const float &lep1_dphiMET();
+	const float &lep2_dphiMET();
 	const bool &filt_fastsimjets();
+	const bool &filt_jetWithBadMuon();
 	const int &ngoodjets();
 	const int &ngoodbtags();
+	const int &nloosebtags();
+	const int &ntightbtags();
+	const int &nanalysisbtags();
 	const float &ak4_HT();
 	const float &ak4_htratiom();
+	const float &Mlb_closestb();
+	const float &Mlb_lead_bdiscr();
 	const std::vector<float> &dphi_ak4pfjet_met();
 	const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > > &ak4pfjets_p4();
 	const std::vector<bool> &ak4pfjets_passMEDbtag();
