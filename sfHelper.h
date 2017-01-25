@@ -1,7 +1,7 @@
 #ifndef SFHELPER_H
 #define SFHELPER_H
 
-
+#include "TEfficiency.h"
 #include "TString.h"
 #include "TH1D.h"
 #include "TH2F.h"
@@ -65,7 +65,12 @@ private:
 	TH1D* h_counter;
 	TH2F* hist_nEvts;
 	TH3D* h_counterSMS;
-	TH2F* h_trigeff_cr2l;
+	TEfficiency* eff_1l_el;
+	TEfficiency* eff_1l_mu;
+	TEfficiency* eff_2l_el;
+	TEfficiency* eff_2l_mu;
+	double eff_err_up;
+	double eff_err_down;
 	TH1D* h_sf_toppt;
 
 	double lepnorm;

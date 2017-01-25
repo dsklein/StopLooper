@@ -12,9 +12,15 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > LorentzVector;
 // Constructor and destructor
 sfHelper::sfHelper()
 {
-	TFile trigeffFile( "reference-files/triggerefficiency_2lCR.root" );
-	h_trigeff_cr2l = (TH2F*)trigeffFile.Get("twoDefficiencypass_gapsfilled")->Clone("trigeff_cr2l");
-	h_trigeff_cr2l->SetDirectory(0);
+	TFile trigeffFile( "reference-files/TriggerEff.root" );
+	eff_1l_el = (TEfficiency*)trigeffFile.Get("Efficiency_ge1l_el")->Clone("trigeff_1l_el");
+	eff_1l_mu = (TEfficiency*)trigeffFile.Get("Efficiency_ge1l_mu")->Clone("trigeff_1l_mu");
+	eff_2l_el = (TEfficiency*)trigeffFile.Get("Efficiency_ge2l_metrl_el")->Clone("trigeff_2l_el");
+	eff_2l_mu = (TEfficiency*)trigeffFile.Get("Efficiency_ge2l_metrl_mu")->Clone("trigeff_2l_mu");
+	eff_1l_el->SetDirectory(0);
+	eff_1l_mu->SetDirectory(0);
+	eff_2l_el->SetDirectory(0);
+	eff_2l_mu->SetDirectory(0);
 	trigeffFile.Close();
 
 	TFile topptFile( "reference-files/sf_top_system_pt.root" );
@@ -25,7 +31,10 @@ sfHelper::sfHelper()
 
 sfHelper::~sfHelper()
 {
-	delete h_trigeff_cr2l;
+	delete eff_1l_el;
+	delete eff_1l_mu;
+	delete eff_2l_el;
+	delete eff_2l_mu;
 	delete h_sf_toppt;
 }
 
@@ -198,22 +207,35 @@ double sfHelper::Unity() { return 1.0; }
 
 // Get the 2-lepton CR trigger efficiency
 double sfHelper::TrigEff2l() {
-	double mymet = max(  250., min(499.99, double(context::Met()) ) );
-	double myleppt = max( 20., min(499.99, double(tas::lep1_p4().pt()) ) );
-	return h_trigeff_cr2l->GetBinContent( h_trigeff_cr2l->FindBin(mymet, myleppt) );
+	double mymet = max(  150., min(499.99, double(context::Met()) ) );
+	double myleppt = max( 15., min( 49.99, double(tas::lep1_p4().pt()) ) );
+
+	TEfficiency* thisEff;
+	if(      myContext.GetUseRl() && abs(tas::lep1_pdgid())==11 ) thisEff = eff_2l_el;
+	else if( myContext.GetUseRl() && abs(tas::lep1_pdgid())==13 ) thisEff = eff_2l_mu;
+	else if( abs(tas::lep1_pdgid())==11 ) thisEff = eff_1l_el;
+	else if( abs(tas::lep1_pdgid())==13 ) thisEff = eff_1l_mu;
+
+	int binnum = thisEff->FindFixBin( myleppt, mymet );
+	double eff = thisEff->GetEfficiency( binnum );
+	eff_err_up = thisEff->GetEfficiencyErrorUp( binnum );
+	eff_err_down = thisEff->GetEfficiencyErrorLow( binnum );
+
+	if( !myContext.GetUseRl() ) return 1.0; // HJ recommends we only use errors, and not SF, in 1-lepton regions
+	return eff;
 }
 
 // Get reweighting factor to vary the cr2l trigger efficiency up by 7 percentage points
 double sfHelper::Trig2lUp() {
 	double oldeff = TrigEff2l();
-	double neweff = oldeff + 0.07;
+	double neweff = oldeff + eff_err_up;
 	return neweff / oldeff;
 }
 
 // Get reweighting factor to vary the cr2l trigger efficiency down by 7 percentage points
 double sfHelper::Trig2lDown() {
 	double oldeff = TrigEff2l();
-	double neweff = oldeff - 0.07;
+	double neweff = oldeff - eff_err_down;
 	return neweff / oldeff;
 }
 
