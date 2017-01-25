@@ -355,15 +355,15 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 				if( !context::filt_jetWithBadMuon() ) continue;
 				if( !filt_pfovercalomet() ) continue;
 				if( !HLT_MET() && !HLT_MET100_MHT100() ) {
-					if(      HLT_SingleEl() && !(abs(lep1_pdgid())==11) && !(abs(lep2_pdgid())==11) ) continue;
-					else if( HLT_SingleMu() && !(abs(lep1_pdgid())==13) && !(abs(lep2_pdgid())==13) ) continue;
+					if( !(HLT_SingleEl() && (abs(lep1_pdgid())==11 || abs(lep2_pdgid())==11) ) &&
+					    !(HLT_SingleMu() && (abs(lep1_pdgid())==13 || abs(lep2_pdgid())==13) ) ) continue;
 				}
 				yield_filter += evtWeight;
 				yGen_filter++;
 			}
 
 			// First vertex must be good
-			// if( firstGoodVtxIdx() != 0 ) continue;
+			if( nvtxs() < 1 ) continue;
 			yield_vtx += evtWeight;
 			yGen_vtx++;
 
@@ -373,16 +373,16 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 			yGen_1goodlep++;
 
 			// Lep 1 must pass lepton selections
-			if( abs(lep1_pdgid())==11 ) {
-				if( lep1_p4().pt() < 20. ) continue;
-				if( fabs(lep1_p4().eta()) > 1.4442 ) continue;
-				if( !lep1_passMediumID() ) continue;
-			}
-			else if( abs(lep1_pdgid())==13 ) {
-				if( lep1_p4().pt() < 20. ) continue;
-				if( fabs(lep1_p4().eta()) > 2.4 ) continue;
-				if( !lep1_passTightID() ) continue;
-			}
+			// if( abs(lep1_pdgid())==11 ) {
+			// 	if( lep1_p4().pt() < 20. ) continue;
+			// 	if( fabs(lep1_p4().eta()) > 1.4442 ) continue;
+			// 	if( !lep1_passMediumID() ) continue;
+			// }
+			// else if( abs(lep1_pdgid())==13 ) {
+			// 	if( lep1_p4().pt() < 20. ) continue;
+			// 	if( fabs(lep1_p4().eta()) > 2.4 ) continue;
+			// 	if( !lep1_passTightID() ) continue;
+			// }
 			yield_lepSel += evtWeight;
 			yGen_lepSel++;
 
@@ -392,12 +392,8 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 			int countGoodLeps = 0;
 
-			// Count the number of veto leptons, but subtract one if lep1 and lep2 overlap
-			// countGoodLeps += nvetoleps();
-
-			// if( nvetoleps() == 2 && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) < 0.01 ) countGoodLeps--;
-			// else if( nvetoleps() >= 2 && lep2_p4().pt() < 10. ) countGoodLeps = 1;
-			if( nvetoleps() >= 2 && lep2_p4().pt() > 10. && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) > 0.01 ) countGoodLeps += 9999;
+			// Count the number of veto leptons
+			if( nvetoleps() >= 2 && lep2_p4().pt() > 10. ) countGoodLeps += nvetoleps();
 
 			if( countGoodLeps > 1 ) {
 				yield_2lepveto += evtWeight;

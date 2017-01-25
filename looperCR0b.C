@@ -359,7 +359,7 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 			}
 
 			// First vertex must be good
-			// if( firstGoodVtxIdx() != 0 ) continue;
+			if( nvtxs() < 1 ) continue;
 			yield_vtx += evtWeight;
 			yGen_vtx++;
 
@@ -369,21 +369,21 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 			yGen_1goodlep++;
 
 			// Lep 1 must pass lepton selections
-			if( abs(lep1_pdgid())==11 ) {
-				if( lep1_p4().pt() < 20. ) continue;
-				if( fabs(lep1_p4().eta()) > 1.4442 ) continue;
-				if( !lep1_passMediumID() ) continue;
-			}
-			else if( abs(lep1_pdgid())==13 ) {
-				if( lep1_p4().pt() < 20. ) continue;
-				if( fabs(lep1_p4().eta()) > 2.4 ) continue;
-				if( !lep1_passTightID() ) continue;
-			}
+			// if( abs(lep1_pdgid())==11 ) {
+			// 	if( lep1_p4().pt() < 20. ) continue;
+			// 	if( fabs(lep1_p4().eta()) > 1.4442 ) continue;
+			// 	if( !lep1_passMediumID() ) continue;
+			// }
+			// else if( abs(lep1_pdgid())==13 ) {
+			// 	if( lep1_p4().pt() < 20. ) continue;
+			// 	if( fabs(lep1_p4().eta()) > 2.4 ) continue;
+			// 	if( !lep1_passTightID() ) continue;
+			// }
 			yield_lepSel += evtWeight;
 			yGen_lepSel++;
 
 			// Second lepton veto
-			if( nvetoleps() > 1 && ROOT::Math::VectorUtil::DeltaR( lep1_p4(), lep2_p4() ) > 0.01 ) continue;
+			if( nvetoleps() > 1 ) continue;
 			yield_2lepveto += evtWeight;
 			yGen_2lepveto++;
 
@@ -405,7 +405,7 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 			j1pt = context::ak4pfjets_p4().at(0).pt();
 
 			// B-tag requirement
-			if( context::ntightbtags > 0 ) continue;  // At a minimum, veto events with at least one tight tag
+			if( context::ntightbtags() > 0 ) continue;  // At a minimum, veto events with at least one tight tag
 			yield_0bjet += evtWeight;
 			yGen_0bjet++;
 
