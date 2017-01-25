@@ -277,7 +277,7 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 			if( sampleName.Contains("wjets") && filename.Contains("JetsToLNu_madgraph") && nupt()>=200. ) continue;
 
 			//FastSim anomalous event filter
-			if( isFastsim && context::filt_fastsimjets() ) continue;
+			if( isFastsim && !context::filt_fastsimjets() ) continue;
 
 			if( !mySample->PassSelections() ) continue;
 
