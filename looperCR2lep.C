@@ -351,10 +351,13 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 				if( !goodrun( run(), ls() ) ) continue;
 				if( !filt_met() ) continue;
 				if( !filt_badChargedCandidateFilter() ) continue;
-				if( !filt_badMuonFilter() ) continue;
-				if( !HLT_SingleEl() && !HLT_SingleMu() && !HLT_MET() ) continue;
-				if( HLT_SingleEl() && !(abs(lep1_pdgid()) == 11) && !(abs(lep2_pdgid()) == 11) ) continue;
-				if( HLT_SingleMu() && !(abs(lep1_pdgid()) == 13) && !(abs(lep2_pdgid()) == 13) ) continue;
+				// if( !filt_badMuonFilter() ) continue;
+				if( !context::filt_jetWithBadMuon() ) continue;
+				if( !filt_pfovercalomet() ) continue;
+				if( !HLT_MET() && !HLT_MET100_MHT100() ) {
+					if(      HLT_SingleEl() && !(abs(lep1_pdgid())==11) && !(abs(lep2_pdgid())==11) ) continue;
+					else if( HLT_SingleMu() && !(abs(lep1_pdgid())==13) && !(abs(lep2_pdgid())==13) ) continue;
+				}
 				yield_filter += evtWeight;
 				yGen_filter++;
 			}
