@@ -321,11 +321,11 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 				// evtWeight *= weight_btagsf() * btagNorm;
 				if( isFastsim ) evtWeight *= weight_lepSF_fastSim() * lepNorm_FS;
 				if( mySample->IsSignal()  ) evtWeight *= weight_ISR() * isrNorm;
-				if( mySample->GetLabel() == "tt2l" || filename.Contains("W_5f_powheg_pythia8") ){
-					evtWeight *= myHelper.MetResSF();
-					// evtWeight *= myHelper.TopSystPtSF();
-				}
-				else if( mySample->GetLabel() == "tt1l" || mySample->GetLabel() == "wjets" ) evtWeight *= myHelper.MetResSF();
+				// if( mySample->GetLabel() == "tt2l" || filename.Contains("W_5f_powheg_pythia8") ){
+				// 	evtWeight *= myHelper.MetResSF();
+				// 	// evtWeight *= myHelper.TopSystPtSF();
+				// }
+				// else if( mySample->GetLabel() == "tt1l" || mySample->GetLabel() == "wjets" ) evtWeight *= myHelper.MetResSF();
 				if( mySample->GetLabel() == "tt2l" || mySample->GetLabel() == "tt1l" ) evtWeight *= myHelper.ISRnJetsSF();
 			}
 
@@ -470,6 +470,9 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 			for( int i=0; i<nSigRegs; i++ ) {
 
 				if( !sigRegions.at(i)->PassAllCuts() ) continue;
+
+				if( sigRegions.at(i)->GetLabel().Contains("corr") ) myHelper.SetCorridor( true );
+				else myHelper.SetCorridor( false );
 
 				h_bkgtype[i][0]->Fill( bkgType,                            evtWeight );
 				h_evttype[i][0]->Fill( evtType,                            evtWeight );

@@ -102,6 +102,8 @@ void sfHelper::PrepSignal() {
 	isrnjetsnorm_down = h_counterSMS->GetBinContent( binx, biny, 26 );
 }
 
+void sfHelper::SetCorridor( bool corridor ) {	isCorridor = corridor; }
+
 // Get reweighting factor to vary the lepton and veto lepton SFs up
 double sfHelper::LepSFUp() {
 	double lepsf    = tas::weight_lepSF()    * tas::weight_vetoLepSF();
@@ -241,46 +243,99 @@ double sfHelper::Trig2lDown() {
 
 // Get MET resolution SF
 double sfHelper::MetResSF() {
-	double mymet = context::Met();
-	double mymt2w = context::MT2W();
+	if( !tas::is2lep() ) return 1.0;
 
-	//Only apply to WJets, ttbar, and st_tW
+	int njets = context::ngoodjets();
+	double met = context::Met();
+	double modtop = context::TopnessMod();
+	double mlb = context::Mlb_closestb();
+	if( mlb < 0. ) mlb = context::Mlb_lead_bdiscr();
+	int ntightbs = context::ntightbtags();
 
-	if( context::ngoodjets() == 2) {
-		if(      mymet >= 450. ) return 0.679;
-		else if( mymet >= 350. ) return 0.895;
-		else if( mymet >= 250. ) return 1.080;
+	if( njets < 4 && modtop >= 10. ) {
+		if( mlb < 175. ) {
+			if(      met >= 600. ) return 1.24; // Region A
+			else if( met >= 450. ) return 1.14;
+			else if( met >= 350. ) return 1.07;
+			else if( met >= 250. ) return 0.98;
+		}
+		else if( mlb >= 175. && ntightbs >= 1 ) {
+			if(      met >= 600. ) return 1.24; // B
+			else if( met >= 450. ) return 1.14;
+			else if( met >= 250. ) return 0.99;
+		}
 	}
-	else if( context::ngoodjets() == 3 ) {
-		if(      mymet >= 550. ) return 0.664;
-		else if( mymet >= 450. ) return 0.784;
-		else if( mymet >= 350. ) return 0.976;
-		else if( mymet >= 250. ) return 1.066;
+	else if( njets >= 4 ) {
+		if( modtop < 0. ) {
+			if( mlb < 175. ) {
+				if(      met >= 650. ) return 1.18; // C
+				else if( met >= 550. ) return 1.21;
+				else if( met >= 450. ) return 1.12;
+				else if( met >= 350. ) return 1.06;
+				else if( met >= 250. ) return 0.98;
+			}
+			else if( mlb >= 175. && ntightbs >= 1 ) {
+				if(      met >= 550. ) return 1.20; // D
+				else if( met >= 450. ) return 1.12;
+				else if( met >= 350. ) return 1.06;
+				else if( met >= 250. ) return 0.98;
+			}
+		}
+		else if( modtop < 10. ) {
+			if( mlb < 175. ) {
+				if(      met >= 550. ) return 1.13; // E
+				else if( met >= 350. ) return 1.08;
+				else if( met >= 250. ) return 0.97;
+			}
+			else if( mlb >= 175. && ntightbs >= 1 ) {
+				if(      met >= 450. ) return 1.12; // F
+				else if( met >= 250. ) return 0.99;
+			}
+		}
+		else if( modtop >= 10. ) {
+			if( mlb < 175. ) {
+				if(      met >= 600. ) return 1.11; // F
+				else if( met >= 450. ) return 1.12;
+				else if( met >= 350. ) return 1.08;
+				else if( met >= 250. ) return 0.97;
+			}
+			else if( mlb >= 175. && ntightbs >= 1 ) {
+				if(      met >= 450. ) return 1.12; // H
+				else if( met >= 250. ) return 0.99;
+			}
+		}
 	}
-	else if( context::ngoodjets() >= 4 ) {
-		if( mymt2w < 200. && mymet >= 450. ) return 0.766;
-		else if( mymet >= 650. ) return 0.590;
-		else if( mymet >= 550. ) return 0.766;
-		else if( mymet >= 450. ) return 0.866;
-		else if( mymet >= 350. ) return 0.935;
-		else if( mymet >= 250. ) return 1.080;
-	}
+
+	return 1.0;
+}
+
+// MET resolution SF for corridor regions
+double sfHelper::MetResSF_corr() {
+	if( !tas::is2lep() ) return 1.0;
+	double met = context::Met();
+	if(      met >= 550. ) return 1.14;
+	else if( met >= 450. ) return 1.14;
+	else if( met >= 350. ) return 1.05;
+	else if( met >= 250. ) return 0.97;
 
 	return 1.0;
 }
 
 // Get reweighting factor to vary the MET resolution SF up
 double sfHelper::MetResUp() {
-	double sf = MetResSF();
-	double err = fabs(1.0-sf) / 2.;
-	return (sf+err) / sf;
+	// double sf = MetResSF();
+	// double err = fabs(1.0-sf) / 2.;      // Temporary hack
+	// return (sf+err) / sf;
+	if( isCorridor ) return MetResSF_corr();
+	return MetResSF();
 }
 
 // Get reweighting factor to vary the MET resolution SF down
 double sfHelper::MetResDown() {
-	double sf = MetResSF();
-	double err = fabs(1.0-sf) / 2.;
-	return (sf-err) / sf;
+	// double sf = MetResSF();
+	// double err = fabs(1.0-sf) / 2.;       // Temporary hack
+	// return (sf-err) / sf;
+	return 1.0;
 }
 
 // Get Top system pT scale factor
@@ -411,6 +466,7 @@ namespace sfhelp {
 	double Trig2lUp()      { return myHelper.Trig2lUp(); }
 	double Trig2lDown()    { return myHelper.Trig2lDown(); }
 	double MetResSF()      { return myHelper.MetResSF(); }
+	double MetResSF_corr() { return myHelper.MetResSF_corr(); }
 	double MetResUp()      { return myHelper.MetResUp(); }
 	double MetResDown()    { return myHelper.MetResDown(); }
 	double TopSystPtSF()   { return myHelper.TopSystPtSF(); }

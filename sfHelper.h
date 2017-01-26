@@ -26,6 +26,7 @@ public:
 
 	void Setup( bool is_fastsim, TH1D* counterHist, TH2F* nevtsHist, TH3D* counterHist_SMS );
 	void PrepSignal();
+	void SetCorridor( bool corridor );
 
 	double LepSFUp();
 	double LepSFDown();
@@ -44,6 +45,7 @@ public:
 	double Trig2lUp();
 	double Trig2lDown();
 	double MetResSF();
+	double MetResSF_corr();
 	double MetResUp();
 	double MetResDown();
 	double TopSystPtSF();
@@ -72,6 +74,7 @@ private:
 	double eff_err_up;
 	double eff_err_down;
 	TH1D* h_sf_toppt;
+	bool isCorridor;
 
 	double lepnorm;
 	double lepnorm_up;
@@ -117,6 +120,7 @@ namespace sfhelp {
 	double Trig2lUp();
 	double Trig2lDown();
 	double MetResSF();
+	double MetResSF_corr();
 	double MetResUp();
 	double MetResDown();
 	double TopSystPtSF();
