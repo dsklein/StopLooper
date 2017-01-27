@@ -321,11 +321,11 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 				// evtWeight *= weight_btagsf() * btagNorm;
 				if( isFastsim ) evtWeight *= weight_lepSF_fastSim() * lepNorm_FS;
 				if( mySample->IsSignal()  ) evtWeight *= weight_ISR() * isrNorm;
-				// if( mySample->GetLabel() == "tt2l" || filename.Contains("W_5f_powheg_pythia8") ){
-				// 	evtWeight *= myHelper.MetResSF();
-				// 	// evtWeight *= myHelper.TopSystPtSF();
-				// }
-				// else if( mySample->GetLabel() == "tt1l" || mySample->GetLabel() == "wjets" ) evtWeight *= myHelper.MetResSF();
+				if( mySample->GetLabel() == "tt2l" || filename.Contains("W_5f_powheg_pythia8") ) {
+					evtWeight *= myHelper.MetResSF();
+					// evtWeight *= myHelper.TopSystPtSF();
+				}
+				else if( mySample->GetLabel() == "tt1l" || mySample->GetLabel() == "wjets" ) evtWeight *= myHelper.MetResSF();
 				if( mySample->GetLabel() == "tt2l" || mySample->GetLabel() == "tt1l" ) evtWeight *= myHelper.ISRnJetsSF();
 			}
 
@@ -471,39 +471,44 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 
 				if( !sigRegions.at(i)->PassAllCuts() ) continue;
 
-				if( sigRegions.at(i)->GetLabel().Contains("corr") ) myHelper.SetCorridor( true );
+				// If this is a corridor region, correct the Met Resolution SF
+				double fillWeight = evtWeight;
+				if( sigRegions.at(i)->GetLabel().Contains("corr") ) {
+					myHelper.SetCorridor( true );
+					fillWeight *= sfhelp::MetResCorrectionCorridor();
+				}
 				else myHelper.SetCorridor( false );
 
-				h_bkgtype[i][0]->Fill( bkgType,                            evtWeight );
-				h_evttype[i][0]->Fill( evtType,                            evtWeight );
-				if( mySample->IsSignal() ) h_sigyields[i][0]->Fill( mass_stop(), mass_lsp(), evtWeight );
+				h_bkgtype[i][0]->Fill( bkgType,                            fillWeight );
+				h_evttype[i][0]->Fill( evtType,                            fillWeight );
+				if( mySample->IsSignal() ) h_sigyields[i][0]->Fill( mass_stop(), mass_lsp(), fillWeight );
 
-				h_mt[i]->Fill(      context::MT_met_lep(),                 evtWeight );
-				h_met[i]->Fill(     context::Met(),                        evtWeight );
-				h_mt2w[i]->Fill(    context::MT2W(),                       evtWeight );
-				h_chi2[i]->Fill(    hadronic_top_chi2(),                   evtWeight );
-				h_htratio[i]->Fill( context::ak4_htratiom(),               evtWeight );
-				h_mindphi[i]->Fill( context::Mindphi_met_j1_j2(),          evtWeight );
-				h_ptb1[i]->Fill( context::ak4pfjets_leadMEDbjet_p4().pt(), evtWeight );
-				h_drlb1[i]->Fill(   drLepLeadb,                            evtWeight );
-				h_ptlep[i]->Fill(   lep1_p4().pt(),                        evtWeight );
-				h_metht[i]->Fill(   metSqHT,                               evtWeight );
-				h_dphilw[i]->Fill(  dPhiLepW,                              evtWeight );
-				h_njets[i]->Fill(   context::ngoodjets(),                  evtWeight );
-				h_nbtags[i]->Fill(  context::ngoodbtags(),                 evtWeight );
-				h_ptj1[i]->Fill(    j1pt,                                  evtWeight );
-				h_j1btag[i]->Fill(  j1_isBtag,                             evtWeight );
-				h_modtop[i]->Fill(  context::TopnessMod(),                 evtWeight );
-				h_dphilmet[i]->Fill( context::lep1_dphiMET(),              evtWeight );
-				h_mlb[i]->Fill(     myMlb,                                 evtWeight );
+				h_mt[i]->Fill(      context::MT_met_lep(),                 fillWeight );
+				h_met[i]->Fill(     context::Met(),                        fillWeight );
+				h_mt2w[i]->Fill(    context::MT2W(),                       fillWeight );
+				h_chi2[i]->Fill(    hadronic_top_chi2(),                   fillWeight );
+				h_htratio[i]->Fill( context::ak4_htratiom(),               fillWeight );
+				h_mindphi[i]->Fill( context::Mindphi_met_j1_j2(),          fillWeight );
+				h_ptb1[i]->Fill( context::ak4pfjets_leadMEDbjet_p4().pt(), fillWeight );
+				h_drlb1[i]->Fill(   drLepLeadb,                            fillWeight );
+				h_ptlep[i]->Fill(   lep1_p4().pt(),                        fillWeight );
+				h_metht[i]->Fill(   metSqHT,                               fillWeight );
+				h_dphilw[i]->Fill(  dPhiLepW,                              fillWeight );
+				h_njets[i]->Fill(   context::ngoodjets(),                  fillWeight );
+				h_nbtags[i]->Fill(  context::ngoodbtags(),                 fillWeight );
+				h_ptj1[i]->Fill(    j1pt,                                  fillWeight );
+				h_j1btag[i]->Fill(  j1_isBtag,                             fillWeight );
+				h_modtop[i]->Fill(  context::TopnessMod(),                 fillWeight );
+				h_dphilmet[i]->Fill( context::lep1_dphiMET(),              fillWeight );
+				h_mlb[i]->Fill(     myMlb,                                 fillWeight );
 
-				h_yields->Fill(     double(i+1),                           evtWeight );
+				h_yields->Fill(     double(i+1),                           fillWeight );
 
 				// Special systematic variation histograms
 				for( int j=1; j<=nVariations; j++ ) {
-					h_bkgtype[i][j]->Fill( bkgType,  evtWeight * variations.at(j-1)->GetWeight() );
-					h_evttype[i][j]->Fill( evtType,  evtWeight * variations.at(j-1)->GetWeight() );
-					if( mySample->IsSignal() ) h_sigyields[i][j]->Fill( mass_stop(), mass_lsp(), evtWeight * variations.at(j-1)->GetWeight() );
+					h_bkgtype[i][j]->Fill( bkgType,  fillWeight * variations.at(j-1)->GetWeight() );
+					h_evttype[i][j]->Fill( evtType,  fillWeight * variations.at(j-1)->GetWeight() );
+					if( mySample->IsSignal() ) h_sigyields[i][j]->Fill( mass_stop(), mass_lsp(), fillWeight * variations.at(j-1)->GetWeight() );
 				}
 
 			}

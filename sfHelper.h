@@ -46,6 +46,7 @@ public:
 	double Trig2lDown();
 	double MetResSF();
 	double MetResSF_corr();
+	double MetResCorrectionCorridor();
 	double MetResUp();
 	double MetResDown();
 	double TopSystPtSF();
@@ -121,6 +122,7 @@ namespace sfhelp {
 	double Trig2lDown();
 	double MetResSF();
 	double MetResSF_corr();
+	double MetResCorrectionCorridor();
 	double MetResUp();
 	double MetResDown();
 	double TopSystPtSF();

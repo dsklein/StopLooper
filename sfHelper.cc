@@ -42,6 +42,7 @@ sfHelper::~sfHelper()
 void sfHelper::Setup( bool is_fastsim, TH1D* counterHist=NULL, TH2F* nevtsHist=NULL, TH3D* counterHist_SMS=NULL )
 {
 	isFastsim = is_fastsim;
+	isCorridor = false;
 	h_counter = counterHist;
 	hist_nEvts = nevtsHist;
 	h_counterSMS = counterHist_SMS;
@@ -74,6 +75,8 @@ void sfHelper::Setup( bool is_fastsim, TH1D* counterHist=NULL, TH2F* nevtsHist=N
 void sfHelper::PrepSignal() {
 	if( !hist_nEvts ) return;
 	if( !h_counterSMS ) return;
+
+	isCorridor = false;
 
 	binx = h_counterSMS->GetXaxis()->FindBin( tas::mass_stop() );
 	biny = h_counterSMS->GetYaxis()->FindBin( tas::mass_lsp() );
@@ -243,14 +246,14 @@ double sfHelper::Trig2lDown() {
 
 // Get MET resolution SF
 double sfHelper::MetResSF() {
-	if( !tas::is2lep() ) return 1.0;
 
 	int njets = context::ngoodjets();
 	double met = context::Met();
 	double modtop = context::TopnessMod();
-	double mlb = context::Mlb_closestb();
-	if( mlb < 0. ) mlb = context::Mlb_lead_bdiscr();
 	int ntightbs = context::ntightbtags();
+	double mlb = context::Mlb_closestb();
+	if( ntightbs == 0 && // If we're in CR0b, use leading CSV jet
+	    (context::Mlb_closestb() >= 175. || context::ngoodbtags() == 0 ) ) mlb = context::Mlb_lead_bdiscr();
 
 	if( njets < 4 && modtop >= 10. ) {
 		if( mlb < 175. ) {
@@ -311,7 +314,6 @@ double sfHelper::MetResSF() {
 
 // MET resolution SF for corridor regions
 double sfHelper::MetResSF_corr() {
-	if( !tas::is2lep() ) return 1.0;
 	double met = context::Met();
 	if(      met >= 550. ) return 1.14;
 	else if( met >= 450. ) return 1.14;
@@ -321,21 +323,21 @@ double sfHelper::MetResSF_corr() {
 	return 1.0;
 }
 
+// Get the correction factor to convert from Mlb-binned to corridor SF values
+double sfHelper::MetResCorrectionCorridor() { return MetResSF_corr() / MetResSF(); }
+
 // Get reweighting factor to vary the MET resolution SF up
 double sfHelper::MetResUp() {
-	// double sf = MetResSF();
-	// double err = fabs(1.0-sf) / 2.;      // Temporary hack
-	// return (sf+err) / sf;
-	if( isCorridor ) return MetResSF_corr();
-	return MetResSF();
+	double sf = isCorridor ? MetResSF_corr() : MetResSF();
+	double err = fabs(1.0-sf) / 2.;
+	return (sf+err) / sf;
 }
 
 // Get reweighting factor to vary the MET resolution SF down
 double sfHelper::MetResDown() {
-	// double sf = MetResSF();
-	// double err = fabs(1.0-sf) / 2.;       // Temporary hack
-	// return (sf-err) / sf;
-	return 1.0;
+	double sf = isCorridor ? MetResSF_corr() : MetResSF();
+	double err = fabs(1.0-sf) / 2.;
+	return (sf+err) / sf;
 }
 
 // Get Top system pT scale factor
@@ -467,6 +469,7 @@ namespace sfhelp {
 	double Trig2lDown()    { return myHelper.Trig2lDown(); }
 	double MetResSF()      { return myHelper.MetResSF(); }
 	double MetResSF_corr() { return myHelper.MetResSF_corr(); }
+	double MetResCorrectionCorridor() { return myHelper.MetResCorrectionCorridor(); }
 	double MetResUp()      { return myHelper.MetResUp(); }
 	double MetResDown()    { return myHelper.MetResDown(); }
 	double TopSystPtSF()   { return myHelper.TopSystPtSF(); }
