@@ -473,7 +473,7 @@ int looperCR0b( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool f
 
 				// If this is a corridor region, correct the Met Resolution SF
 				double fillWeight = evtWeight;
-				if( sigRegions.at(i)->GetLabel().Contains("corr") ) {
+				if( !is_data() && sigRegions.at(i)->GetLabel().Contains("corr") ) {
 					myHelper.SetCorridor( true );
 					fillWeight *= sfhelp::MetResCorrectionCorridor();
 				}
