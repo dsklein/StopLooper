@@ -24,6 +24,8 @@ double j1pt;
 double lep1pt;
 double myMlb;
 
+void resetFile( TString filename );
+
 
 // Help with program options
 void printHelp() {
@@ -39,7 +41,7 @@ void printHelp() {
 	std::cout << "jes         run loopers to calculate JES systematic variations" << std::endl;
 	std::cout << "plots       run makeStack only" << std::endl;
 	std::cout << "tables      run makeTables only" << std::endl;
-	std::cout << "estimate    run data-driven background estimates only" << std::endl;
+	std::cout << "estimate    run background and signal estimates only" << std::endl;
 	std::cout << "cards       run makeDataCards only" << std::endl;
 	std::cout << "output      run makeStack, makeTables, and makeDataCards only" << std::endl;
 
@@ -116,6 +118,7 @@ int main( int argc, char* argv[] ) {
 	analysis* crLostLep  = new analysis( 36.46, "plotsLL.root", "systVariationsLL.root" );
 	analysis* cr0bjets   = new analysis( 36.46, "plots0b.root", "systVariations0b.root" );
 	analysis* sr_signal  = new analysis( 36.46, "plotsSig.root", "systVariationsSig.root" );
+	analysis* sig_genmet = new analysis( 36.46, "plotsSigGenMet.root", "systVariationsSigGenMet.root" );
 	analysis* sr_jesup   = new analysis( 36.46, "jes_sr.root", "jes_sr.root" );
 	analysis* sr_jesdn   = new analysis( 36.46, "jes_sr.root", "jes_sr.root" );
 	analysis* cr2l_jesup = new analysis( 36.46, "jes_cr2l.root", "jes_cr2l.root" );
@@ -127,6 +130,7 @@ int main( int argc, char* argv[] ) {
 	//                new sample( "Label",  "Display name(s)", TColor,    sampleType )
 	sample* data    = new sample( "data",    "Data",           kBlack,    sample::kData );
 	sample* signal  = new sample( "signal",  "T2tt",           kBlue+3,   sample::kSignal );
+	sample* sigGenMet = new sample("sigGenMet", "T2tt genmet", kBlue+4,   sample::kSignal );
 	sample* tt2l    = new sample( "tt2l", "$t\\bar{t} \\rightarrow 2l$", "t#bar{t} #rightarrow 2l", kCyan-3,   sample::kBackground );
 	sample* tt1l    = new sample( "tt1l", "$t\\bar{t} \\rightarrow 1l$", "t#bar{t} #rightarrow 1l", kRed-7,    sample::kBackground );
 	sample* singtop = new sample( "singletop", "Single Top",   kGreen-4,  sample::kBackground );
@@ -138,6 +142,7 @@ int main( int argc, char* argv[] ) {
 	crLostLep->AddSample( data );
 	cr0bjets->AddSample(  data );
 	sr_signal->AddSample( signal );
+	sig_genmet->AddSample( sigGenMet );
 	srAnalysis->AddSamples( {tt2l, tt1l, singtop, wjets, dy, rare} );
 	crLostLep->AddSamples(  {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
 	cr0bjets->AddSamples(   {signal, tt2l, tt1l, singtop, wjets, dy, rare} );
@@ -176,10 +181,12 @@ int main( int argc, char* argv[] ) {
 	systematic isrnjetsup(     "isrnjets", systematic::kUp,    (*sfhelp::ISRnJetsUp) );
 	systematic isrnjetsdn(     "isrnjets", systematic::kDown,  (*sfhelp::ISRnJetsDown) );
 	systematic lumi(           "lumi",     systematic::kUp,    (*sfhelp::LumiUp) );
+	systematic metavgup(       "METavg",   systematic::kSkipUp,   NULL );
+	systematic metavgdn(       "METavg",   systematic::kSkipDown, NULL );
 
 	srAnalysis->AddSystematics( {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
 	srAnalysis->AddSystematics( {&metresup, &metresdn, /*&topptup, &topptdn,*/ &isrnjetsup, &isrnjetsdn} );
-	sr_signal->AddSystematics(  {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &isrnjetsup, &isrnjetsdn, &lumi} );
+	sr_signal->AddSystematics(  {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &isrnjetsup, &isrnjetsdn, &lumi, &metavgup, &metavgdn} );
 	crLostLep->AddSystematics(  {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn} );
 	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, /*&topptup, &topptdn*/ &isrnjetsup, &isrnjetsdn } );
 	cr0bjets->AddSystematics( {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn*/ &qSquaredup, &qSquareddn} );
@@ -301,8 +308,9 @@ int main( int argc, char* argv[] ) {
 	// Copy all sigRegions from the SR analysis to the lost lepton and signal analyses.
 	// Cuts that depend on e.g. MET_rl will be handled automatically by the "contextVars" class
 	for( std::vector<sigRegion*> regList : srAnalysis->GetSigRegions() ) {
-		sr_signal->AddSigRegs( regList );
-		crLostLep->AddSigRegs( regList );
+		sr_signal->AddSigRegs(  regList );
+		sig_genmet->AddSigRegs( regList );
+		crLostLep->AddSigRegs(  regList );
 	}
 
 
@@ -398,6 +406,7 @@ int main( int argc, char* argv[] ) {
 
 		// Signal sample(s)
 		signal->AddFile( sigPath + "Signal_T2tt*.root" );
+		sigGenMet->AddFile( "/nfs-7/userdata/haweber/tupler_babies/merged/Stop_1l/v16_tempSignal_gen_oldJEC/output/Signal_T2tt*.root" );
 
 		// Background samples
 		tt2l->AddFile( bkgPath + "ttbar_diLept_madgraph_pythia8_ext1_25ns*.root" );
@@ -446,20 +455,22 @@ int main( int argc, char* argv[] ) {
 
 	if( runlooper ) {
 
-		// Reset output file
-		TFile* outfile = new TFile( srAnalysis->GetPlotFileName(), "RECREATE" );
-		outfile->Close();
-		outfile = new TFile( srAnalysis->GetSystFileName(), "RECREATE" );
-		outfile->Close();
-		outfile = new TFile( sr_signal->GetPlotFileName(), "RECREATE" );
-		outfile->Close();
-		outfile = new TFile( sr_signal->GetSystFileName(), "RECREATE" );
-		outfile->Close();
-
-		// Run ScanChain on all samples
 		myContext.SetUseRl( false );
 		myContext.SetJesDir( contextVars::kNominal );
+
+		// Run ScanChain on signal sample...
+		resetFile( sr_signal->GetPlotFileName() );
+		resetFile( sr_signal->GetSystFileName() );
 		ScanChain( sr_signal, signal );
+
+		// ...on genmet signal sample...
+		resetFile( sig_genmet->GetPlotFileName() );
+		resetFile( sig_genmet->GetSystFileName() );
+		ScanChain( sig_genmet, sigGenMet );
+
+		// ...and on all other samples
+		resetFile( srAnalysis->GetPlotFileName() );
+		resetFile( srAnalysis->GetSystFileName() );
 		for( sample* mySample : srAnalysis->GetAllSamples() ) ScanChain( srAnalysis, mySample );
 	}
 
@@ -468,15 +479,12 @@ int main( int argc, char* argv[] ) {
 
 	if( runlostlep ) {
 
-		// Reset output file
-		TFile* outfile = new TFile( crLostLep->GetPlotFileName(), "RECREATE" );
-		outfile->Close();
-		outfile = new TFile( crLostLep->GetSystFileName(), "RECREATE" );
-		outfile->Close();
-
-		// Run lost lepton CR looper on all samples
 		myContext.SetUseRl( true );
 		myContext.SetJesDir( contextVars::kNominal );
+
+		// Run lost lepton CR looper on all samples
+		resetFile( crLostLep->GetPlotFileName() );
+		resetFile( crLostLep->GetSystFileName() );
 		for( sample* mySample : crLostLep->GetAllSamples() ) looperCR2lep( crLostLep, mySample );
 	}
 
@@ -485,15 +493,12 @@ int main( int argc, char* argv[] ) {
 
 	if( run1lw ) {
 
-		// Reset output file
-		TFile* outfile = new TFile( cr0bjets->GetPlotFileName(), "RECREATE" );
-		outfile->Close();
-		outfile = new TFile( cr0bjets->GetSystFileName(), "RECREATE" );
-		outfile->Close();
-
-		// Run 0-bjet CR looper on all samples
 		myContext.SetUseRl( false );
 		myContext.SetJesDir( contextVars::kNominal );
+
+		// Run 0-bjet CR looper on all samples
+		resetFile( cr0bjets->GetPlotFileName() );
+		resetFile( cr0bjets->GetSystFileName() );
 		for( sample* mySample : cr0bjets->GetAllSamples() ) looperCR0b( cr0bjets, mySample );
 	}
 
@@ -503,12 +508,9 @@ int main( int argc, char* argv[] ) {
 	if( runjes ) {
 
 		// Reset output files
-		TFile* outfile = new TFile( sr_jesup->GetPlotFileName(), "RECREATE");
-		outfile->Close();
-		outfile = new TFile( cr2l_jesup->GetPlotFileName(), "RECREATE");
-		outfile->Close();
-		outfile = new TFile( cr0b_jesup->GetPlotFileName(), "RECREATE");
-		outfile->Close();
+		resetFile( sr_jesup->GetPlotFileName());
+		resetFile( cr2l_jesup->GetPlotFileName());
+		resetFile( cr0b_jesup->GetPlotFileName());
 
 		// Run ScanChain, looperCR2lep, and loopercr0b on JES up/down babies
 		myContext.SetJesDir( contextVars::kUp );
@@ -533,7 +535,7 @@ int main( int argc, char* argv[] ) {
 	if( runestimate ) {
 		makeLostLepEstimate( srAnalysis, crLostLep );
 		make1lWEstimate( srAnalysis, cr0bjets );
-		makeSignalEstimate( sr_signal );
+		makeSignalEstimate( sr_signal, sig_genmet );
 	}
 	if( runcards )                makeDataCards( srAnalysis, sr_signal, crLostLep, cr0bjets );
 
@@ -552,4 +554,10 @@ int main( int argc, char* argv[] ) {
 	delete rare;
 
 	return 0;
+}
+
+
+void resetFile( TString filename ) {
+	TFile* f = new TFile( filename, "RECREATE" );
+	delete f;
 }
