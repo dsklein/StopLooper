@@ -45,7 +45,7 @@ void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis
 	int nVars_1lw = 0;
 	TFile *lostlepFile, *onelepwFile, *sigFile;
 	TH1D *h_lostLep, *h_onelepw;
-	TH2D *h_signal, *h_signal_contamSubtracted;
+	TH2D *h_signal, *h_signal_averaged, *h_averaged_contamSubtracted;
 
 	TFile* yieldFile   = new TFile( srAnalysis->GetPlotFileName(), "READ" );
 	filesToCheck.push_back( yieldFile );
@@ -91,7 +91,19 @@ void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis
 
 		TH1D* h_bkgYield  = (TH1D*)yieldFile->Get( "evttype_"+sigRegions.at(reg-1) );
 		h_signal = (TH2D*)sigFile->Get( "nominal_"+sigRegions.at(reg-1) );
-		h_signal_contamSubtracted = (TH2D*)sigFile->Get("contamSubtracted_"+sigRegions.at(reg-1) );
+		h_signal_averaged = (TH2D*)sigFile->Get( "averaged_"+sigRegions.at(reg-1) );
+		h_averaged_contamSubtracted = (TH2D*)h_signal_averaged->Clone("averaged_contamSubtracted_"+sigRegions.at(reg-1));
+
+		// Subtract signal contamination from gen/recomet-averaged yields
+		// In the long run, I'll want to find a slightly better way to do this...
+		if( lostlepFile ) {
+			TH2D* h_sigContam = (TH2D*)lostlepFile->Get( "sigContam_"+sigRegions.at(reg-1) );
+			h_averaged_contamSubtracted->Add( h_sigContam, -1. );
+		}
+		if( onelepwFile && !(sigRegions.at(reg-1).Contains("combo")) ) {
+			TH2D* h_sigContam = (TH2D*)onelepwFile->Get( "sigContam_"+sigRegions.at(reg-1) );
+			h_averaged_contamSubtracted->Add( h_sigContam, -1. );
+		}
 
 		// Get bin sizes for the signal yield histogram
 		double binwidthX = h_signal->GetXaxis()->GetBinWidth(1);
@@ -285,11 +297,14 @@ void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis
 		for( int xbin=1; xbin<=h_signal->GetNbinsX(); xbin++ ) {
 			for( int ybin=1; ybin<=h_signal->GetNbinsY(); ybin++ ) {
 
+				double sigYield = h_averaged_contamSubtracted->GetBinContent( xbin, ybin );
+				double sigError = h_averaged_contamSubtracted->GetBinError(   xbin, ybin );
+				double sigYield_nominal = h_signal->GetBinContent( xbin, ybin );
+				double sigYield_averaged = h_signal_averaged->GetBinContent( xbin, ybin );
+
 				// Skip empty bins in the mass histogram
-				double sigYield = h_signal_contamSubtracted->GetBinContent( xbin, ybin );
-				double sigError = h_signal_contamSubtracted->GetBinError(   xbin, ybin );
-				double sigYield_raw = h_signal->GetBinContent( xbin, ybin );
-				if( fabs(sigYield_raw) < 0.000001 ) continue;
+				if( fabs(sigYield_nominal) < 0.000001 ) continue;
+				if( sigYield_averaged < 0. ) sigYield_averaged = 0.000000001;
 				if( sigYield < 0. ) {
 					sigYield = 0.000000001;
 					sigError = 0.;
@@ -328,8 +343,10 @@ void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis
 				// Evaluate systematic uncertainties on the signal yield
 				// Note: I use the signal yield before contamination subtraction as the denominator!
 				for( auto& iter : systMap_sig ) {
-					double maxdiff = calculateMaxdiff( xbin, ybin, sigFile, sigRegions.at(reg-1), sigYield_raw, iter.second );
-					syst_holder_sig[iter.first].at(0) = Form( "  %8.6f  ", 1.0 + maxdiff/sigYield_raw );
+					// Carefully choose which signal yield to use as the nominal based on which systematic we're evaluating
+					double yield_reference = iter.first.Contains("METavg") ? sigYield_averaged : sigYield_nominal;
+					double maxdiff = calculateMaxdiff( xbin, ybin, sigFile, sigRegions.at(reg-1), yield_reference, iter.second );
+					syst_holder_sig[iter.first].at(0) = Form( "  %8.6f  ", 1.0 + maxdiff/yield_reference );
 					// Make sure to keep track of the size of the signal systematics!
 					// A systematics table is out of the question, but find some other way to do it.
 				}
