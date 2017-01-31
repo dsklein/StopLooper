@@ -15,7 +15,7 @@ double calculateMaxdiff( int binx, int biny, TFile* histfile, TString regName, c
 void printSystTable( vector<TString> sigRegions, map<TString,vector<double> > uncertainties );
 
 
-void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis* lostlepAnalysis = NULL, analysis* onelepwAnalysis = NULL ) {
+void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis* lostlepAnalysis = NULL, analysis* onelepwAnalysis = NULL, analysis* znunuAnalysis = NULL ) {
 
 	// Make sure we always have some signal to work with.
 	if( sigAnalysis == NULL ) {
@@ -37,14 +37,15 @@ void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis
 	vector<TString> sigRegions = srAnalysis->GetSigRegionLabelsAll();
 	const int nSigRegs = sigRegions.size();
 
-	map<TString,vector<TString> > systMap_sig, systMap_ll, systMap_1lw;
+	map<TString,vector<TString> > systMap_sig, systMap_ll, systMap_1lw, systMap_znunu;
 	map<TString,vector<double> > lostlep_uncert, onelepw_uncert; //, signal_uncert;
 	vector<TFile*> filesToCheck;
 
 	int nVars_ll = 0;
 	int nVars_1lw = 0;
-	TFile *lostlepFile, *onelepwFile, *sigFile;
-	TH1D *h_lostLep, *h_onelepw;
+	int nVars_znunu = 0;
+	TFile *lostlepFile, *onelepwFile, *sigFile, *znunuFile;
+	TH1D *h_lostLep, *h_onelepw, *h_znunu;
 	TH2D *h_signal, *h_signal_averaged, *h_averaged_contamSubtracted;
 
 	TFile* yieldFile   = new TFile( srAnalysis->GetPlotFileName(), "READ" );
@@ -69,6 +70,13 @@ void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis
 		onelepwFile = new TFile( "onelepwEstimates.root", "READ" );
 		h_onelepw = (TH1D*)onelepwFile->Get("onelepwBkg");
 		filesToCheck.push_back( onelepwFile );
+	}
+	if( znunuAnalysis ) {
+		nVars_znunu = znunuAnalysis->GetSystematics(true).size();
+		systMap_znunu = znunuAnalysis->GetSystMap();
+		znunuFile   = new TFile( "zNuNuEstimate.root", "READ" );
+		h_znunu     = (TH1D*)znunuFile->Get("zNuNuBkg");
+		filesToCheck.push_back( znunuFile );
 	}
 
 
@@ -100,7 +108,7 @@ void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis
 			TH2D* h_sigContam = (TH2D*)lostlepFile->Get( "sigContam_"+sigRegions.at(reg-1) );
 			h_averaged_contamSubtracted->Add( h_sigContam, -1. );
 		}
-		if( onelepwFile && !(sigRegions.at(reg-1).Contains("combo")) ) {
+		if( onelepwFile ) {
 			TH2D* h_sigContam = (TH2D*)onelepwFile->Get( "sigContam_"+sigRegions.at(reg-1) );
 			h_averaged_contamSubtracted->Add( h_sigContam, -1. );
 		}
@@ -162,8 +170,9 @@ void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis
 
 		for( int i=1; i<nSamples; i++ ) {
 
-			if(      i==1 && lostlepAnalysis!=NULL ) yield = h_lostLep->GetBinContent(reg); // Pull 2l yield from lostLepton estimate histogram
-			else if( i==2 && onelepwAnalysis!=NULL ) yield = h_onelepw->GetBinContent(reg); // Pull 1lw yield from 1l-from-w estimate histogram
+			if(      i==1 && lostlepAnalysis!=NULL ) yield = h_lostLep->GetBinContent(reg); // Pull bkg yields from specific estimate histograms
+			else if( i==2 && onelepwAnalysis!=NULL ) yield = h_onelepw->GetBinContent(reg); // if possible. If not, take the yield from MC.
+			else if( i==4 && znunuAnalysis  !=NULL ) yield = h_znunu->GetBinContent(reg);
 			else                                     yield = h_bkgYield->GetBinContent(i+2);
 			bkgRates += Form( " %10f", yield );
 		}
@@ -192,6 +201,7 @@ void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis
 			double statErr;
 			if(      sampleIdx==1 && lostlepAnalysis != NULL ) statErr = 1.0 + ( h_lostLep->GetBinError(reg) / h_lostLep->GetBinContent(reg) );
 			else if( sampleIdx==2 && onelepwAnalysis != NULL ) statErr = 1.0 + ( h_onelepw->GetBinError(reg) / h_onelepw->GetBinContent(reg) );
+			else if( sampleIdx==4 && znunuAnalysis   != NULL ) statErr = 1.0 + ( h_znunu->GetBinError(reg)   / h_znunu->GetBinContent(reg)   );
 			else 		                                           statErr = 1.0 + ( h_bkgYield->GetBinError(sampleIdx+2) / h_bkgYield->GetBinContent(sampleIdx+2) );
 
 			if( std::isnan(statErr) ) statErr = 1.0; // Protection against nan
@@ -226,8 +236,9 @@ void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis
 			double systErr = 0.;
 			char systname[25];
 
-			if(      sampleIdx == 1 && nVars_ll  > 0 ) continue; // Don't use dummy systematic for ll background if we have actual systematics
-			else if( sampleIdx == 2 && nVars_1lw > 0 ) continue; // Same with 1l-from-W background
+			if(      sampleIdx == 1 && nVars_ll  > 0 )   continue; // Don't use dummy systematic for ll background if we have actual systematics
+			else if( sampleIdx == 2 && nVars_1lw > 0 )   continue; // Same with 1l-from-W background
+			else if( sampleIdx == 4 && nVars_znunu > 0 ) continue; // And with ZtoNuNu
 			else if( sampleIdx == 3 ) {
 				systErr = 2.0; // 100% total uncertainty on 1l from top
 				sprintf( systname, "Flat%s%d", samples.at(sampleIdx).Data(), reg );
@@ -250,11 +261,12 @@ void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis
 		////////////////////////////////////////////////////////////////
 		// Make the systematics section of the datacard
 
-		// Start with an empty systematics table...
+		// Start with an empty systematics table. One empty row for every systematic that will be evaluated on every background.
 		map<TString,vector<TString> > syst_holder;
 		vector<TString> emptySystLine = {"     -      ", "     -      ", "     -      ", "     -      ", "     -      " };
-		for( auto& iter : systMap_ll )  syst_holder[iter.first] = emptySystLine;
-		for( auto& iter : systMap_1lw ) syst_holder[iter.first] = emptySystLine;
+		for( auto& iter : systMap_ll )    syst_holder[iter.first] = emptySystLine;
+		for( auto& iter : systMap_1lw )   syst_holder[iter.first] = emptySystLine;
+		for( auto& iter : systMap_znunu ) syst_holder[iter.first] = emptySystLine;
 
 		// Calculate the lost lepton systematics, and populate the datacard and the printable systematic tables
 		if( nVars_ll > 0 ) {
@@ -272,12 +284,20 @@ void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis
 			double nominal = h_onelepw->GetBinContent(reg);
 			if( nominal < 0.0000000001 ) nominal = 0.0000000001;
 			for( auto& iter : systMap_1lw ) {
-				if( sigRegions.at(reg-1).Contains("combo") ) onelepw_uncert[iter.first].push_back( 0. );
-				else {
-					double maxdiff = calculateMaxdiff( reg, onelepwFile, nominal, iter.second );
-					syst_holder[iter.first].at(2) = Form( "  %8.6f  ", 1.0 + maxdiff/nominal );
-					onelepw_uncert[iter.first].push_back( maxdiff/nominal );
-				}
+				double maxdiff = calculateMaxdiff( reg, onelepwFile, nominal, iter.second );
+				syst_holder[iter.first].at(2) = Form( "  %8.6f  ", 1.0 + maxdiff/nominal );
+				onelepw_uncert[iter.first].push_back( maxdiff/nominal );
+			}
+		}
+
+		// And calculate the ZtoNuNu systematics
+		if( nVars_znunu > 0 ) {
+			double nominal = h_znunu->GetBinContent(reg);
+			if( nominal < 0.0000000001 ) nominal = 0.0000000001;
+			for( auto& iter : systMap_znunu ) {
+				double maxdiff = calculateMaxdiff( reg, znunuFile, nominal, iter.second );
+				syst_holder[iter.first].at(4) = Form( "  %8.6f  ", 1.0 + maxdiff/nominal );
+				// If we were making a ZtoNuNu systematic table, we would fill it here
 			}
 		}
 

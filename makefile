@@ -6,8 +6,8 @@ ROOTCFLAGS  = $(shell root-config --cflags --libs)
 
 
 
-runLooper: runLooper.cc runLooper.h ScanChain.o looperCR2lep.o looperCR0b.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o make1lWEstimate.o makeSignalEstimate.o libdataMCplotMaker.so libCMS3.so libsample.so libanalysis.so libcontextVars.so sigRegion.cc libsfHelper.so libsigRegion.so libsystematic.so
-	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runLooper.cc ScanChain.o looperCR2lep.o looperCR0b.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o make1lWEstimate.o makeSignalEstimate.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lCMS3 -lsample -lanalysis -lcontextVars -lsfHelper -lsigRegion -lsystematic -o runLooper
+runLooper: runLooper.cc runLooper.h ScanChain.o looperCR2lep.o looperCR0b.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o make1lWEstimate.o makeSignalEstimate.o makeZNuNuEstimate.o libdataMCplotMaker.so libCMS3.so libsample.so libanalysis.so libcontextVars.so sigRegion.cc libsfHelper.so libsigRegion.so libsystematic.so
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -lGenVector runLooper.cc ScanChain.o looperCR2lep.o looperCR0b.o makeTables.o makeStack.o makeDataCards.o makeLostLepEstimate.o make1lWEstimate.o makeSignalEstimate.o makeZNuNuEstimate.o -L. -Wl,-rpath,./ -ldataMCplotMaker -lCMS3 -lsample -lanalysis -lcontextVars -lsfHelper -lsigRegion -lsystematic -o runLooper
 #GenVector seems to be necessary to take a LorentzVector invariant mass. The error was "undefined reference to Math::GenVector::Throw()"
 
 
@@ -37,6 +37,9 @@ make1lWEstimate.o: make1lWEstimate.cc
 
 makeSignalEstimate.o: makeSignalEstimate.cc
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -c makeSignalEstimate.cc -o makeSignalEstimate.o
+
+makeZNuNuEstimate.o: makeZNuNuEstimate.cc
+	g++ $(CXXFLAGS) $(ROOTCFLAGS) -c makeZNuNuEstimate.cc -o makeZNuNuEstimate.o
 
 libcontextVars.so: contextVars.cc contextVars.h
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -shared contextVars.cc -o libcontextVars.so

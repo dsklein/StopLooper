@@ -117,6 +117,7 @@ int main( int argc, char* argv[] ) {
 	analysis* srAnalysis = new analysis( 36.46, "plots.root", "systVariations.root" );
 	analysis* crLostLep  = new analysis( 36.46, "plotsLL.root", "systVariationsLL.root" );
 	analysis* cr0bjets   = new analysis( 36.46, "plots0b.root", "systVariations0b.root" );
+	analysis* zNuNu      = new analysis( 36.46, "plotsZNuNu.root", "systVariationsZNuNu.root" );
 	analysis* sr_signal  = new analysis( 36.46, "plotsSig.root", "systVariationsSig.root" );
 	analysis* sig_genmet = new analysis( 36.46, "plotsSigGenMet.root", "systVariationsSigGenMet.root" );
 	analysis* sr_jesup   = new analysis( 36.46, "jes_sr.root", "jes_sr.root" );
@@ -183,6 +184,12 @@ int main( int argc, char* argv[] ) {
 	systematic lumi(           "lumi",     systematic::kUp,    (*sfhelp::LumiUp) );
 	systematic metavgup(       "METavg",   systematic::kSkipUp,   NULL );
 	systematic metavgdn(       "METavg",   systematic::kSkipDown, NULL );
+	systematic pileupup(       "PU",       systematic::kSkipUp,   NULL );
+	systematic pileupdn(       "PU",       systematic::kSkipDown, NULL );
+	systematic pdfup(          "pdf",      systematic::kSkipUp,   NULL );
+	systematic pdfdn(          "pdf",      systematic::kSkipDown, NULL );
+	systematic normup(         "norm",     systematic::kSkipUp,   NULL );
+	systematic normdn(         "norm",     systematic::kSkipDown, NULL );
 
 	srAnalysis->AddSystematics( {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
 	srAnalysis->AddSystematics( {&metresup, &metresdn, /*&topptup, &topptdn,*/ &isrnjetsup, &isrnjetsdn} );
@@ -191,6 +198,8 @@ int main( int argc, char* argv[] ) {
 	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, /*&topptup, &topptdn*/ &isrnjetsup, &isrnjetsdn } );
 	cr0bjets->AddSystematics( {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn*/ &qSquaredup, &qSquareddn} );
 	cr0bjets->AddSystematics( {&alphaSup, &alphaSdn, &metresup, &metresdn, &contam1lwup, &contam1lwdn, &isrnjetsup, &isrnjetsdn } );
+	zNuNu->AddSystematics( {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
+	zNuNu->AddSystematics( {&pileupup, &pileupdn, &pdfup, &pdfdn, &normup, &normdn} );
 
 	// A sneaky trick to make JES systematics work with existing code
 	systematic jesup_dummy( "JES", systematic::kUp,   (*sfhelp::Unity) );
@@ -299,18 +308,19 @@ int main( int argc, char* argv[] ) {
 	srAnalysis->AddSigRegs( {&j4lowtmodhimlb250, &j4lowtmodhimlb450} );
 	srAnalysis->AddSigRegs( {&j4hitmodlowmlb250, &j4hitmodlowmlb350, &j4hitmodlowmlb450, &j4hitmodlowmlb600} );
 	srAnalysis->AddSigRegs( {&j4hitmodhimlb250, &j4hitmodhimlb450} );
-	srAnalysis->AddSigRegs( {&inclusive} );
-	srAnalysis->AddSigRegs( {&corr250ichep, &corr350ichep, &corr450ichep} );
-	srAnalysis->AddSigRegs( {&corr250combo, &corr350combo, &corr450combo, &corr550combo} );
-	srAnalysis->AddSigRegs( {&corrAllcombo} );
+	// srAnalysis->AddSigRegs( {&inclusive} );
+	// srAnalysis->AddSigRegs( {&corr250ichep, &corr350ichep, &corr450ichep} );
+	// srAnalysis->AddSigRegs( {&corr250combo, &corr350combo, &corr450combo, &corr550combo} );
+	// srAnalysis->AddSigRegs( {&corrAllcombo} );
 	srAnalysis->AddSigRegs( {&corr250new, &corr350new, &corr450new, &corr550new} );
 
-	// Copy all sigRegions from the SR analysis to the lost lepton and signal analyses.
+	// Copy all sigRegions from the SR analysis to other analysis objects.
 	// Cuts that depend on e.g. MET_rl will be handled automatically by the "contextVars" class
 	for( std::vector<sigRegion*> regList : srAnalysis->GetSigRegions() ) {
 		sr_signal->AddSigRegs(  regList );
 		sig_genmet->AddSigRegs( regList );
 		crLostLep->AddSigRegs(  regList );
+		zNuNu->AddSigRegs(      regList );
 	}
 
 
@@ -366,10 +376,10 @@ int main( int argc, char* argv[] ) {
 	cr0bjets->AddSigRegs( {&j4lowtmodhimlb250CR0b, &j4lowtmodhimlb450CR0b} );
 	cr0bjets->AddSigRegs( {&j4hitmodlowmlb250CR0b, &j4hitmodlowmlb350CR0b, &j4hitmodlowmlb450CR0b, &j4hitmodlowmlb600CR0b} );
 	cr0bjets->AddSigRegs( {&j4hitmodhimlb250CR0b, &j4hitmodhimlb450CR0b} );
-	cr0bjets->AddSigRegs( {&inclusive} );
-	cr0bjets->AddSigRegs( {&corr250ichepCR0b, &corr350ichepCR0b, &corr450ichepCR0b} );
-	cr0bjets->AddSigRegs( {&corr250comboCR0b, &corr350comboCR0b, &corr450comboCR0b, &corr550comboCR0b} );
-	cr0bjets->AddSigRegs( {&corrAllcomboCR0b} );
+	// cr0bjets->AddSigRegs( {&inclusive} );
+	// cr0bjets->AddSigRegs( {&corr250ichepCR0b, &corr350ichepCR0b, &corr450ichepCR0b} );
+	// cr0bjets->AddSigRegs( {&corr250comboCR0b, &corr350comboCR0b, &corr450comboCR0b, &corr550comboCR0b} );
+	// cr0bjets->AddSigRegs( {&corrAllcomboCR0b} );
 	cr0bjets->AddSigRegs( {&corr250newCR0b, &corr350newCR0b, &corr450newCR0b, &corr550newCR0b} );
 
 
@@ -535,9 +545,10 @@ int main( int argc, char* argv[] ) {
 	if( runestimate ) {
 		makeLostLepEstimate( srAnalysis, crLostLep );
 		make1lWEstimate( srAnalysis, cr0bjets );
+		makeZNuNuEstimate( zNuNu );
 		makeSignalEstimate( sr_signal, sig_genmet );
 	}
-	if( runcards )                makeDataCards( srAnalysis, sr_signal, crLostLep, cr0bjets );
+	if( runcards ) makeDataCards( srAnalysis, sr_signal, crLostLep, cr0bjets, zNuNu );
 
 	// Clean up /////////
 	delete srAnalysis;
