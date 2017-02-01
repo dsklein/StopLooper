@@ -58,6 +58,8 @@ public:
 	double ISRnJetsUp();
 	double ISRnJetsDown();
 	double LumiUp();
+	double PDFUp();
+	double PDFDown();
 
 private:
 	bool isFastsim;
@@ -91,6 +93,8 @@ private:
 	double qsquarednorm;
 	double qsquarednorm_up;
 	double qsquarednorm_down;
+	double PDFnorm_up;
+	double PDFnorm_down;
 	double alphasnorm;
 	double alphasnorm_up;
 	double alphasnorm_down;
@@ -134,6 +138,8 @@ namespace sfhelp {
 	double ISRnJetsUp();
 	double ISRnJetsDown();
 	double LumiUp();
+	double PDFUp();
+	double PDFDown();
 }
 
 

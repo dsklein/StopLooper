@@ -56,6 +56,8 @@ void sfHelper::Setup( bool is_fastsim, TH1D* counterHist=NULL, TH2F* nevtsHist=N
 	alphasnorm      = h_counter->GetBinContent( 1 );
 	qsquarednorm_up = h_counter->GetBinContent( 5 );
 	qsquarednorm_down = h_counter->GetBinContent( 9 );
+	PDFnorm_up      = h_counter->GetBinContent( 10 );
+	PDFnorm_down    = h_counter->GetBinContent( 11 );
 	alphasnorm_up   = h_counter->GetBinContent( 12 );
 	alphasnorm_down = h_counter->GetBinContent( 13 );
 	btagnorm        = h_counter->GetBinContent( 14 );
@@ -87,6 +89,8 @@ void sfHelper::PrepSignal() {
 	alphasnorm      = h_counterSMS->GetBinContent( binx, biny, 1 );
 	qsquarednorm_up = h_counterSMS->GetBinContent( binx, biny, 5 );
 	qsquarednorm_down = h_counterSMS->GetBinContent( binx, biny, 9 );
+	PDFnorm_up      = h_counterSMS->GetBinContent( binx, biny, 10 );
+	PDFnorm_down    = h_counterSMS->GetBinContent( binx, biny, 11 );
 	alphasnorm_up   = h_counterSMS->GetBinContent( binx, biny, 12 );
 	alphasnorm_down = h_counterSMS->GetBinContent( binx, biny, 13 );
 	btagnorm        = h_counterSMS->GetBinContent( binx, biny, 14 );
@@ -173,7 +177,7 @@ double sfHelper::ISRDown() {
 
 // Get reweighting factor to vary Q^2 up
 double sfHelper::QSquaredUp() {
-	if( tas::genweights().size() < 111 ) return 1.;
+	if( tas::genweights().size() < 110 ) return 1.;
 	double qsquared    = tas::genweights().at(0);
 	double qsquared_up = tas::genweights().at(4);
 	if( qsquared < 0. || qsquared_up < 0. ) return 1.;
@@ -182,7 +186,7 @@ double sfHelper::QSquaredUp() {
 
 // Get reweighting factor to vary Q^2 down
 double sfHelper::QSquaredDown() {
-	if( tas::genweights().size() < 111 ) return 1.;
+	if( tas::genweights().size() < 110 ) return 1.;
 	double qsquared      = tas::genweights().at(0);
 	double qsquared_down = tas::genweights().at(8);
 	if( qsquared < 0. || qsquared_down < 0. ) return 1.;
@@ -191,7 +195,7 @@ double sfHelper::QSquaredDown() {
 
 // Get reweighting factor to vary alpha_s up
 double sfHelper::AlphaSUp() {
-	if( tas::genweights().size() < 111 ) return 1.;
+	if( tas::genweights().size() < 110 ) return 1.;
 	double alphas    = tas::genweights().at(0);
 	double alphas_up = tas::genweights().at(109);
 	if( alphas < 0. || alphas_up < 0. ) return 1.;
@@ -200,7 +204,7 @@ double sfHelper::AlphaSUp() {
 
 // Get reweighting factor to vary alpha_s down
 double sfHelper::AlphaSDown() {
-	if( tas::genweights().size() < 111 ) return 1.;
+	if( tas::genweights().size() < 110 ) return 1.;
 	double alphas      = tas::genweights().at(0);
 	double alphas_down = tas::genweights().at(110);
 	if( alphas < 0. || alphas_down < 0. ) return 1.;
@@ -449,6 +453,20 @@ double sfHelper::LumiUp() {
 	return 1.062;
 }
 
+// Get reweighting factor to vary PDF up
+double sfHelper::PDFUp() {
+	if( tas::genweights().size() < 110 ) return 1.;
+	if( PDFnorm_up <= 0. ) return 1.;
+	return fabs( tas::pdf_up_weight() * nEvts / PDFnorm_up );
+}
+
+// Get reweighting factor to vary PDF down
+double sfHelper::PDFDown() {
+	if( tas::genweights().size() < 110 ) return 1.;
+	if( PDFnorm_down <= 0. ) return 1.;
+	return fabs( tas::pdf_down_weight() * nEvts / PDFnorm_down );
+}
+
 
 namespace sfhelp {
 	double LepSFUp()       { return myHelper.LepSFUp(); }
@@ -481,4 +499,6 @@ namespace sfhelp {
 	double ISRnJetsUp()    { return myHelper.ISRnJetsUp(); }
 	double ISRnJetsDown()  { return myHelper.ISRnJetsDown(); }
 	double LumiUp()        { return myHelper.LumiUp(); }
+	double PDFUp()         { return myHelper.PDFUp(); }
+	double PDFDown()       { return myHelper.PDFDown(); }
 }
