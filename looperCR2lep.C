@@ -288,51 +288,33 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 			// Set event weight
 
 			double evtWeight = 1.;
-			double lepNorm = 1.;
-			double lepNorm_veto = 1.;
-			double lepNorm_FS = 1.;
-			// double btagNorm = 1.;
-			double isrNorm = 1.;
 
+			// Data should have a weight of 1.0
 			if( is_data() || mySample->IsData() ) evtWeight = 1.;
-			else if( mySample->IsSignal() ) {
-				myHelper.PrepSignal();
-				double nEvtsSample = hNEvts->GetBinContent( hNEvts->FindBin( mass_stop(), mass_lsp() ) );
-				int binx = hCounterSMS->GetXaxis()->FindBin( mass_stop() );
-				int biny = hCounterSMS->GetYaxis()->FindBin( mass_lsp()  );
-				lepNorm = nEvtsSample / hCounterSMS->GetBinContent(binx,biny,27);
-				lepNorm_veto = nEvtsSample / hCounterSMS->GetBinContent(binx,biny,30);
-				lepNorm_FS = nEvtsSample / hCounterSMS->GetBinContent(binx,biny,33);
-				// btagNorm = nEvtsSample / hCounterSMS->GetBinContent(binx,biny,14);
-				isrNorm = nEvtsSample / hCounterSMS->GetBinContent(binx, biny, 19);
-				evtWeight = myAnalysis->GetLumi() * 1000. * xsec() / nEvtsSample;
-			}
 			else {
-				evtWeight = myAnalysis->GetLumi() * scale1fb();
-				double nEvtsSample = hCounter->GetBinContent(22);
-				lepNorm = nEvtsSample / hCounter->GetBinContent(28);
-				lepNorm_veto = nEvtsSample / hCounter->GetBinContent(31);
-				lepNorm_FS = nEvtsSample / hCounter->GetBinContent(34);
-				// btagNorm = nEvtsSample / hCounter->GetBinContent(14);
-				isrNorm = nEvtsSample / hCounter->GetBinContent(19);
-			}
 
-			if( !is_data() ) {
-				evtWeight *= weight_lepSF()     * lepNorm;
-				evtWeight *= weight_vetoLepSF() * lepNorm_veto;
-				// evtWeight *= weight_btagsf() * btagNorm;
-				if( isFastsim ) evtWeight *= weight_lepSF_fastSim() * lepNorm_FS;
-				if( mySample->IsSignal()  ) evtWeight *= weight_ISR() * isrNorm;
+				// Weight background MC using scale1fb
+				evtWeight = myAnalysis->GetLumi() * scale1fb();
+
+				// Weight signal MC using xsec and nEvents
+				if( mySample->IsSignal() ) {
+					myHelper.PrepSignal();
+					double nEvtsSample = hNEvts->GetBinContent( hNEvts->FindBin( mass_stop(), mass_lsp() ) );
+					evtWeight = myAnalysis->GetLumi() * 1000. * xsec() / nEvtsSample;
+				}
+
+				// Apply scale factors to correct the shape of the MC
+				evtWeight *= myHelper.TrigEff2l();
+				evtWeight *= myHelper.LepSF();
+				// evtWeight *= myHelper.BtagSF();
+				if( isFastsim ) evtWeight *= myHelper.LepSFfastsim();
 				if( mySample->GetLabel() == "tt2l" || filename.Contains("W_5f_powheg_pythia8") ) {
 					evtWeight *= myHelper.MetResSF();
 					// evtWeight *= myHelper.TopSystPtSF();
 				}
 				else if( mySample->GetLabel() == "tt1l" || mySample->GetLabel() == "wjets" ) evtWeight *= myHelper.MetResSF();
-				if( mySample->GetLabel() == "tt2l" || mySample->GetLabel() == "tt1l" ) evtWeight *= myHelper.ISRnJetsSF();
-
-				evtWeight *= myHelper.TrigEff2l();
+				if( mySample->GetLabel() == "tt2l" || mySample->GetLabel() == "tt1l" || mySample->IsSignal() ) evtWeight *= myHelper.ISRnJetsSF();
 			}
-
 
 			// Count the number of events processed
 			yield_total += evtWeight;

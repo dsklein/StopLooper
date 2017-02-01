@@ -68,6 +68,7 @@ void sfHelper::Setup( bool is_fastsim, TH1D* counterHist=NULL, TH2F* nevtsHist=N
 	lepnorm         = h_counter->GetBinContent( 28 ) * h_counter->GetBinContent( 31 ); // Lepton SF * veto lepton SF
 	lepnorm_up      = h_counter->GetBinContent( 29 ) * h_counter->GetBinContent( 32 );
 	lepnorm_down    = h_counter->GetBinContent( 30 ) * h_counter->GetBinContent( 33 );
+	lepnorm_fastsim = h_counter->GetBinContent( 34 );
 	isrnjetsnorm    = h_counter->GetBinContent( 25 );
 	isrnjetsnorm_up = h_counter->GetBinContent( 26 );
 	isrnjetsnorm_down = h_counter->GetBinContent( 27 );
@@ -104,12 +105,19 @@ void sfHelper::PrepSignal() {
 	lepnorm         = h_counterSMS->GetBinContent( binx, biny, 27 ) * h_counterSMS->GetBinContent( binx, biny, 30 ); // Lepton SF * veto lepton SF
 	lepnorm_up      = h_counterSMS->GetBinContent( binx, biny, 28 ) * h_counterSMS->GetBinContent( binx, biny, 31 );
 	lepnorm_down    = h_counterSMS->GetBinContent( binx, biny, 29 ) * h_counterSMS->GetBinContent( binx, biny, 32 );
+	lepnorm_fastsim = h_counterSMS->GetBinContent( binx, biny, 33 );
 	isrnjetsnorm    = h_counterSMS->GetBinContent( binx, biny, 24 );
 	isrnjetsnorm_up = h_counterSMS->GetBinContent( binx, biny, 25 );
 	isrnjetsnorm_down = h_counterSMS->GetBinContent( binx, biny, 26 );
 }
 
 void sfHelper::SetCorridor( bool corridor ) {	isCorridor = corridor; }
+
+// Get weight for lepton SF
+double sfHelper::LepSF() {
+	double sf = tas::weight_lepSF() * tas::weight_vetoLepSF();
+	return sf * nEvts * nEvts / lepnorm; // Two factors of nEvts for lepton and vetolepton normalization
+}
 
 // Get reweighting factor to vary the lepton and veto lepton SFs up
 double sfHelper::LepSFUp() {
@@ -123,6 +131,18 @@ double sfHelper::LepSFDown() {
 	double lepsf      = tas::weight_lepSF()      * tas::weight_vetoLepSF();
 	double lepsf_down = tas::weight_lepSF_down() * tas::weight_vetoLepSF_down();
 	return (lepsf_down / lepnorm_down) / (lepsf / lepnorm);
+}
+
+// Get weight for fastsim lepton SF
+double sfHelper::LepSFfastsim() {
+	double sf = tas::weight_lepSF_fastSim();
+	return sf * nEvts / lepnorm_fastsim;
+}
+
+// Get weight for b-tag SF
+double sfHelper::BtagSF() {
+	double sf = tas::weight_btagsf();
+	return sf * nEvts / btagnorm;
 }
 
 // Get reweighting factor to vary the btag heavy flavor SF up
@@ -469,8 +489,11 @@ double sfHelper::PDFDown() {
 
 
 namespace sfhelp {
+	double LepSF()         { return myHelper.LepSF(); }
 	double LepSFUp()       { return myHelper.LepSFUp(); }
 	double LepSFDown()     { return myHelper.LepSFDown(); }
+	double LepSFfastsim()  { return myHelper.LepSFfastsim(); }
+	double BtagSF()        { return myHelper.BtagSF(); }
 	double BtagHeavyUp()   { return myHelper.BtagHeavyUp(); }
 	double BtagHeavyDown() { return myHelper.BtagHeavyDown(); }
 	double BtagLightUp()   { return myHelper.BtagLightUp(); }

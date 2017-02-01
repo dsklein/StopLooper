@@ -28,8 +28,11 @@ public:
 	void PrepSignal();
 	void SetCorridor( bool corridor );
 
+	double LepSF();
 	double LepSFUp();
 	double LepSFDown();
+	double LepSFfastsim();
+	double BtagSF();
 	double BtagHeavyUp();
 	double BtagHeavyDown();
 	double BtagLightUp();
@@ -82,6 +85,7 @@ private:
 	double lepnorm;
 	double lepnorm_up;
 	double lepnorm_down;
+	double lepnorm_fastsim;
 	double btagnorm;
 	double btagnormHF_up;
 	double btagnormLF_up;
@@ -108,8 +112,11 @@ private:
 extern sfHelper myHelper;
 
 namespace sfhelp {
+	double LepSF();
 	double LepSFUp();
 	double LepSFDown();
+	double LepSFfastsim();
+	double BtagSF();
 	double BtagHeavyUp();
 	double BtagHeavyDown();
 	double BtagLightUp();
