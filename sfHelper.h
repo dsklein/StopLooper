@@ -67,6 +67,8 @@ public:
 	double LumiUp();
 	double PDFUp();
 	double PDFDown();
+	double StopXsecUp();
+	double StopXsecDown();
 
 private:
 	bool isFastsim;
@@ -85,6 +87,7 @@ private:
 	double eff_err_down;
 	TH1D* h_sf_toppt;
 	bool isCorridor;
+	TH1D* h_stop_xsec;
 
 	double lepnorm;
 	double lepnorm_up;
@@ -158,6 +161,8 @@ namespace sfhelp {
 	double LumiUp();
 	double PDFUp();
 	double PDFDown();
+	double StopXsecUp();
+	double StopXsecDown();
 }
 
 

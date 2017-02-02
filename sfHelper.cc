@@ -12,7 +12,7 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > LorentzVector;
 // Constructor and destructor
 sfHelper::sfHelper()
 {
-	TFile trigeffFile( "reference-files/TriggerEff.root" );
+	TFile trigeffFile( "reference-files/TriggerEff.root", "READ" );
 	eff_1l_el = (TEfficiency*)trigeffFile.Get("Efficiency_ge1l_el")->Clone("trigeff_1l_el");
 	eff_1l_mu = (TEfficiency*)trigeffFile.Get("Efficiency_ge1l_mu")->Clone("trigeff_1l_mu");
 	eff_2l_el = (TEfficiency*)trigeffFile.Get("Efficiency_ge2l_metrl_el")->Clone("trigeff_2l_el");
@@ -23,10 +23,15 @@ sfHelper::sfHelper()
 	eff_2l_mu->SetDirectory(0);
 	trigeffFile.Close();
 
-	TFile topptFile( "reference-files/sf_top_system_pt.root" );
+	TFile topptFile( "reference-files/sf_top_system_pt.root", "READ" );
 	h_sf_toppt = (TH1D*)topptFile.Get("topsyst_pt_sf")->Clone("top_system_pt_sf");
 	h_sf_toppt->SetDirectory(0);
 	topptFile.Close();
+
+	TFile stopxsecFile( "reference-files/xsec_stop_13TeV.root", "READ" );
+	h_stop_xsec = (TH1D*)stopxsecFile.Get("stop")->Clone("stop_xsec");
+	h_stop_xsec->SetDirectory(0);
+	stopxsecFile.Close();
 }
 
 sfHelper::~sfHelper()
@@ -36,6 +41,7 @@ sfHelper::~sfHelper()
 	delete eff_2l_el;
 	delete eff_2l_mu;
 	delete h_sf_toppt;
+	delete h_stop_xsec;
 }
 
 // Setup function
@@ -521,6 +527,22 @@ double sfHelper::PDFDown() {
 	return fabs( tas::pdf_down_weight() * nEvts / PDFnorm_down );
 }
 
+// Get rewieighting factor to vary the stop xsec up
+double sfHelper::StopXsecUp() {
+	int bin = h_stop_xsec->FindBin( tas::mass_stop() );
+	double xsec = h_stop_xsec->GetBinContent( bin );
+	double err  = h_stop_xsec->GetBinError(   bin );
+	return xsec + err;
+}
+
+// Get rewieighting factor to vary the stop xsec down
+double sfHelper::StopXsecDown() {
+	int bin = h_stop_xsec->FindBin( tas::mass_stop() );
+	double xsec = h_stop_xsec->GetBinContent( bin );
+	double err  = h_stop_xsec->GetBinError(   bin );
+	return xsec - err;
+}
+
 
 namespace sfhelp {
 	double LepSF()         { return myHelper.LepSF(); }
@@ -562,4 +584,6 @@ namespace sfhelp {
 	double LumiUp()        { return myHelper.LumiUp(); }
 	double PDFUp()         { return myHelper.PDFUp(); }
 	double PDFDown()       { return myHelper.PDFDown(); }
+	double StopXsecUp()    { return myHelper.StopXsecUp(); }
+	double StopXsecDown()  { return myHelper.StopXsecDown(); }
 }
