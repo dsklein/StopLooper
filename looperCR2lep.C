@@ -336,7 +336,7 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 				// if( !filt_badMuonFilter() ) continue;
 				if( !context::filt_jetWithBadMuon() ) continue;
 				if( !filt_pfovercalomet() ) continue;
-				if( !HLT_MET() && !HLT_MET100_MHT100() ) {
+				if( !HLT_MET() && !HLT_MET110_MHT110() && !HLT_MET120_MHT120() ) {
 					if( !(HLT_SingleEl() && (abs(lep1_pdgid())==11 || abs(lep2_pdgid())==11) ) &&
 					    !(HLT_SingleMu() && (abs(lep1_pdgid())==13 || abs(lep2_pdgid())==13) ) ) continue;
 				}

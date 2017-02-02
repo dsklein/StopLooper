@@ -333,7 +333,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 				// if( !filt_badMuonFilter() ) continue;
 				if( !context::filt_jetWithBadMuon() ) continue;
 				if( !filt_pfovercalomet() ) continue;
-				if( !HLT_MET() && !HLT_MET100_MHT100() ) {
+				if( !HLT_MET() && !HLT_MET110_MHT110() && !HLT_MET120_MHT120() ) {
 					if(      abs(lep1_pdgid()) == 11 && !HLT_SingleEl() ) continue;
 					else if( abs(lep1_pdgid()) == 13 && !HLT_SingleMu() ) continue;
 				}
