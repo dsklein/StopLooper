@@ -32,11 +32,15 @@ public:
 	double LepSFUp();
 	double LepSFDown();
 	double LepSFfastsim();
+	double LepSFfastsimUp();
+	double LepSFfastsimDown();
 	double BtagSF();
 	double BtagHeavyUp();
 	double BtagHeavyDown();
 	double BtagLightUp();
 	double BtagLightDown();
+	double BtagFSUp();
+	double BtagFSDown();
 	double ISRUp();
 	double ISRDown();
 	double QSquaredUp();
@@ -86,6 +90,8 @@ private:
 	double lepnorm_up;
 	double lepnorm_down;
 	double lepnorm_fastsim;
+	double lepnorm_fs_up;
+	double lepnorm_fs_down;
 	double btagnorm;
 	double btagnormHF_up;
 	double btagnormLF_up;
@@ -94,6 +100,11 @@ private:
 	double isrnorm;
 	double isrnorm_up;
 	double isrnorm_down;
+	double btagnormFS_up;
+	double btagnormFS_down;
+	double isrnjetsnorm;
+	double isrnjetsnorm_up;
+	double isrnjetsnorm_down;
 	double qsquarednorm;
 	double qsquarednorm_up;
 	double qsquarednorm_down;
@@ -102,10 +113,6 @@ private:
 	double alphasnorm;
 	double alphasnorm_up;
 	double alphasnorm_down;
-	double isrnjetsnorm;
-	double isrnjetsnorm_up;
-	double isrnjetsnorm_down;
-
 };
 
 
@@ -116,11 +123,15 @@ namespace sfhelp {
 	double LepSFUp();
 	double LepSFDown();
 	double LepSFfastsim();
+	double LepSFfastsimUp();
+	double LepSFfastsimDown();
 	double BtagSF();
 	double BtagHeavyUp();
 	double BtagHeavyDown();
 	double BtagLightUp();
 	double BtagLightDown();
+	double BtagFSUp();
+	double BtagFSDown();
 	double ISRUp();
 	double ISRDown();
 	double QSquaredUp();

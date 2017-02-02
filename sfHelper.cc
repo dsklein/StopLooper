@@ -65,13 +65,17 @@ void sfHelper::Setup( bool is_fastsim, TH1D* counterHist=NULL, TH2F* nevtsHist=N
 	btagnormLF_up   = h_counter->GetBinContent( 16 );
 	btagnormHF_down = h_counter->GetBinContent( 17 );
 	btagnormLF_down = h_counter->GetBinContent( 18 );
+	btagnormFS_up   = h_counter->GetBinContent( 23 );
+	btagnormFS_down = h_counter->GetBinContent( 24 );
+	isrnjetsnorm    = h_counter->GetBinContent( 25 );
+	isrnjetsnorm_up = h_counter->GetBinContent( 26 );
+	isrnjetsnorm_down = h_counter->GetBinContent( 27 );
 	lepnorm         = h_counter->GetBinContent( 28 ) * h_counter->GetBinContent( 31 ); // Lepton SF * veto lepton SF
 	lepnorm_up      = h_counter->GetBinContent( 29 ) * h_counter->GetBinContent( 32 );
 	lepnorm_down    = h_counter->GetBinContent( 30 ) * h_counter->GetBinContent( 33 );
 	lepnorm_fastsim = h_counter->GetBinContent( 34 );
-	isrnjetsnorm    = h_counter->GetBinContent( 25 );
-	isrnjetsnorm_up = h_counter->GetBinContent( 26 );
-	isrnjetsnorm_down = h_counter->GetBinContent( 27 );
+	lepnorm_fs_up   = h_counter->GetBinContent( 35 );
+	lepnorm_fs_down = h_counter->GetBinContent( 36 );
 }
 
 // Special setup function for SUSY signal samples
@@ -102,13 +106,17 @@ void sfHelper::PrepSignal() {
 	isrnorm         = h_counterSMS->GetBinContent( binx, biny, 19 );
 	isrnorm_up      = h_counterSMS->GetBinContent( binx, biny, 20 );
 	isrnorm_down    = h_counterSMS->GetBinContent( binx, biny, 21 );
+	btagnormFS_up   = h_counterSMS->GetBinContent( binx, biny, 22 );
+	btagnormFS_down = h_counterSMS->GetBinContent( binx, biny, 23 );
+	isrnjetsnorm    = h_counterSMS->GetBinContent( binx, biny, 24 );
+	isrnjetsnorm_up = h_counterSMS->GetBinContent( binx, biny, 25 );
+	isrnjetsnorm_down = h_counterSMS->GetBinContent( binx, biny, 26 );
 	lepnorm         = h_counterSMS->GetBinContent( binx, biny, 27 ) * h_counterSMS->GetBinContent( binx, biny, 30 ); // Lepton SF * veto lepton SF
 	lepnorm_up      = h_counterSMS->GetBinContent( binx, biny, 28 ) * h_counterSMS->GetBinContent( binx, biny, 31 );
 	lepnorm_down    = h_counterSMS->GetBinContent( binx, biny, 29 ) * h_counterSMS->GetBinContent( binx, biny, 32 );
 	lepnorm_fastsim = h_counterSMS->GetBinContent( binx, biny, 33 );
-	isrnjetsnorm    = h_counterSMS->GetBinContent( binx, biny, 24 );
-	isrnjetsnorm_up = h_counterSMS->GetBinContent( binx, biny, 25 );
-	isrnjetsnorm_down = h_counterSMS->GetBinContent( binx, biny, 26 );
+	lepnorm_fs_up   = h_counterSMS->GetBinContent( binx, biny, 34 );
+	lepnorm_fs_down = h_counterSMS->GetBinContent( binx, biny, 35 );
 }
 
 void sfHelper::SetCorridor( bool corridor ) {	isCorridor = corridor; }
@@ -137,6 +145,20 @@ double sfHelper::LepSFDown() {
 double sfHelper::LepSFfastsim() {
 	double sf = tas::weight_lepSF_fastSim();
 	return sf * nEvts / lepnorm_fastsim;
+}
+
+// Get reweighting factor to vary the fastsim lepton SF up
+double sfHelper::LepSFfastsimUp() {
+	double sf    = tas::weight_lepSF_fastSim();
+	double sf_up = tas::weight_lepSF_fastSim_up();
+	return (sf_up / lepnorm_fs_up) / (sf / lepnorm_fastsim);
+}
+
+// Get reweighting factor to vary the fastsim lepton SF down
+double sfHelper::LepSFfastsimDown() {
+	double sf      = tas::weight_lepSF_fastSim();
+	double sf_down = tas::weight_lepSF_fastSim_down();
+	return (sf_down / lepnorm_fs_down) / (sf / lepnorm_fastsim);
 }
 
 // Get weight for b-tag SF
@@ -171,6 +193,18 @@ double sfHelper::BtagLightDown() {
 	double btagsf      = tas::weight_btagsf();
 	double btagsf_down = tas::weight_btagsf_light_DN();
 	return (btagsf_down / btagnormLF_down) / (btagsf / btagnorm);
+}
+
+// Get reweighting factor to vary the btag fastsim SF up
+double sfHelper::BtagFSUp() {
+	double sf = tas::weight_btagsf_fastsim_UP();
+	return sf * nEvts / btagnormFS_up;
+}
+
+// Get reweighting factor to vary the btag fastsim SF down
+double sfHelper::BtagFSDown() {
+	double sf = tas::weight_btagsf_fastsim_DN();
+	return sf * nEvts / btagnormFS_down;
 }
 
 // Get reweighting factor to vary the ISR weight up
@@ -493,11 +527,15 @@ namespace sfhelp {
 	double LepSFUp()       { return myHelper.LepSFUp(); }
 	double LepSFDown()     { return myHelper.LepSFDown(); }
 	double LepSFfastsim()  { return myHelper.LepSFfastsim(); }
+	double LepSFfastsimUp(){ return myHelper.LepSFfastsimUp(); }
+	double LepSFfastsimDown() { return myHelper.LepSFfastsimDown(); }
 	double BtagSF()        { return myHelper.BtagSF(); }
 	double BtagHeavyUp()   { return myHelper.BtagHeavyUp(); }
 	double BtagHeavyDown() { return myHelper.BtagHeavyDown(); }
 	double BtagLightUp()   { return myHelper.BtagLightUp(); }
 	double BtagLightDown() { return myHelper.BtagLightDown(); }
+	double BtagFSUp()      { return myHelper.BtagFSUp(); }
+	double BtagFSDown()    { return myHelper.BtagFSDown(); }
 	double ISRUp()         { return myHelper.ISRUp(); }
 	double ISRDown()       { return myHelper.ISRDown(); }
 	double QSquaredUp()    { return myHelper.QSquaredUp(); }

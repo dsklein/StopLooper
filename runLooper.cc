@@ -163,10 +163,14 @@ int main( int argc, char* argv[] ) {
 	systematic jesdn(          "JES",      systematic::kSkipDown, NULL );
 	systematic lepSFup(        "lepSF",    systematic::kUp,    (*sfhelp::LepSFUp) );
 	systematic lepSFdn(        "lepSF",    systematic::kDown,  (*sfhelp::LepSFDown) );
+	systematic lepSFfsup(      "lepSFfs",  systematic::kUp,    (*sfhelp::LepSFfastsimUp) );
+	systematic lepSFfsdn(      "lepSFfs",  systematic::kDown,  (*sfhelp::LepSFfastsimDown) );
 	systematic btagHFup(       "btagHF",   systematic::kUp,    (*sfhelp::BtagHeavyUp) );
 	systematic btagHFdn(       "btagHF",   systematic::kDown,  (*sfhelp::BtagHeavyDown) );
 	systematic btagLFup(       "btagLF",   systematic::kUp,    (*sfhelp::BtagLightUp) );
 	systematic btagLFdn(       "btagLF",   systematic::kDown,  (*sfhelp::BtagLightDown) );
+	systematic btagFSup(       "btagFS",   systematic::kUp,    (*sfhelp::BtagFSUp) );
+	systematic btagFSdn(       "btagFS",   systematic::kDown,  (*sfhelp::BtagFSDown) );
 	systematic qSquaredup(     "qSquared", systematic::kUp,    (*sfhelp::QSquaredUp) );
 	systematic qSquareddn(     "qSquared", systematic::kDown,  (*sfhelp::QSquaredDown) );
 	systematic alphaSup(       "alphaS",   systematic::kUp,    (*sfhelp::AlphaSUp) );
@@ -193,7 +197,8 @@ int main( int argc, char* argv[] ) {
 
 	srAnalysis->AddSystematics( {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
 	srAnalysis->AddSystematics( {&metresup, &metresdn, /*&topptup, &topptdn,*/ &isrnjetsup, &isrnjetsdn} );
-	sr_signal->AddSystematics(  {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &isrnjetsup, &isrnjetsdn, &lumi, &metavgup, &metavgdn} );
+	sr_signal->AddSystematics(  {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &isrnjetsup, &isrnjetsdn, &lumi} );
+	sr_signal->AddSystematics(  {&metavgup, &metavgdn, &lepSFfsup, &lepSFfsdn/*, &btagFSup, &btagFSdn*/} );
 	crLostLep->AddSystematics(  {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn} );
 	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, /*&topptup, &topptdn*/ &isrnjetsup, &isrnjetsdn } );
 	cr0bjets->AddSystematics( {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn*/ &qSquaredup, &qSquareddn} );
