@@ -67,6 +67,8 @@ public:
 	double LumiUp();
 	double PDFUp();
 	double PDFDown();
+	double WbXsecUp();
+	double WbXsecDown();
 	double StopXsecUp();
 	double StopXsecDown();
 
@@ -161,6 +163,8 @@ namespace sfhelp {
 	double LumiUp();
 	double PDFUp();
 	double PDFDown();
+	double WbXsecUp();
+	double WbXsecDown();
 	double StopXsecUp();
 	double StopXsecDown();
 }

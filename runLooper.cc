@@ -194,6 +194,8 @@ int main( int argc, char* argv[] ) {
 	systematic pdfdn(          "pdf",      systematic::kDown,  (*sfhelp::PDFDown) );
 	systematic normup(         "norm",     systematic::kSkipUp,   NULL );
 	systematic normdn(         "norm",     systematic::kSkipDown, NULL );
+	systematic wbxsecup(       "wbxsec",   systematic::kUp,    (*sfhelp::WbXsecUp) );
+	systematic wbxsecdn(       "wbxsec",   systematic::kDown,  (*sfhelp::WbXsecDown) );
 
 	srAnalysis->AddSystematics( {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
 	srAnalysis->AddSystematics( {&metresup, &metresdn, /*&topptup, &topptdn,*/ &isrnjetsup, &isrnjetsdn} );
