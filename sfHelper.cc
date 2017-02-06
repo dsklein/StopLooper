@@ -527,35 +527,37 @@ double sfHelper::PDFDown() {
 	return fabs( tas::pdf_down_weight() * nEvts / PDFnorm_down );
 }
 
-// Get reweighting factor to vary W+B xsec up
-double sfHelper::WbXsecUp() {
+// Get reweighting factor to vary W+HF xsec up
+double sfHelper::WhfXsecUp() {
 	if( !tas::is1lepFromW() ) return 1.0;
-	bool hasBjet = false;
+	bool hasHFjet = false;
 
 	for( int flavor : tas::ak4pfjets_hadron_flavor() ) {
-		if( abs(flavor) == 5 ) {
-			hasBjet = true;
+		if( abs(flavor) == 5 ||
+		    abs(flavor) == 4 ) {
+			hasHFjet = true;
 			break;
 		}
 	}
 
-	if( !hasBjet ) return 1.0;
+	if( !hasHFjet ) return 1.0;
 	return 1.5;
 }
 
-// Get reweighting factor to vary W+B xsec down
-double sfHelper::WbXsecDown() {
+// Get reweighting factor to vary W+HF xsec down
+double sfHelper::WhfXsecDown() {
 	if( !tas::is1lepFromW() ) return 1.0;
-	bool hasBjet = false;
+	bool hasHFjet = false;
 
 	for( int flavor : tas::ak4pfjets_hadron_flavor() ) {
-		if( abs(flavor) == 5 ) {
-			hasBjet = true;
+		if( abs(flavor) == 5 ||
+		    abs(flavor) == 4 ) {
+			hasHFjet = true;
 			break;
 		}
 	}
 
-	if( !hasBjet ) return 1.0;
+	if( !hasHFjet ) return 1.0;
 	return 0.5;
 }
 
@@ -616,8 +618,8 @@ namespace sfhelp {
 	double LumiUp()        { return myHelper.LumiUp(); }
 	double PDFUp()         { return myHelper.PDFUp(); }
 	double PDFDown()       { return myHelper.PDFDown(); }
-	double WbXsecUp()      { return myHelper.WbXsecUp(); }
-	double WbXsecDown()    { return myHelper.WbXsecDown(); }
+	double WhfXsecUp()     { return myHelper.WhfXsecUp(); }
+	double WhfXsecDown()   { return myHelper.WhfXsecDown(); }
 	double StopXsecUp()    { return myHelper.StopXsecUp(); }
 	double StopXsecDown()  { return myHelper.StopXsecDown(); }
 }
