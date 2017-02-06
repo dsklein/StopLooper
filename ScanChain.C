@@ -303,7 +303,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 
 				// Apply scale factors to correct the shape of the MC
 				evtWeight *= myHelper.LepSF();
-				// evtWeight *= myHelper.BtagSF();
+				evtWeight *= myHelper.BtagSF();
 				if( isFastsim ) evtWeight *= myHelper.LepSFfastsim();
 				if( mySample->GetLabel() == "tt2l" || filename.Contains("W_5f_powheg_pythia8") ) {
 					evtWeight *= myHelper.MetResSF();

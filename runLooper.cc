@@ -197,15 +197,15 @@ int main( int argc, char* argv[] ) {
 	systematic wbxsecup(       "wbxsec",   systematic::kUp,    (*sfhelp::WbXsecUp) );
 	systematic wbxsecdn(       "wbxsec",   systematic::kDown,  (*sfhelp::WbXsecDown) );
 
-	srAnalysis->AddSystematics( {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
+	srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
 	srAnalysis->AddSystematics( {&metresup, &metresdn, /*&topptup, &topptdn,*/ &isrnjetsup, &isrnjetsdn} );
-	sr_signal->AddSystematics(  {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &isrnjetsup, &isrnjetsdn, &lumi} );
-	sr_signal->AddSystematics(  {&metavgup, &metavgdn, &lepSFfsup, &lepSFfsdn/*, &btagFSup, &btagFSdn*/} );
-	crLostLep->AddSystematics(  {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn} );
+	sr_signal->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &isrnjetsup, &isrnjetsdn, &lumi} );
+	sr_signal->AddSystematics(  {&metavgup, &metavgdn, &lepSFfsup, &lepSFfsdn, &btagFSup, &btagFSdn} );
+	crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn} );
 	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, /*&topptup, &topptdn*/ &isrnjetsup, &isrnjetsdn } );
-	cr0bjets->AddSystematics( {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn*/ &qSquaredup, &qSquareddn} );
+	cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn} );
 	cr0bjets->AddSystematics( {&alphaSup, &alphaSdn, &metresup, &metresdn, &contam1lwup, &contam1lwdn, &isrnjetsup, &isrnjetsdn, &pdfup, &pdfdn } );
-	zNuNu->AddSystematics( {/*&jesup, &jesdn,*/ &lepSFup, &lepSFdn, /*&btagHFup, &btagHFdn, &btagLFup, &btagLFdn,*/ &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
+	zNuNu->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
 	zNuNu->AddSystematics( {&pileupup, &pileupdn, &pdfup, &pdfdn, &normup, &normdn} );
 
 	// A sneaky trick to make JES systematics work with existing code
@@ -409,9 +409,9 @@ int main( int argc, char* argv[] ) {
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// For each "sample" object defined earlier, chain up the baby files that make up that sample
 
-	TString sigPath  = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v17/skim/";
-	TString bkgPath  = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v18/skim/";
-	TString dataPath = "/nfs-7/userdata/isuarez/tupler_babies/merged/Stop_1l/v17/skim/";
+	TString sigPath  = "/nfs-7/userdata/jgwood/tupler_babies/merged/Stop_1l/v20/skim/";
+	TString bkgPath  = "/nfs-7/userdata/jgwood/tupler_babies/merged/Stop_1l/v20/skim/";
+	TString dataPath = "/nfs-7/userdata/jgwood/tupler_babies/merged/Stop_1l/v20/skim/";
 
 
 	if( runlooper || runlostlep || run1lw || runjes ) {
