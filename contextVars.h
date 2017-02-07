@@ -28,6 +28,8 @@ public:
 
 	const float &Met();
 	const float &MetPhi();
+	const float &Met_no2ndlep();
+	const float &MetPhi_no2ndlep();
 	const float &MT2W();
 	const float &Mindphi_met_j1_j2();
 	const float &MT_met_lep();
@@ -74,6 +76,8 @@ extern contextVars myContext;
 namespace context {
 	const float &Met();
 	const float &MetPhi();
+	const float &Met_no2ndlep();
+	const float &MetPhi_no2ndlep();
 	const float &MT2W();
 	const float &Mindphi_met_j1_j2();
 	const float &MT_met_lep();

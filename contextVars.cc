@@ -41,6 +41,18 @@ const float &contextVars::MetPhi() {
 	return tas::pfmet_phi();
 }
 
+const float &contextVars::Met_no2ndlep() {
+	if(      jesDirection==kUp   ) return tas::pfmet_jup();
+	else if( jesDirection==kDown ) return tas::pfmet_jdown();
+	return tas::pfmet();
+}
+
+const float &contextVars::MetPhi_no2ndlep() {
+	if(      jesDirection==kUp   ) return tas::pfmet_phi_jup();
+	else if( jesDirection==kDown ) return tas::pfmet_phi_jdown();
+	return tas::pfmet_phi();
+}
+
 const float &contextVars::MT2W() {
 	if(       useRl && jesDirection==kUp      ) return tas::MT2W_rl_jup();
 	else if(  useRl && jesDirection==kDown    ) return tas::MT2W_rl_jdown();
@@ -247,6 +259,8 @@ const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > > &co
 namespace context {
 	const float &Met() { return myContext.Met(); }
 	const float &MetPhi() { return myContext.MetPhi(); }
+	const float &Met_no2ndlep() { return myContext.Met_no2ndlep(); }
+	const float &MetPhi_no2ndlep() { return myContext.MetPhi_no2ndlep(); }
 	const float &MT2W() { return myContext.MT2W(); }
 	const float &Mindphi_met_j1_j2() { return myContext.Mindphi_met_j1_j2(); }
 	const float &MT_met_lep() { return myContext.MT_met_lep(); }

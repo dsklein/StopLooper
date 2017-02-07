@@ -54,6 +54,22 @@ void sfHelper::Setup( bool is_fastsim, TH1D* counterHist=NULL, TH2F* nevtsHist=N
 	h_counterSMS = counterHist_SMS;
 	topptBin = -99;
 
+	TString filename = TString( gFile->GetName() );
+	if(      filename.Contains("data_") ) sampleType = kData;
+	else if( filename.Contains("Signal") ) sampleType = kSignal;
+	else if( filename.Contains("ttbar_diLept") ) sampleType = ktt2l;
+	else if( filename.Contains("ttbar_singleLept") ) sampleType = ktt1l;
+	else if( filename.Contains("ttWJets") ) sampleType = kttW;
+	else if( filename.Contains("ttZJets") ) sampleType = kttZ;
+	else if( filename.Contains("ttbar") ) sampleType = kttbar;
+	else if( filename.Contains("WWTo") ||
+	         filename.Contains("WZTo") ||
+	         filename.Contains("ZZTo") ) sampleType = kDiboson;
+	else if( filename.Contains("W_5f_powheg_pythia8") ) sampleType = ktW;
+	else if( filename.Contains("ch_4f_") ) sampleType = kSingletop;
+	else if( filename.Contains("JetsToLNu_") ) sampleType = kWjets;
+	else sampleType = kOther;
+
 	if( !h_counter ) return;
 
 	nEvts = h_counter->GetBinContent( 22 );
@@ -149,12 +165,14 @@ double sfHelper::LepSFDown() {
 
 // Get weight for fastsim lepton SF
 double sfHelper::LepSFfastsim() {
+	if( !isFastsim ) return 1.0;
 	double sf = tas::weight_lepSF_fastSim();
 	return sf * nEvts / lepnorm_fastsim;
 }
 
 // Get reweighting factor to vary the fastsim lepton SF up
 double sfHelper::LepSFfastsimUp() {
+	if( !isFastsim ) return 1.0;
 	double sf    = tas::weight_lepSF_fastSim();
 	double sf_up = tas::weight_lepSF_fastSim_up();
 	return (sf_up / lepnorm_fs_up) / (sf / lepnorm_fastsim);
@@ -162,6 +180,7 @@ double sfHelper::LepSFfastsimUp() {
 
 // Get reweighting factor to vary the fastsim lepton SF down
 double sfHelper::LepSFfastsimDown() {
+	if( !isFastsim ) return 1.0;
 	double sf      = tas::weight_lepSF_fastSim();
 	double sf_down = tas::weight_lepSF_fastSim_down();
 	return (sf_down / lepnorm_fs_down) / (sf / lepnorm_fastsim);
@@ -203,22 +222,21 @@ double sfHelper::BtagLightDown() {
 
 // Get reweighting factor to vary the btag fastsim SF up
 double sfHelper::BtagFSUp() {
+	if( !isFastsim ) return 1.0;
 	double sf = tas::weight_btagsf_fastsim_UP();
 	return sf * nEvts / btagnormFS_up;
 }
 
 // Get reweighting factor to vary the btag fastsim SF down
 double sfHelper::BtagFSDown() {
+	if( !isFastsim ) return 1.0;
 	double sf = tas::weight_btagsf_fastsim_DN();
 	return sf * nEvts / btagnormFS_down;
 }
 
 // Get reweighting factor to vary the ISR weight up
 double sfHelper::ISRUp() {
-	if( !isFastsim ) {
-		std::cout << "Warning in sfHelper.cc: tried to apply ISR weight to a non-signal sample!" << std::endl;
-		return 1.0;
-	}
+	if( !isFastsim ) return 1.0;
 	double isr    = tas::weight_ISR();
 	double isr_up = tas::weight_ISRup();
 	return (isr_up / isrnorm_up ) / (isr / isrnorm );
@@ -226,10 +244,7 @@ double sfHelper::ISRUp() {
 
 // Get reweighting factor to vary the ISR weight down
 double sfHelper::ISRDown() {
-	if( !isFastsim ) {
-		std::cout << "Warning in sfHelper.cc: tried to apply ISR weight to a non-signal sample!" << std::endl;
-		return 1.0;
-	}
+	if( !isFastsim ) return 1.0;
 	double isr      = tas::weight_ISR();
 	double isr_down = tas::weight_ISRdown();
 	return (isr_down / isrnorm_down ) / (isr / isrnorm );
@@ -310,6 +325,11 @@ double sfHelper::Trig2lDown() {
 
 // Get MET resolution SF
 double sfHelper::MetResSF() {
+	if( sampleType != ktt2l &&
+	    sampleType != ktt1l &&
+	    sampleType != kttbar &&
+	    sampleType != kWjets &&
+	    sampleType != ktW ) return 1.0;
 
 	int njets = context::ngoodjets();
 	double met = context::Met();
@@ -378,6 +398,12 @@ double sfHelper::MetResSF() {
 
 // MET resolution SF for corridor regions
 double sfHelper::MetResSF_corr() {
+	if( sampleType != ktt2l &&
+	    sampleType != ktt1l &&
+	    sampleType != kttbar &&
+	    sampleType != kWjets &&
+	    sampleType != ktW ) return 1.0;
+
 	double met = context::Met();
 	if(      met >= 550. ) return 1.14;
 	else if( met >= 450. ) return 1.14;
@@ -392,6 +418,12 @@ double sfHelper::MetResCorrectionCorridor() { return MetResSF_corr() / MetResSF(
 
 // Get reweighting factor to vary the MET resolution SF up
 double sfHelper::MetResUp() {
+	if( sampleType != ktt2l &&
+	    sampleType != ktt1l &&
+	    sampleType != kttbar &&
+	    sampleType != kWjets &&
+	    sampleType != ktW ) return 1.0;
+
 	double sf = isCorridor ? MetResSF_corr() : MetResSF();
 	double err = fabs(1.0-sf) / 2.;
 	return (sf+err) / sf;
@@ -399,6 +431,12 @@ double sfHelper::MetResUp() {
 
 // Get reweighting factor to vary the MET resolution SF down
 double sfHelper::MetResDown() {
+	if( sampleType != ktt2l &&
+	    sampleType != ktt1l &&
+	    sampleType != kttbar &&
+	    sampleType != kWjets &&
+	    sampleType != ktW ) return 1.0;
+
 	double sf = isCorridor ? MetResSF_corr() : MetResSF();
 	double err = fabs(1.0-sf) / 2.;
 	return (sf+err) / sf;
@@ -408,10 +446,12 @@ double sfHelper::MetResDown() {
 double sfHelper::TopSystPtSF() {
 	topptBin = -99;
 	if( !tas::is2lep() ) return 1.0;
+	if( sampleType != ktt2l &&
+	    sampleType != ktt1l &&
+	    sampleType != kttbar &&
+	    sampleType != ktW ) return 1.0;
 
 	LorentzVector topsystem_p4( 0., 0., 0., 0. );
-
-	// We pick out which samples should receive this SF at looper level
 
 	topsystem_p4 += tas::lep1_p4();
 	if( tas::nvetoleps() > 1 ) topsystem_p4 += tas::lep2_p4();
@@ -439,11 +479,10 @@ double sfHelper::TopSystPtSF() {
 	if( idx1 >= 0 ) topsystem_p4 += context::ak4pfjets_p4().at(idx1);
 	if( idx2 >= 0 ) topsystem_p4 += context::ak4pfjets_p4().at(idx2);
 
-	// Turn off adding 2nd lep to MET for this case
-	bool useRl = myContext.GetUseRl();
-	myContext.SetUseRl( false );
-	LorentzVector met_p4( context::Met()*cos(context::MetPhi()), context::Met()*sin(context::MetPhi()), 0.0, context::Met() );
-	myContext.SetUseRl( useRl );
+	// Use MET without 2nd lep added
+	double myMet = context::Met_no2ndlep();
+	double myMetPhi = context::MetPhi_no2ndlep();
+	LorentzVector met_p4( myMet*cos(myMetPhi), myMet*sin(myMetPhi), 0.0, myMet );
 	topsystem_p4 += met_p4;
 
 	double system_pt = topsystem_p4.Pt();
@@ -454,6 +493,9 @@ double sfHelper::TopSystPtSF() {
 // Get reweighting factor to vary the top system pT SF up
 double sfHelper::TopSystPtUp() {
 	if( !tas::is2lep() ) return 1.0;
+	if( sampleType != ktt2l &&
+	    sampleType != ktt1l &&
+	    sampleType != kttbar ) return 1.0;
 	if( topptBin < 0 ) return 1.0;
 
 	double sf  = h_sf_toppt->GetBinContent(topptBin);
@@ -464,6 +506,9 @@ double sfHelper::TopSystPtUp() {
 // Get reweighting factor to vary the top system pT SF down
 double sfHelper::TopSystPtDown() {
 	if( !tas::is2lep() ) return 1.0;
+	if( sampleType != ktt2l &&
+	    sampleType != ktt1l &&
+	    sampleType != kttbar ) return 1.0;
 	if( topptBin < 0 ) return 1.0;
 
 	double sf  = h_sf_toppt->GetBinContent(topptBin);
@@ -489,12 +534,22 @@ double sfHelper::Contam1lwDown() {
 
 // Get ISR NJets scale factor
 double sfHelper::ISRnJetsSF() {
+	if( sampleType != ktt2l &&
+	    sampleType != ktt1l &&
+	    sampleType != kttbar &&
+	    sampleType != kSignal ) return 1.0;
+
 	double isrnjsf = tas::weight_ISRnjets();
 	return isrnjsf * (nEvts / isrnjetsnorm);
 }
 
 // Get reweighting factor to vary the ISR NJets scale factor up
 double sfHelper::ISRnJetsUp() {
+	if( sampleType != ktt2l &&
+	    sampleType != ktt1l &&
+	    sampleType != kttbar &&
+	    sampleType != kSignal ) return 1.0;
+
 	double isrnjsf    = tas::weight_ISRnjets();
 	double isrnjsf_up = tas::weight_ISRnjets_UP();
 	return (isrnjsf_up / isrnjetsnorm_up) / (isrnjsf / isrnjetsnorm );
@@ -502,6 +557,11 @@ double sfHelper::ISRnJetsUp() {
 
 // Get reweighting factor to vary the ISR NJets scale factor down
 double sfHelper::ISRnJetsDown() {
+	if( sampleType != ktt2l &&
+	    sampleType != ktt1l &&
+	    sampleType != kttbar &&
+	    sampleType != kSignal ) return 1.0;
+
 	double isrnjsf      = tas::weight_ISRnjets();
 	double isrnjsf_down = tas::weight_ISRnjets_DN();
 	return (isrnjsf_down / isrnjetsnorm_down) / (isrnjsf / isrnjetsnorm );
@@ -529,7 +589,7 @@ double sfHelper::PDFDown() {
 
 // Get reweighting factor to vary W+HF xsec up
 double sfHelper::WhfXsecUp() {
-	if( !tas::is1lepFromW() ) return 1.0;
+	if( sampleType != kWjets ) return 1.0;
 	bool hasHFjet = false;
 
 	for( int flavor : tas::ak4pfjets_hadron_flavor() ) {
@@ -540,13 +600,13 @@ double sfHelper::WhfXsecUp() {
 		}
 	}
 
-	if( !hasHFjet ) return 1.0;
-	return 1.5;
+	if( hasHFjet ) return 1.5;
+	return 1.0;
 }
 
 // Get reweighting factor to vary W+HF xsec down
 double sfHelper::WhfXsecDown() {
-	if( !tas::is1lepFromW() ) return 1.0;
+	if( sampleType != kWjets ) return 1.0;
 	bool hasHFjet = false;
 
 	for( int flavor : tas::ak4pfjets_hadron_flavor() ) {
@@ -557,8 +617,8 @@ double sfHelper::WhfXsecDown() {
 		}
 	}
 
-	if( !hasHFjet ) return 1.0;
-	return 0.5;
+	if( hasHFjet ) return 0.5;
+	return 1.0;
 }
 
 // Get rewieighting factor to vary the stop xsec up

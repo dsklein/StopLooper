@@ -21,6 +21,8 @@ class sfHelper {
 
 public:
 
+	enum sampleType{ kOther, kData, kSignal, kttbar, ktt2l, ktt1l, ktW, kSingletop, kWjets, kttW, kttZ, kDiboson };
+
 	sfHelper();
 	~sfHelper();
 
@@ -73,6 +75,7 @@ public:
 	double StopXsecDown();
 
 private:
+	sampleType sampleType;
 	bool isFastsim;
 	int topptBin;
 	int nEvts;
