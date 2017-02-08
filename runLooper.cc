@@ -114,18 +114,18 @@ int main( int argc, char* argv[] ) {
 	// Define the "sample" and "analysis" objects that will do much of our bookkeeping
 
 	//                     new analysis( lumi, "histogram storage file", "systematic variation storage file" )
-	analysis* srAnalysis = new analysis( 36.46, "plots.root", "systVariations.root" );
-	analysis* crLostLep  = new analysis( 36.46, "plotsLL.root", "systVariationsLL.root" );
-	analysis* cr0bjets   = new analysis( 36.46, "plots0b.root", "systVariations0b.root" );
-	analysis* zNuNu      = new analysis( 36.46, "plotsZNuNu.root", "systVariationsZNuNu.root" );
-	analysis* sr_signal  = new analysis( 36.46, "plotsSig.root", "systVariationsSig.root" );
-	analysis* sig_genmet = new analysis( 36.46, "plotsSigGenMet.root", "systVariationsSigGenMet.root" );
-	analysis* sr_jesup   = new analysis( 36.46, "jes_sr.root", "jes_sr.root" );
-	analysis* sr_jesdn   = new analysis( 36.46, "jes_sr.root", "jes_sr.root" );
-	analysis* cr2l_jesup = new analysis( 36.46, "jes_cr2l.root", "jes_cr2l.root" );
-	analysis* cr2l_jesdn = new analysis( 36.46, "jes_cr2l.root", "jes_cr2l.root" );
-	analysis* cr0b_jesup = new analysis( 36.46, "jes_cr0b.root", "jes_cr0b.root" );
-	analysis* cr0b_jesdn = new analysis( 36.46, "jes_cr0b.root", "jes_cr0b.root" );
+	analysis* srAnalysis = new analysis( 36.81, "plots.root", "systVariations.root" );
+	analysis* crLostLep  = new analysis( 36.81, "plotsLL.root", "systVariationsLL.root" );
+	analysis* cr0bjets   = new analysis( 36.81, "plots0b.root", "systVariations0b.root" );
+	analysis* zNuNu      = new analysis( 36.81, "plotsZNuNu.root", "systVariationsZNuNu.root" );
+	analysis* sr_signal  = new analysis( 36.81, "plotsSig.root", "systVariationsSig.root" );
+	analysis* sig_genmet = new analysis( 36.81, "plotsSigGenMet.root", "systVariationsSigGenMet.root" );
+	analysis* sr_jesup   = new analysis( 36.81, "jes_sr.root", "jes_sr.root" );
+	analysis* sr_jesdn   = new analysis( 36.81, "jes_sr.root", "jes_sr.root" );
+	analysis* cr2l_jesup = new analysis( 36.81, "jes_cr2l.root", "jes_cr2l.root" );
+	analysis* cr2l_jesdn = new analysis( 36.81, "jes_cr2l.root", "jes_cr2l.root" );
+	analysis* cr0b_jesup = new analysis( 36.81, "jes_cr0b.root", "jes_cr0b.root" );
+	analysis* cr0b_jesdn = new analysis( 36.81, "jes_cr0b.root", "jes_cr0b.root" );
 
 
 	//                new sample( "Label",  "Display name(s)", TColor,    sampleType )
