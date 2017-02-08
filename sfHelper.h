@@ -73,6 +73,8 @@ public:
 	double WhfXsecDown();
 	double StopXsecUp();
 	double StopXsecDown();
+	double TrigSRUp();
+	double TrigSRDown();
 
 private:
 	sampleType sampleType;
@@ -170,6 +172,8 @@ namespace sfhelp {
 	double WhfXsecDown();
 	double StopXsecUp();
 	double StopXsecDown();
+	double TrigSRUp();
+	double TrigSRDown();
 }
 
 

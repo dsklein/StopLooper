@@ -194,17 +194,19 @@ int main( int argc, char* argv[] ) {
 	systematic pdfdn(          "pdf",      systematic::kDown,  (*sfhelp::PDFDown) );
 	systematic normup(         "norm",     systematic::kSkipUp,   NULL );
 	systematic normdn(         "norm",     systematic::kSkipDown, NULL );
+	systematic trigeffup(      "trigeff",  systematic::kUp,    (*sfhelp::TrigSRUp) );
+	systematic trigeffdn(      "trigeff",  systematic::kDown,  (*sfhelp::TrigSRDown) );
 	systematic whfxsecup(      "whfxsec",  systematic::kUp,    (*sfhelp::WhfXsecUp) );
 	systematic whfxsecdn(      "whfxsec",  systematic::kDown,  (*sfhelp::WhfXsecDown) );
 
 	srAnalysis->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
-	srAnalysis->AddSystematics( {&metresup, &metresdn, /*&topptup, &topptdn,*/ &isrnjetsup, &isrnjetsdn} );
+	srAnalysis->AddSystematics( {&metresup, &metresdn, /*&topptup, &topptdn,*/ &isrnjetsup, &isrnjetsdn, &trigeffup, &trigeffdn} );
 	sr_signal->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &isrnjetsup, &isrnjetsdn, &lumi} );
-	sr_signal->AddSystematics(  {&metavgup, &metavgdn, /*&lepSFfsup, &lepSFfsdn, &btagFSup, &btagFSdn*/} );
+	sr_signal->AddSystematics(  {&metavgup, &metavgdn, /*&lepSFfsup, &lepSFfsdn, &btagFSup, &btagFSdn,*/ &qSquaredup, &qSquareddn, &trigeffup, &trigeffdn} );
 	crLostLep->AddSystematics(  {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &pdfup, &pdfdn} );
-	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, /*&topptup, &topptdn*/ &isrnjetsup, &isrnjetsdn } );
+	crLostLep->AddSystematics(  {&alphaSup, &alphaSdn, &eff2lup, &eff2ldn, &metresup, &metresdn, /*&topptup, &topptdn*/ &isrnjetsup, &isrnjetsdn, &trigeffup, &trigeffdn} );
 	cr0bjets->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn} );
-	cr0bjets->AddSystematics( {&alphaSup, &alphaSdn, &metresup, &metresdn, &contam1lwup, &contam1lwdn, &pdfup, &pdfdn} );
+	cr0bjets->AddSystematics( {&alphaSup, &alphaSdn, &metresup, &metresdn, &contam1lwup, &contam1lwdn, &pdfup, &pdfdn, &trigeffup, &trigeffdn} );
 	zNuNu->AddSystematics( {&jesup, &jesdn, &lepSFup, &lepSFdn, &btagHFup, &btagHFdn, &btagLFup, &btagLFdn, &qSquaredup, &qSquareddn, &alphaSup, &alphaSdn} );
 	zNuNu->AddSystematics( {&pileupup, &pileupdn, &pdfup, &pdfdn, &normup, &normdn} );
 

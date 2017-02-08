@@ -637,6 +637,20 @@ double sfHelper::StopXsecDown() {
 	return xsec - err;
 }
 
+// Get reweighting factor to vary the SR trigger efficiency up
+double sfHelper::TrigSRUp() {
+	if( tas::nvetoleps() > 1 || !tas::PassTrackVeto() || !tas::PassTauVeto() ) return 1.0;
+	if( context::Met() < 350. ) return 1.04;
+	return 1.02;
+}
+
+// Get reweighting factor to vary the SR trigger efficiency up
+double sfHelper::TrigSRDown() {
+	if( tas::nvetoleps() > 1 || !tas::PassTrackVeto() || !tas::PassTauVeto() ) return 1.0;
+	if( context::Met() < 350. ) return 0.96;
+	return 0.98;
+}
+
 
 namespace sfhelp {
 	double LepSF()         { return myHelper.LepSF(); }
@@ -682,4 +696,6 @@ namespace sfhelp {
 	double WhfXsecDown()   { return myHelper.WhfXsecDown(); }
 	double StopXsecUp()    { return myHelper.StopXsecUp(); }
 	double StopXsecDown()  { return myHelper.StopXsecDown(); }
+	double TrigSRUp()      { return myHelper.TrigSRUp(); }
+	double TrigSRDown()    { return myHelper.TrigSRDown(); }
 }
