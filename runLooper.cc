@@ -411,9 +411,9 @@ int main( int argc, char* argv[] ) {
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// For each "sample" object defined earlier, chain up the baby files that make up that sample
 
-	TString sigPath  = "/nfs-7/userdata/jgwood/tupler_babies/merged/Stop_1l/v20/skim/";
-	TString bkgPath  = "/nfs-7/userdata/jgwood/tupler_babies/merged/Stop_1l/v20/skim/";
-	TString dataPath = "/nfs-7/userdata/jgwood/tupler_babies/merged/Stop_1l/v20/skim/";
+	TString sigPath  = "/nfs-7/userdata/haweber/tupler_babies/merged/Stop_1l/v21/skim/";
+	TString bkgPath  = "/nfs-7/userdata/haweber/tupler_babies/merged/Stop_1l/v21/skim/";
+	TString dataPath = "/nfs-7/userdata/haweber/tupler_babies/merged/Stop_1l/v21/skim/";
 
 
 	if( runlooper || runlostlep || run1lw || runjes ) {
