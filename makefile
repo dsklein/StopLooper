@@ -23,10 +23,10 @@ looperCR0b.o: looperCR0b.C
 makeTables.o: makeTables.cc
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -c makeTables.cc -o makeTables.o
 
-makeStack.o: makeStack.cc
+makeStack.o: makeStack.cc libdataMCplotMaker.so
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -c makeStack.cc -o makeStack.o
 
-makeDataCards.o: makeDataCards.cc
+makeDataCards.o: makeDataCards.cc libdataMCplotMaker.so
 	g++ $(CXXFLAGS) $(ROOTCFLAGS) -c makeDataCards.cc -o makeDataCards.o
 
 makeLostLepEstimate.o: makeLostLepEstimate.cc

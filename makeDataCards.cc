@@ -7,12 +7,13 @@
 
 #include "analysis.h"
 #include "sample.h"
+#include "dataMCplotMaker.h"
 
 using namespace std;
 
 double calculateMaxdiff( int bin, TFile* histfile, const double& nominal, vector<TString> varNames );
 double calculateMaxdiff( int binx, int biny, TFile* histfile, TString regName, const double& nominal, vector<TString> varNames ); //2D version for signals
-void printSystTable( vector<TString> sigRegions, map<TString,vector<double> > uncertainties );
+void printSystTable( vector<TString> sigRegions, map<TString,vector<double> >& uncertainties );
 
 
 void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis* lostlepAnalysis = NULL, analysis* onelepwAnalysis = NULL, analysis* znunuAnalysis = NULL ) {
@@ -420,6 +421,81 @@ void makeDataCards( analysis* srAnalysis, analysis* sigAnalysis = NULL, analysis
 	}
 
 
+	// Make final results plot and table
+	if( lostlepAnalysis && onelepwAnalysis && znunuAnalysis ) {
+		vector<sigRegion*> regions = srAnalysis->GetSigRegionsAll();
+		TH1F* h_datayield = (TH1F*)yieldFile->Get("srYields_data");
+		TH1F* h_oneleptop = (TH1F*) h_datayield->Clone("yields_1ltop");
+		h_oneleptop->Reset();
+
+		// Get the 1l-from-top yields from signal region MC
+		for( int i=1; i<=nSigRegs; i++ ) {
+			TH1F* h_tmp = (TH1F*)yieldFile->Get("evttype_"+sigRegions.at(i-1));
+			h_oneleptop->SetBinContent( i, h_tmp->GetBinContent(5) );
+			h_oneleptop->SetBinError(   i, h_tmp->GetBinContent(5) );
+		}
+
+		// Sum up the total background yields
+		TH1F* h_totalBkg = (TH1F*)h_lostLep->Clone("total_bkg");
+		h_totalBkg->Add( h_onelepw );
+		h_totalBkg->Add( h_oneleptop );
+		h_totalBkg->Add( h_znunu );
+
+		vector<TH1F*> yieldHistos = { (TH1F*)h_lostLep, h_oneleptop, (TH1F*)h_onelepw, (TH1F*)h_znunu, h_totalBkg, h_datayield };
+
+		// Print result table
+		cout << "\nFinal yield table:" << endl;
+		printf( "\n\\begin{tabular}{| l | c | c | c | c | c | c | }\n" );
+		printf( "\\hline\n" );
+		printf( "Region  &    Lost lepton  &  1$\\ell$ (top)  &  1$\\ell$ (W)  &  $Z\\rightarrow\\nu\\nu$  & Total background  & Data \\\\\n" );
+		printf( "\\hline\n" );
+		for( int i=1; i<=nSigRegs; i++ ) {
+			printf( "%20s  ", regions.at(i-1)->GetTableName().Data() );
+			for( TH1F* histo : yieldHistos ) printf( " &  %5.2f $\\pm$ %5.2f ", histo->GetBinContent(i), histo->GetBinError(i) );
+			printf( " \\\\\n" );
+		}
+		printf( "\\hline\n" );
+		printf( "\\end{tabular}\n\n" );
+
+		// Make or retrieve histograms for total systematic uncertainty on all backgrounds
+		TH1F* h_uncert_lostlep = (TH1F*)h_lostLep->Clone("uncert_lostlep");
+		TH1F* h_uncert_onelepw = (TH1F*)h_onelepw->Clone("uncert_onelepw");
+		TH1F* h_uncert_znunu   = (TH1F*)znunuFile->Get("total_uncert");
+		for( int i=1; i<=nSigRegs; i++ ) {
+			h_uncert_lostlep->SetBinError( i, h_uncert_lostlep->GetBinContent(i) * lostlep_uncert["Total"].at(i-1) );
+			h_uncert_onelepw->SetBinError( i, h_uncert_onelepw->GetBinContent(i) * onelepw_uncert["Total"].at(i-1) );
+		}
+
+		// Set up all the necessary vectors
+		vector< pair<TH1F*,TH1F*> > bkgs;
+		vector<string> bkg_titles = { "Lost lepton", "1l (top)", "1l (W)", "Z#rightarrow#nu#nu" };
+		vector<short> colors = {kCyan-3, kRed-7, kOrange-2, kMagenta-5};
+		vector<TH1F*> signals;
+		vector<string> sig_titles;
+
+		bkgs.push_back( make_pair( (TH1F*)h_lostLep, h_uncert_lostlep ) );
+		bkgs.push_back( make_pair( h_oneleptop, h_oneleptop ) );
+		bkgs.push_back( make_pair( (TH1F*)h_onelepw, h_uncert_onelepw ) );
+		bkgs.push_back( make_pair( (TH1F*)h_znunu, h_uncert_znunu ) );
+
+		TString optString = "--energy 13 --lumi 36.81 --type Preliminary --outOfFrame --xAxisLabel Region --yAxisLabel Events --noXaxisUnit --outputName finalPlot.pdf";
+
+		// Run the plotmaker
+		dataMCplotMaker( h_datayield,
+		                 bkgs,
+		                 bkg_titles,
+		                 "",   // Plot title
+		                 "",   // Plot subtitle
+		                 optString.Data(),
+		                 signals,
+		                 sig_titles,
+		                 colors );
+	}
+	else {
+		cout << "\n\nSkipping final plot and table, because one or more background estimates are missing." << endl;
+	}
+
+
 	delete lostlepFile;
 	delete onelepwFile;
 	delete sigFile;
@@ -463,7 +539,7 @@ double calculateMaxdiff( int binx, int biny, TFile* histfile, TString regName, c
 	return maxdiff;
 }
 
-void printSystTable( vector<TString> sigRegions, map<TString,vector<double> > uncertainties ) {
+void printSystTable( vector<TString> sigRegions, map<TString,vector<double> >& uncertainties ) {
 
 	printf( "\n\\begin{tabular}{ | l |" );
 	for( TString regName : sigRegions ) printf( " c |" );
@@ -476,6 +552,7 @@ void printSystTable( vector<TString> sigRegions, map<TString,vector<double> > un
 
 	uint nSigRegs = sigRegions.size();
 	double totalUncertSq[nSigRegs] = {0.};
+	vector<double> totalSyst;
 
 	for( auto& iter : uncertainties ) {
 		printf( "%10s ", iter.first.Data() );
@@ -491,10 +568,15 @@ void printSystTable( vector<TString> sigRegions, map<TString,vector<double> > un
 
 	printf( "\\hline\n" );
 	printf( "Total      " );
-	for( double uncertSq : totalUncertSq ) printf( "& %4.1f\\%% ", 100.*sqrt(uncertSq) );
+	for( double uncertSq : totalUncertSq ) {
+		printf( "& %4.1f\\%% ", 100.*sqrt(uncertSq) );
+		totalSyst.push_back( sqrt(uncertSq) );
+	}
 	printf( "\\\\\n" );
 
 	printf( "\\hline\n" );
 	printf( "\\end{tabular}\n\n" );
 
+	// Append total uncertainty to the map
+	uncertainties["Total"] = totalSyst;
 }

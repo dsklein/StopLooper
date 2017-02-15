@@ -46,6 +46,7 @@ void makeZNuNuEstimate( analysis* znunuAnalysis ) {
 	newHistos.push_back( convertHisto( infile, "jesUP", "variation_JESup", regionList ) );
 	newHistos.push_back( convertHisto( infile, "normalizationDN", "variation_normdown", regionList ) );
 	newHistos.push_back( convertHisto( infile, "normalizationUP", "variation_normup", regionList ) );
+	newHistos.push_back( convertHisto( infile, "total", "total_uncert", regionList ) );
 
 	// Write all the new histograms to my file
 	for( TH1D* thisHist : newHistos ) {

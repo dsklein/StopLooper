@@ -139,7 +139,7 @@ int main( int argc, char* argv[] ) {
 	sample* dy      = new sample( "dy",      "Drell-Yan",      kRed+2,    sample::kBackground );
 	sample* rare    = new sample( "rare",    "Rare",           kMagenta-5,sample::kBackground );
 
-	// srAnalysis->AddSample( data );   // Uncomment this line to unblind
+	srAnalysis->AddSample( data );   // Uncomment this line to unblind
 	crLostLep->AddSample( data );
 	cr0bjets->AddSample(  data );
 	sr_signal->AddSample( signal );
