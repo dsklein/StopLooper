@@ -341,53 +341,53 @@ double sfHelper::MetResSF() {
 
 	if( njets < 4 && modtop >= 10. ) {
 		if( mlb < 175. ) {
-			if(      met >= 600. ) return 1.24; // Region A
-			else if( met >= 450. ) return 1.14;
-			else if( met >= 350. ) return 1.07;
-			else if( met >= 250. ) return 0.98;
+			if(      met >= 600. ) return 1.17; // Region A
+			else if( met >= 450. ) return 1.11;
+			else if( met >= 350. ) return 1.04;
+			else if( met >= 250. ) return 0.99;
 		}
 		else if( mlb >= 175. && ntightbs >= 1 ) {
-			if(      met >= 600. ) return 1.24; // B
-			else if( met >= 450. ) return 1.14;
-			else if( met >= 250. ) return 0.99;
+			if(      met >= 600. ) return 1.17; // B
+			else if( met >= 450. ) return 1.11;
+			else if( met >= 250. ) return 1.00;
 		}
 	}
 	else if( njets >= 4 ) {
 		if( modtop < 0. ) {
 			if( mlb < 175. ) {
-				if(      met >= 650. ) return 1.18; // C
-				else if( met >= 550. ) return 1.21;
-				else if( met >= 450. ) return 1.12;
-				else if( met >= 350. ) return 1.06;
-				else if( met >= 250. ) return 0.98;
+				if(      met >= 650. ) return 1.14; // C
+				else if( met >= 550. ) return 1.10;
+				else if( met >= 450. ) return 1.07;
+				else if( met >= 350. ) return 1.05;
+				else if( met >= 250. ) return 0.99;
 			}
 			else if( mlb >= 175. && ntightbs >= 1 ) {
-				if(      met >= 550. ) return 1.20; // D
-				else if( met >= 450. ) return 1.12;
-				else if( met >= 350. ) return 1.06;
-				else if( met >= 250. ) return 0.98;
+				if(      met >= 550. ) return 1.11; // D
+				else if( met >= 450. ) return 1.07;
+				else if( met >= 350. ) return 1.05;
+				else if( met >= 250. ) return 0.99;
 			}
 		}
 		else if( modtop < 10. ) {
 			if( mlb < 175. ) {
-				if(      met >= 550. ) return 1.13; // E
-				else if( met >= 350. ) return 1.08;
-				else if( met >= 250. ) return 0.97;
+				if(      met >= 550. ) return 1.10; // E
+				else if( met >= 350. ) return 1.06;
+				else if( met >= 250. ) return 0.98;
 			}
 			else if( mlb >= 175. && ntightbs >= 1 ) {
-				if(      met >= 450. ) return 1.12; // F
+				if(      met >= 450. ) return 1.07; // F
 				else if( met >= 250. ) return 0.99;
 			}
 		}
 		else if( modtop >= 10. ) {
 			if( mlb < 175. ) {
-				if(      met >= 600. ) return 1.11; // F
-				else if( met >= 450. ) return 1.12;
-				else if( met >= 350. ) return 1.08;
-				else if( met >= 250. ) return 0.97;
+				if(      met >= 600. ) return 1.08; // F
+				else if( met >= 450. ) return 1.07;
+				else if( met >= 350. ) return 1.06;
+				else if( met >= 250. ) return 0.98;
 			}
 			else if( mlb >= 175. && ntightbs >= 1 ) {
-				if(      met >= 450. ) return 1.12; // H
+				if(      met >= 450. ) return 1.07; // H
 				else if( met >= 250. ) return 0.99;
 			}
 		}
@@ -405,10 +405,10 @@ double sfHelper::MetResSF_corr() {
 	    sampleType != ktW ) return 1.0;
 
 	double met = context::Met();
-	if(      met >= 550. ) return 1.14;
-	else if( met >= 450. ) return 1.14;
-	else if( met >= 350. ) return 1.05;
-	else if( met >= 250. ) return 0.97;
+	if(      met >= 550. ) return 1.07;
+	else if( met >= 450. ) return 1.07;
+	else if( met >= 350. ) return 1.04;
+	else if( met >= 250. ) return 0.98;
 
 	return 1.0;
 }
