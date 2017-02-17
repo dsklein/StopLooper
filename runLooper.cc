@@ -411,9 +411,9 @@ int main( int argc, char* argv[] ) {
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// For each "sample" object defined earlier, chain up the baby files that make up that sample
 
-	TString sigPath  = "/nfs-7/userdata/haweber/tupler_babies/merged/Stop_1l/v21/skim/";
-	TString bkgPath  = "/nfs-7/userdata/haweber/tupler_babies/merged/Stop_1l/v21/skim/";
-	TString dataPath = "/nfs-7/userdata/haweber/tupler_babies/merged/Stop_1l/v21/skim/";
+	TString sigPath  = "/nfs-7/userdata/haweber/tupler_babies/merged/Stop_1l/v22/skim/";
+	TString bkgPath  = "/nfs-7/userdata/haweber/tupler_babies/merged/Stop_1l/v22/skim/";
+	TString dataPath = "/nfs-7/userdata/haweber/tupler_babies/merged/Stop_1l/v22/skim/";
 
 
 	if( runlooper || runlostlep || run1lw || runjes ) {
@@ -448,8 +448,8 @@ int main( int argc, char* argv[] ) {
 		singtop->AddFile( bkgPath + "t_sch_4f_amcnlo_pythia8_25ns*.root" );
 		singtop->AddFile( bkgPath + "t_tch_4f_powheg_pythia8_25ns*.root" );
 		singtop->AddFile( bkgPath + "tbar_tch_4f_powheg_pythia8_25ns*.root" );
-		singtop->AddFile( bkgPath + "t_tW_5f_powheg_pythia8_25ns*.root" );
-		singtop->AddFile( bkgPath + "t_tbarW_5f_powheg_pythia8_25ns*.root" );
+		singtop->AddFile( bkgPath + "t_tW_5f_powheg_pythia8_noHadDecays_25ns*.root" );
+		singtop->AddFile( bkgPath + "t_tbarW_5f_powheg_pythia8_noHadDecays_25ns*.root" );
 
 		rare->AddFile( bkgPath + "ttWJets_13TeV_madgraphMLM*.root" );
 		rare->AddFile( bkgPath + "ttZJets_13TeV_madgraphMLM*.root" );
