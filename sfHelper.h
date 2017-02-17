@@ -75,6 +75,9 @@ public:
 	double StopXsecDown();
 	double TrigSRUp();
 	double TrigSRDown();
+	double PileupSF();
+	double PileupUp();
+	double PileupDown();
 
 private:
 	sampleType sampleType;
@@ -174,6 +177,9 @@ namespace sfhelp {
 	double StopXsecDown();
 	double TrigSRUp();
 	double TrigSRDown();
+	double PilupSF();
+	double PileupUp();
+	double PileupDown();
 }
 
 

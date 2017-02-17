@@ -651,6 +651,11 @@ double sfHelper::TrigSRDown() {
 	return 0.98;
 }
 
+// Get pileup reweighting factor, and reweights for its up/down variations
+double sfHelper::PileupSF()   { return tas::weight_PU(); }
+double sfHelper::PileupUp()   { return tas::weight_PUup() / tas::weight_PU(); }
+double sfHelper::PileupDown() { return tas::weight_PUdown() / tas::weight_PU(); }
+
 
 namespace sfhelp {
 	double LepSF()         { return myHelper.LepSF(); }
@@ -698,4 +703,7 @@ namespace sfhelp {
 	double StopXsecDown()  { return myHelper.StopXsecDown(); }
 	double TrigSRUp()      { return myHelper.TrigSRUp(); }
 	double TrigSRDown()    { return myHelper.TrigSRDown(); }
+	double PileupSF()      { return myHelper.PileupSF(); }
+	double PileupUp()      { return myHelper.PileupUp(); }
+	double PileupDown()    { return myHelper.PileupDown(); }
 }
