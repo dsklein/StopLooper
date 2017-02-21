@@ -5,7 +5,7 @@
 
 Check out the [cmstas/Software](https://github.com/cmstas/Software) repository someplace. Copy the files `dataMCplotMaker.cc`, `dataMCplotMaker.h`, and `PlotMakingTools.h` from there into this directory.
 
-I'm not the author or maintainer of these plotmaking scripts, so I can't promise that every single version will compile in g++ without errors. The latest version I can guarantee to compile correctly and run without errors is [commit f7d4caf](https://github.com/cmstas/Software/tree/f7d4cafc4f20f5505632a183799824c2ae3ee6b5/dataMCplotMaker), from February 1, 2017.
+I'm not the author or maintainer of these plotmaking scripts, so I can't promise that every single version will compile in g++ without errors. The latest version I can guarantee to compile correctly and run without errors is [commit 740e6a6](https://github.com/cmstas/Software/tree/740e6a6da2ebc277cfff81d3b164b485ef80a817/dataMCplotMaker), from February 14, 2017.
 
 You'll probably also need to edit the "includes" in the loopers (`ScanChain.C`, `looperCR2lep.C`, `looperCR0b.C`) to point to a local CORE repository so that they can use the DorkyEventIdentifier and the BadEventFilter.
 
