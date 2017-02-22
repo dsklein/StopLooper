@@ -114,18 +114,18 @@ int main( int argc, char* argv[] ) {
 	// Define the "sample" and "analysis" objects that will do much of our bookkeeping
 
 	//                     new analysis( lumi, "histogram storage file", "systematic variation storage file" )
-	analysis* srAnalysis = new analysis( 36.81, "plots.root", "systVariations.root" );
-	analysis* crLostLep  = new analysis( 36.81, "plotsLL.root", "systVariationsLL.root" );
-	analysis* cr0bjets   = new analysis( 36.81, "plots0b.root", "systVariations0b.root" );
-	analysis* zNuNu      = new analysis( 36.81, "plotsZNuNu.root", "systVariationsZNuNu.root" );
-	analysis* sr_signal  = new analysis( 36.81, "plotsSig.root", "systVariationsSig.root" );
-	analysis* sig_genmet = new analysis( 36.81, "plotsSigGenMet.root", "systVariationsSigGenMet.root" );
-	analysis* sr_jesup   = new analysis( 36.81, "jes_sr.root", "jes_sr.root" );
-	analysis* sr_jesdn   = new analysis( 36.81, "jes_sr.root", "jes_sr.root" );
-	analysis* cr2l_jesup = new analysis( 36.81, "jes_cr2l.root", "jes_cr2l.root" );
-	analysis* cr2l_jesdn = new analysis( 36.81, "jes_cr2l.root", "jes_cr2l.root" );
-	analysis* cr0b_jesup = new analysis( 36.81, "jes_cr0b.root", "jes_cr0b.root" );
-	analysis* cr0b_jesdn = new analysis( 36.81, "jes_cr0b.root", "jes_cr0b.root" );
+	analysis* srAnalysis = new analysis( 36.814, "plots.root", "systVariations.root" );
+	analysis* crLostLep  = new analysis( 36.814, "plotsLL.root", "systVariationsLL.root" );
+	analysis* cr0bjets   = new analysis( 36.814, "plots0b.root", "systVariations0b.root" );
+	analysis* zNuNu      = new analysis( 36.814, "plotsZNuNu.root", "systVariationsZNuNu.root" );
+	analysis* sr_signal  = new analysis( 36.814, "plotsSig.root", "systVariationsSig.root" );
+	analysis* sig_genmet = new analysis( 36.814, "plotsSigGenMet.root", "systVariationsSigGenMet.root" );
+	analysis* sr_jesup   = new analysis( 36.814, "jes_sr.root", "jes_sr.root" );
+	analysis* sr_jesdn   = new analysis( 36.814, "jes_sr.root", "jes_sr.root" );
+	analysis* cr2l_jesup = new analysis( 36.814, "jes_cr2l.root", "jes_cr2l.root" );
+	analysis* cr2l_jesdn = new analysis( 36.814, "jes_cr2l.root", "jes_cr2l.root" );
+	analysis* cr0b_jesup = new analysis( 36.814, "jes_cr0b.root", "jes_cr0b.root" );
+	analysis* cr0b_jesdn = new analysis( 36.814, "jes_cr0b.root", "jes_cr0b.root" );
 
 
 	//                new sample( "Label",  "Display name(s)", TColor,    sampleType )
@@ -415,6 +415,7 @@ int main( int argc, char* argv[] ) {
 	TString sigPath  = "/nfs-7/userdata/haweber/tupler_babies/merged/Stop_1l/v22/skim/";
 	TString bkgPath  = "/nfs-7/userdata/haweber/tupler_babies/merged/Stop_1l/v22/skim/";
 	TString dataPath = "/nfs-7/userdata/haweber/tupler_babies/merged/Stop_1l/v22/skim/";
+	TString extPath  = "/nfs-7/userdata/jgwood/tupler_babies/merged/Stop_1l/v23/skim/";  // John's extended single-top samples
 
 
 	if( runlooper || runlostlep || run1lw || runjes ) {
@@ -430,6 +431,7 @@ int main( int argc, char* argv[] ) {
 
 		// Background samples
 		tt2l->AddFile( bkgPath + "ttbar_diLept_madgraph_pythia8_ext1_25ns*.root" );
+		tt2l->AddFile( bkgPath + "ttbar_diLept_madgraph_pythia8_25ns*.root" );  // Stitching two samples together
 
 		tt1l->AddFile( bkgPath + "ttbar_singleLeptFromT_madgraph_pythia8_ext1*.root" );
 		tt1l->AddFile( bkgPath + "ttbar_singleLeptFromTbar_madgraph_pythia8_ext1*.root" );
@@ -451,6 +453,8 @@ int main( int argc, char* argv[] ) {
 		singtop->AddFile( bkgPath + "tbar_tch_4f_powheg_pythia8_25ns*.root" );
 		singtop->AddFile( bkgPath + "t_tW_5f_powheg_pythia8_noHadDecays_25ns*.root" );
 		singtop->AddFile( bkgPath + "t_tbarW_5f_powheg_pythia8_noHadDecays_25ns*.root" );
+		singtop->AddFile( extPath + "t_tW_5f_powheg_pythia8_noHadDecays_ext1_25ns*.root" ); // Stitching two samples together
+		singtop->AddFile( extPath + "t_tbarW_5f_powheg_pythia8_noHadDecays_ext1_25ns*.root" );
 
 		rare->AddFile( bkgPath + "ttWJets_13TeV_madgraphMLM*.root" );
 		rare->AddFile( bkgPath + "ttZJets_13TeV_madgraphMLM*.root" );

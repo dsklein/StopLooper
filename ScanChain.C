@@ -312,6 +312,14 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 				}
 				else if( mySample->GetLabel() == "tt1l" || mySample->GetLabel() == "wjets" ) evtWeight *= myHelper.MetResSF();
 				if( mySample->GetLabel() == "tt2l" || mySample->GetLabel() == "tt1l" || mySample->IsSignal() ) evtWeight *= myHelper.ISRnJetsSF();
+
+				// Correct event weight when samples are merged together
+				if(      filename.Contains("ttbar_diLept_madgraph_pythia8_ext1_25ns") ) evtWeight *= 23198554./(23198554.+5689986.);
+				else if( filename.Contains("ttbar_diLept_madgraph_pythia8_25ns") ) evtWeight *= 5689986./(23198554.+5689986.);
+				else if( filename.Contains("t_tW_5f_powheg_pythia8_noHadDecays_25ns") ) evtWeight *= 4473156./(4473156.+3145334.);
+				else if( filename.Contains("t_tW_5f_powheg_pythia8_noHadDecays_ext1_25ns") ) evtWeight *= 3145334./(4473156.+3145334.);
+				else if( filename.Contains("t_tbarW_5f_powheg_pythia8_noHadDecays_25ns") ) evtWeight *= 5029568./(5029568.+3146940.);
+				else if( filename.Contains("t_tbarW_5f_powheg_pythia8_noHadDecays_ext1_25ns") ) evtWeight *= 3146940./(5029568.+3146940.);
 			}
 
 			// Count the number of events processed
