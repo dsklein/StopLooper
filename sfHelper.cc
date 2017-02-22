@@ -98,6 +98,13 @@ void sfHelper::Setup( bool is_fastsim, TH1D* counterHist=NULL, TH2F* nevtsHist=N
 	lepnorm_fastsim = h_counter->GetBinContent( 34 );
 	lepnorm_fs_up   = h_counter->GetBinContent( 35 );
 	lepnorm_fs_down = h_counter->GetBinContent( 36 );
+	btagnorm_tight        = h_counter->GetBinContent( 37 );
+	btagnormHF_tight_up   = h_counter->GetBinContent( 38 );
+	btagnormLF_tight_up   = h_counter->GetBinContent( 39 );
+	btagnormHF_tight_down = h_counter->GetBinContent( 40 );
+	btagnormLF_tight_down = h_counter->GetBinContent( 41 );
+	btagnormFS_tight_up   = h_counter->GetBinContent( 42 );
+	btagnormFS_tight_down = h_counter->GetBinContent( 43 );
 }
 
 // Special setup function for SUSY signal samples
@@ -139,6 +146,13 @@ void sfHelper::PrepSignal() {
 	lepnorm_fastsim = h_counterSMS->GetBinContent( binx, biny, 33 );
 	lepnorm_fs_up   = h_counterSMS->GetBinContent( binx, biny, 34 );
 	lepnorm_fs_down = h_counterSMS->GetBinContent( binx, biny, 35 );
+	btagnorm_tight        = h_counterSMS->GetBinContent( binx, biny, 37 );
+	btagnormHF_tight_up   = h_counterSMS->GetBinContent( binx, biny, 38 );
+	btagnormLF_tight_up   = h_counterSMS->GetBinContent( binx, biny, 39 );
+	btagnormHF_tight_down = h_counterSMS->GetBinContent( binx, biny, 40 );
+	btagnormLF_tight_down = h_counterSMS->GetBinContent( binx, biny, 41 );
+	btagnormFS_tight_up   = h_counterSMS->GetBinContent( binx, biny, 42 );
+	btagnormFS_tight_down = h_counterSMS->GetBinContent( binx, biny, 43 );
 }
 
 void sfHelper::SetCorridor( bool corridor ) {	isCorridor = corridor; }
@@ -194,6 +208,11 @@ double sfHelper::BtagSF() {
 
 // Get reweighting factor to vary the btag heavy flavor SF up
 double sfHelper::BtagHeavyUp() {
+	if( !isCorridor && context::Mlb_closestb() >= 175. && context::ntightbtags() >= 1 ) {
+		double btagsf    = tas::weight_tightbtagsf();
+		double btagsf_up = tas::weight_tightbtagsf_heavy_UP();
+		return (btagsf_up / btagnormHF_tight_up) / (btagsf / btagnorm_tight);
+	}
 	double btagsf    = tas::weight_btagsf();
 	double btagsf_up = tas::weight_btagsf_heavy_UP();
 	return (btagsf_up / btagnormHF_up) / (btagsf / btagnorm);
@@ -201,6 +220,11 @@ double sfHelper::BtagHeavyUp() {
 
 // Get reweighting factor to vary the btag heavy flavor SF down
 double sfHelper::BtagHeavyDown() {
+	if( !isCorridor && context::Mlb_closestb() >= 175. && context::ntightbtags() >= 1 ) {
+		double btagsf      = tas::weight_tightbtagsf();
+		double btagsf_down = tas::weight_tightbtagsf_heavy_DN();
+		return (btagsf_down / btagnormHF_tight_down) / (btagsf / btagnorm_tight);
+	}
 	double btagsf      = tas::weight_btagsf();
 	double btagsf_down = tas::weight_btagsf_heavy_DN();
 	return (btagsf_down / btagnormHF_down) / (btagsf / btagnorm);
@@ -208,6 +232,11 @@ double sfHelper::BtagHeavyDown() {
 
 // Get reweighting factor to vary the btag light flavor SF up
 double sfHelper::BtagLightUp() {
+	if( !isCorridor && context::Mlb_closestb() >= 175. && context::ntightbtags() >= 1 ) {
+		double btagsf    = tas::weight_tightbtagsf();
+		double btagsf_up = tas::weight_tightbtagsf_light_UP();
+		return (btagsf_up / btagnormLF_tight_up) / (btagsf / btagnorm_tight);
+	}
 	double btagsf    = tas::weight_btagsf();
 	double btagsf_up = tas::weight_btagsf_light_UP();
 	return (btagsf_up / btagnormLF_up) / (btagsf / btagnorm);
@@ -215,6 +244,11 @@ double sfHelper::BtagLightUp() {
 
 // Get reweighting factor to vary the btag light flavor SF down
 double sfHelper::BtagLightDown() {
+	if( !isCorridor && context::Mlb_closestb() >= 175. && context::ntightbtags() >= 1 ) {
+		double btagsf      = tas::weight_tightbtagsf();
+		double btagsf_down = tas::weight_tightbtagsf_light_DN();
+		return (btagsf_down / btagnormLF_tight_down) / (btagsf / btagnorm_tight);
+	}
 	double btagsf      = tas::weight_btagsf();
 	double btagsf_down = tas::weight_btagsf_light_DN();
 	return (btagsf_down / btagnormLF_down) / (btagsf / btagnorm);
@@ -223,6 +257,10 @@ double sfHelper::BtagLightDown() {
 // Get reweighting factor to vary the btag fastsim SF up
 double sfHelper::BtagFSUp() {
 	if( !isFastsim ) return 1.0;
+	if( !isCorridor && context::Mlb_closestb() >= 175. && context::ntightbtags() >= 1 ) {
+		double sf = tas::weight_tightbtagsf_fastsim_UP();
+		return sf * nEvts / btagnormFS_tight_up;
+	}
 	double sf = tas::weight_btagsf_fastsim_UP();
 	return sf * nEvts / btagnormFS_up;
 }
@@ -230,8 +268,24 @@ double sfHelper::BtagFSUp() {
 // Get reweighting factor to vary the btag fastsim SF down
 double sfHelper::BtagFSDown() {
 	if( !isFastsim ) return 1.0;
+	if( !isCorridor && context::Mlb_closestb() >= 175. && context::ntightbtags() >= 1 ) {
+		double sf = tas::weight_tightbtagsf_fastsim_DN();
+		return sf * nEvts / btagnormFS_tight_down;
+	}
 	double sf = tas::weight_btagsf_fastsim_DN();
 	return sf * nEvts / btagnormFS_down;
+}
+
+// Get correction factor to turn the b-tag SF into a tight b-tag SF
+double sfHelper::BtagCorrectionTight() {
+	if( tas::is_data() ) return 1.0;
+	if( isCorridor ) return 1.0;
+	if( context::Mlb_closestb() < 175. ) return 1.0;
+	if( context::ntightbtags() < 1 ) return 1.0;
+
+	double sf_medium = BtagSF();
+	double sf_tight  = tas::weight_tightbtagsf() * nEvts / btagnorm_tight;
+	return sf_tight / sf_medium;
 }
 
 // Get reweighting factor to vary the ISR weight up
@@ -671,6 +725,7 @@ namespace sfhelp {
 	double BtagLightDown() { return myHelper.BtagLightDown(); }
 	double BtagFSUp()      { return myHelper.BtagFSUp(); }
 	double BtagFSDown()    { return myHelper.BtagFSDown(); }
+	double BtagCorrectionTight() { return myHelper.BtagCorrectionTight(); }
 	double ISRUp()         { return myHelper.ISRUp(); }
 	double ISRDown()       { return myHelper.ISRDown(); }
 	double QSquaredUp()    { return myHelper.QSquaredUp(); }

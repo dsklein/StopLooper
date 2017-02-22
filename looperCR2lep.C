@@ -487,13 +487,12 @@ int looperCR2lep( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool
 
 				if( !sigRegions.at(i)->PassAllCuts() ) continue;
 
-				// If this is a corridor region, correct the Met Resolution SF
+				// Make some corrections that depend on the signal region
 				double fillWeight = evtWeight;
-				if( !is_data() && sigRegions.at(i)->GetLabel().Contains("corr") ) {
-					myHelper.SetCorridor( true );
-					fillWeight *= sfhelp::MetResCorrectionCorridor();
-				}
-				else myHelper.SetCorridor( false );
+				bool is_corridor = sigRegions.at(i)->GetLabel().Contains("corr");
+				myHelper.SetCorridor( is_corridor );
+				if(      !is_data() &&  is_corridor ) fillWeight *= sfhelp::MetResCorrectionCorridor();
+				else if( !is_data() && !is_corridor ) fillWeight *= sfhelp::BtagCorrectionTight();
 
 				h_bkgtype[i][0]->Fill( bkgType,                            fillWeight );
 				h_evttype[i][0]->Fill( evtType,                            fillWeight );

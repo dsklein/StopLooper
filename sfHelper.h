@@ -43,6 +43,7 @@ public:
 	double BtagLightDown();
 	double BtagFSUp();
 	double BtagFSDown();
+	double BtagCorrectionTight();
 	double ISRUp();
 	double ISRDown();
 	double QSquaredUp();
@@ -126,6 +127,13 @@ private:
 	double alphasnorm;
 	double alphasnorm_up;
 	double alphasnorm_down;
+	double btagnorm_tight;
+	double btagnormHF_tight_up;
+	double btagnormLF_tight_up;
+	double btagnormHF_tight_down;
+	double btagnormLF_tight_down;
+	double btagnormFS_tight_up;
+	double btagnormFS_tight_down;
 };
 
 
@@ -145,6 +153,7 @@ namespace sfhelp {
 	double BtagLightDown();
 	double BtagFSUp();
 	double BtagFSDown();
+	double BtagCorrectionTight();
 	double ISRUp();
 	double ISRDown();
 	double QSquaredUp();
