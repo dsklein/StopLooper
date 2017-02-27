@@ -339,7 +339,7 @@ int ScanChain( analysis* myAnalysis, sample* mySample, int nEvents = -1, bool fa
 				if( !goodrun( run(), ls() ) ) continue;
 				if( !filt_met() ) continue;
 				if( !filt_badChargedCandidateFilter() ) continue;
-				// if( !filt_badMuonFilter() ) continue;
+				if( !filt_badMuonFilter() ) continue;
 				if( !context::filt_jetWithBadMuon() ) continue;
 				if( !filt_pfovercalomet() ) continue;
 				if( !HLT_MET() && !HLT_MET110_MHT110() && !HLT_MET120_MHT120() ) {

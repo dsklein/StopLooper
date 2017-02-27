@@ -435,7 +435,7 @@ double sfHelper::MetResSF() {
 		}
 		else if( modtop >= 10. ) {
 			if( mlb < 175. ) {
-				if(      met >= 600. ) return 1.08; // F
+				if(      met >= 600. ) return 1.08; // G
 				else if( met >= 450. ) return 1.07;
 				else if( met >= 350. ) return 1.06;
 				else if( met >= 250. ) return 0.98;
@@ -624,7 +624,7 @@ double sfHelper::ISRnJetsDown() {
 // Get flat 6.2% uncertainty on lumi
 double sfHelper::LumiUp() {
 	if( tas::is_data() ) return 1.0;
-	return 1.062;
+	return 1.026;
 }
 
 // Get reweighting factor to vary PDF up
